@@ -18,7 +18,9 @@ namespace decision_behavior_tree
         
         GainBloodOrBulletAction(const std::string& name, const BT::NodeConfig& config , const BT::RosNodeParams& params)
                                : BT::RosActionNode<nav2_msgs::action::NavigateThroughPoses>(name , config, params)
-        {};
+        {
+            std::cout <<"启动补血补弹---------" << std::endl;
+        };
 
         static BT::PortsList providedPorts()
         {
@@ -62,7 +64,6 @@ namespace decision_behavior_tree
             // wr.result->result 怎么是空消息类型阿
             if (goal_handle_future.wait_for(std::chrono::seconds(10)) == std::future_status::ready)
             {
-                // auto goal_handle = goal_handle_future.get()->get_status();
                 if (goal_handle_future.get()->get_status() == rclcpp_action::GoalStatus::STATUS_SUCCEEDED)
                 {
                     std::cout << "导航完成" << std::endl;
