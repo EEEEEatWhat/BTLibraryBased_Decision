@@ -1,0 +1,13 @@
+<root BTCPP_format="4">
+    <BehaviorTree>
+        <Sequence>
+            <gain_blood_or_bullet/>
+        </Sequence>
+    </BehaviorTree>
+</root>
+
+<TreeNodesModel>
+    <Action ID="gain_blood_or_bullet">
+        <input_port name="goal" default="{goal}"/>
+    </Action>5
+</TreeNodesModel>
