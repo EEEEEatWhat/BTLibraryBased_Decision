@@ -3,19 +3,21 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
                 "/opt/ros/humble/include/**",
-                "/usr/include/**",
-                "${workspaceFolder}/src/lib/BehaviorTree.CPP/include/behaviortree_cpp/**",
-                "${workspaceFolder}/src/lib/BehaviorTree.ROS2/behaviortree_ros2/include/**",
-                "${workspaceFolder}/src/bt_test/include/bt_test"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/src/behaviortree.ros2/behaviortree_ros2/include/**",
+                "${workspaceFolder}/src/BehaviorTree.CPP-master/include/behaviortree_cpp/**",
+                "${workspaceFolder}/src/BehaviorTree.CPP-master/include",
+                "${workspaceFolder}/src/BehaviorTree.CPP-master/include",
+                "${workspaceFolder}/src/click_doodle01/include/**",
+                "${workspaceFolder}/install/base_interfaces_demo/include/base_interfaces_demo"
             ],
-            "defines": [
-                "_MSC_VER"
-            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

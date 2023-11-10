@@ -1,6 +1,3 @@
 {
-    "files.associations": {
-        "future": "cpp",
-        "iostream": "cpp"
-    }
+    "cmake.sourceDirectory": "/home/robo/decision/src/BehaviorTree.CPP-master"
 }
