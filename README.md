@@ -17,30 +17,17 @@
 ├── README.md                            // 项目自述文件
 
 └── src
-
-
     ├── bt_test                          // 仅供节点测试使用
-
     |   
-
     ├── fake_msg_publisher               // 发布测试消息
-
     |   
-
     ├── decision                         // 决策功能包
-
     |
-
     ├── global_interfaces                //全局通用消息文件
-
     |
-
     ├── lib                              // 主要依赖库
-
     |    ├── BehaviorTree.CPP
-
     |    └── BehaviorTree.ROS2
-
 ```
 
 ## 节点（Node）介绍
