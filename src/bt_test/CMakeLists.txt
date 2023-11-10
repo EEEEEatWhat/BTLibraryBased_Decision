@@ -12,6 +12,7 @@ find_package(rclcpp_action REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(behaviortree_ros2 REQUIRED)
 find_package(global_interfaces REQUIRED)
+find_package(nav2_msgs REQUIRED)
 
 set(THIS_PACKAGE_DEPS
 rclcpp
@@ -20,6 +21,7 @@ std_msgs
 behaviortree_ros2
 global_interfaces
 rclcpp_action
+nav2_msgs
 )
 
 include_directories(
