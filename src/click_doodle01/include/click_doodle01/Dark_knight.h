@@ -1,16 +1,35 @@
 #include "behaviortree_ros2/bt_action_node.hpp"
-#include "base_interfaces_demo/action/nav.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/quaternion.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
+#include "tf2/convert.h"
+
 using namespace BT;
 
-class NavAction: public RosActionNode<base_interfaces_demo::action::Nav>
+class NavigateToPoseAction: public RosActionNode<nav2_msgs::action::NavigateToPose>
 {
 public:
-  NavAction(const std::string& name,
+  NavigateToPoseAction(const std::string& name,
                   const NodeConfig& conf,
                   const RosNodeParams& params)
-    : RosActionNode<base_interfaces_demo::action::Nav>(name, conf, params)
+    : RosActionNode<nav2_msgs::action::NavigateToPose>(name, conf, params)
   {}
+private:
+    geometry_msgs::msg::PoseStamped goal_pose;
+    geometry_msgs::msg::Point goal_position;
+    geometry_msgs::msg::Quaternion geo_qnt;
+    tf2::Quaternion tf_qnt;    
+    template<class A, class B>
+    B convert(const A & a, B & b,bool c){
+        (void)c;
+        tf2::impl::Converter<rosidl_generator_traits::is_message<A>::value,
+            rosidl_generator_traits::is_message<B>::value>::convert(a, b);
+        return b;
+    }
 
+public:
   // The specific ports of this Derived class
   // should be merged with the ports of the base class,
   // using RosActionNode::providedBasicPorts()
@@ -27,14 +46,18 @@ public:
   // send the request to the action server
   bool setGoal(RosActionNode::Goal& goal) override 
   {
-    // get "order" from the Input port
-    // getInput("order", goal.order);   
-    std::cout << getInput<float>("x").value() << std::endl
-      << getInput<float>("y").value() << std::endl
-      << getInput<float>("theta").value() << std::endl; 
-    goal.set__goal_theta(getInput<float>("theta").value()).set__goal_x(getInput<float>("x").value()).set__goal_y(getInput<float>("y").value());
+    /* 原代码过于臃肿，不如重载的模板函数 -by suzukisuncy
+    goal_pose.pose.set__orientation(geo_qnt);
+    tf2::convert<tf2::Quaternion,geometry_msgs::msg::Quaternion>(tf_qnt,geo_qnt);
+    */
+    //TODO(suzukisuncy&ynghawU,2023/11/14): 补充端口和端口结构体 
+    goal_position.set__x(1.0).set__y(1.0).set__z(0);
+    tf_qnt.setRPY(1.1,1.2,1.3);
+    goal_pose.header.set__frame_id("map").set__stamp(rclcpp::Clock().now());
+    goal_pose.pose.set__position(goal_position);
+    goal_pose.pose.set__orientation(convert<tf2::Quaternion,geometry_msgs::msg::Quaternion>(tf_qnt,geo_qnt,true));
+    goal.set__pose(goal_pose);
     RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
-    // return true, if we were able to set the goal correctly.
     return true;
   };
   
@@ -42,6 +65,7 @@ public:
   // Based on the reply you may decide to return SUCCESS or FAILURE.
   NodeStatus onResultReceived(const WrappedResult& wr) override
   {
+    (void)wr;
     std::stringstream ss;
     ss << "Result received: ";
     // for (auto number : wr.result->sequence) {
@@ -73,12 +97,12 @@ public:
   // The Cancel request will be send automatically to the server.
   NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback)
   {
+    (void)feedback;
     std::stringstream ss;
     ss << "Next number in sequence received: ";
     // for (auto number : feedback->partial_sequence) {
     //   ss << number << " ";
     // }
-    std::cout << feedback->distance;
     RCLCPP_INFO(node_->get_logger(), ss.str().c_str());
     return NodeStatus::RUNNING;
   }

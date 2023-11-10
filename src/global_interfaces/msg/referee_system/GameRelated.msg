@@ -1,2 +1,0 @@
-uint8 game_progress
-uint16 time

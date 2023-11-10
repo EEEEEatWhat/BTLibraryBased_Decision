@@ -14,6 +14,9 @@ find_package(behaviortree_cpp REQUIRED)
 find_package(base_interfaces_demo REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(behaviortree_ros2 REQUIRED)
+find_package(nav2_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_executable(decision src/decision.cpp)
 ament_target_dependencies(
@@ -30,6 +33,9 @@ ament_target_dependencies(
   behaviortree_cpp
   base_interfaces_demo
   behaviortree_ros2
+  nav2_msgs
+  tf2
+  tf2_geometry_msgs
 )
 
 install(TARGETS 

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "behaviortree_cpp/bt_factory.h"
 #include "behaviortree_cpp/action_node.h"
-#include "testaction.h"
+#include "Dark_knight.h"
 
 using namespace BT ;
 // We want to use this custom type
@@ -86,7 +86,7 @@ static const char* xml_text = R"(
             <PrintTarget   target="{GoalPosition}" />
             <Script        code=" OtherGoal:='-1;3' " />
             <PrintTarget   target="{OtherGoal}" />
-            <NavAction nav="{nav}"/>
+            <NavAction     x="5.1" y="7.4" theta="3.14"/>
         </Sequence>
      </BehaviorTree>
  </root>
@@ -102,7 +102,8 @@ int main(int argc , char** argv)
   RosNodeParams params; 
   params.nh = node;
   params.default_port_value = "nav";
-  factory.registerNodeType<NavAction>("NavAction",params);
+  // factory.registerNodeType<NavAction>("NavAction",params);
+  factory.registerNodeType<NavigateToPoseAction>("NavigateToPoseAction",params);
   auto tree = factory.createTreeFromText(xml_text);
   tree.tickWhileRunning();
   rclcpp::spin(node);  // 开始 ROS2 事件循环
