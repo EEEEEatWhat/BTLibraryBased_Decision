@@ -1,0 +1,9 @@
+float32 goal_x
+float32 goal_y
+float32 goal_theta
+---
+float32 turtle_x
+float32 turtle_y
+float32 turtle_theta
+---
+float32 distance
