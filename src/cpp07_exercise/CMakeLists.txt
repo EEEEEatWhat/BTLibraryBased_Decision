@@ -12,6 +12,22 @@ find_package(turtlesim REQUIRED)
 find_package(base_interfaces_demo REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(nav2_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+
+add_executable(Nav2 src/Nav2.cpp)
+ament_target_dependencies(
+  Nav2
+  "rclcpp"
+  "turtlesim"
+  "base_interfaces_demo"
+  "geometry_msgs"
+  "rclcpp_action"
+  nav2_msgs
+  tf2_geometry_msgs
+  tf2
+)
 add_executable(exe04_action_server src/exe04_action_server.cpp)
 ament_target_dependencies(
   exe04_action_server
@@ -23,6 +39,7 @@ ament_target_dependencies(
 )
 install(TARGETS 
   exe04_action_server
+  Nav2
   DESTINATION lib/${PROJECT_NAME})
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

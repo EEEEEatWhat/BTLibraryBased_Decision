@@ -5,6 +5,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "tf2/convert.h"
 #include "global_interfaces/msg/goal_pose.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp/qos.hpp"
 using namespace std::chrono_literals;
 
@@ -14,7 +15,7 @@ public:
     GoPublisher(std::string name) : Node("go_publisher")
     {
       // 3-1.创建发布方；
-        publisher_ = this->create_publisher<global_interfaces::msg::GoalPose>("goal_pose",rclcpp::SystemDefaultsQoS());
+        publisher_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose",rclcpp::SystemDefaultsQoS());
       // 3-2.创建定时器；
         timer_ = this->create_wall_timer(500ms, std::bind(&GoPublisher::timer_callback, this));
     }
@@ -42,12 +43,11 @@ private:
         goal_pose_.pose.set__orientation(convert<tf2::Quaternion,geometry_msgs::msg::Quaternion>(tf_qnt,geo_qnt,true));
         
         RCLCPP_INFO(this->get_logger(), "导航信息:x=%lf,y=%lf,w=%lf", goal_pose_.pose.position.x, goal_pose_.pose.position.y,goal_pose_.pose.orientation.w);
-        goal_pose.set__header(goal_pose_.header).set__pose(goal_pose_.pose);
-        publisher_->publish(goal_pose);
+        publisher_->publish(goal_pose_);
     }
 
     rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<global_interfaces::msg::GoalPose>::SharedPtr publisher_;
+    rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_;
     global_interfaces::msg::GoalPose goal_pose;
     
 };
