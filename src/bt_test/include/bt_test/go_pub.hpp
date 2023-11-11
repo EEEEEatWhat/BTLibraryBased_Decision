@@ -4,9 +4,9 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "tf2/convert.h"
-#include "global_interfaces/msg/goal_pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp/qos.hpp"
+
 using namespace std::chrono_literals;
 
 class GoPublisher : public rclcpp::Node
@@ -14,9 +14,7 @@ class GoPublisher : public rclcpp::Node
 public:
     GoPublisher(std::string name) : Node("go_publisher")
     {
-      // 3-1.创建发布方；
         publisher_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose",rclcpp::SystemDefaultsQoS());
-      // 3-2.创建定时器；
         timer_ = this->create_wall_timer(500ms, std::bind(&GoPublisher::timer_callback, this));
     }
 
@@ -31,7 +29,7 @@ private:
 
     void timer_callback()
     {
-      // 3-3.组织消息并发布。
+      // 组织消息并发布
         geometry_msgs::msg::PoseStamped goal_pose_;
         geometry_msgs::msg::Point goal_position;
         geometry_msgs::msg::Quaternion geo_qnt;
@@ -48,6 +46,5 @@ private:
 
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_;
-    global_interfaces::msg::GoalPose goal_pose;
     
 };
