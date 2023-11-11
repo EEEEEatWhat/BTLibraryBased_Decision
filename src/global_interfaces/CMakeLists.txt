@@ -15,7 +15,6 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/Go.action"
-  "msg/GoalPose.msg"
   DEPENDENCIES
   builtin_interfaces
   std_msgs
