@@ -7,7 +7,7 @@
 - 食用说明
 
 ## 简介
-基于BehaviorTree.CPP(v4.4)和BehaviorTree.ROS2的行为树，为机器人提供智能人工决策设计
+基于BehaviorTree.CPP(v4.4)和BehaviorTree.ROS2的行为树，为机器人提供智能人工()决策设计
 
 吉林大学TARS_Go战队2024赛季 哨兵决策代码（不完整版）。
 
@@ -16,17 +16,25 @@
 ```sh
 ├── README.md                            // 项目自述文件
 └── src
+    |   
+    ├── base_interfaces_demo             // 基本接口示例
+    |   
     ├── bt_test                          // 仅供节点测试使用
     |   
-    ├── fake_msg_publisher               // 发布测试消息
+    ├── click_doodle01                   // suncy_decision
+    |   
+    ├── cpp07_exercise                   // ros2-action通信示例
     |   
     ├── decision                         // 决策功能包
+    |   
+    ├── fake_msg_publisher               // 发布虚假测试消息
     |
     ├── global_interfaces                //全局通用消息文件
     |
     ├── lib                              // 主要依赖库
     |    ├── BehaviorTree.CPP
     |    └── BehaviorTree.ROS2
+    ├── nav2_msgs                        // nav2消息包
 ```
 
 ## 节点（Node）介绍
