@@ -86,7 +86,7 @@ static const char* xml_text = R"(
             <PrintTarget   target="{GoalPosition}" />
             <Script        code=" OtherGoal:='-1;3' " />
             <PrintTarget   target="{OtherGoal}" />
-            <NavAction     x="5.1" y="7.4" theta="3.14"/>
+            <NavigateToPoseAction     x="5.1" y="7.4" theta="3.14"/>
         </Sequence>
      </BehaviorTree>
  </root>
@@ -101,7 +101,7 @@ int main(int argc , char** argv)
   factory.registerNodeType<PrintTarget>("PrintTarget");
   RosNodeParams params; 
   params.nh = node;
-  params.default_port_value = "nav";
+  params.default_port_value = "navigate_to_pose";
   // factory.registerNodeType<NavAction>("NavAction",params);
   factory.registerNodeType<NavigateToPoseAction>("NavigateToPoseAction",params);
   auto tree = factory.createTreeFromText(xml_text);
