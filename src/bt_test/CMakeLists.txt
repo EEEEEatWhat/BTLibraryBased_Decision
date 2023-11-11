@@ -13,6 +13,8 @@ find_package(behaviortree_cpp REQUIRED)
 find_package(behaviortree_ros2 REQUIRED)
 find_package(global_interfaces REQUIRED)
 find_package(nav2_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 set(THIS_PACKAGE_DEPS
 rclcpp
@@ -22,11 +24,14 @@ behaviortree_ros2
 global_interfaces
 rclcpp_action
 nav2_msgs
+tf2
+tf2_geometry_msgs
 )
 
 include_directories(
   include
   src/lib
+  src/global_interfaces
 )
 
 if(BUILD_TESTING)
@@ -43,16 +48,21 @@ endif()
 
 add_executable(test02 src/test02.cpp)
 add_executable(go_server src/go_server.cpp)
+add_executable(go_pub src/go_pub.cpp)
+
 ament_target_dependencies(test02 
   ${THIS_PACKAGE_DEPS}
 )
 ament_target_dependencies(go_server 
   ${THIS_PACKAGE_DEPS}
 )
-
+ament_target_dependencies(go_pub
+  ${THIS_PACKAGE_DEPS}
+)
 install(TARGETS
   test02
   go_server
+  go_pub
   DESTINATION lib/${PROJECT_NAME}
 )
 

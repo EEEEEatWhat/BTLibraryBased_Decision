@@ -17,7 +17,7 @@ namespace decision_behavior_tree
     public:
         
         GainBloodOrBulletAction(const std::string& name, const BT::NodeConfig& config , const BT::RosNodeParams& params)
-                               : BT::RosActionNode<nav2_msgs::action::NavigateThroughPoses>(name , config, params)
+                                : BT::RosActionNode<nav2_msgs::action::NavigateThroughPoses>(name , config, params)
         {
             std::cout <<"启动补血补弹---------" << std::endl;
         };
@@ -107,7 +107,7 @@ namespace decision_behavior_tree
 
     };
 
- 
+
 }  // namespace decision_behavior_tree
 
 
