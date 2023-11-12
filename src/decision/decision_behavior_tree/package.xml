@@ -8,14 +8,19 @@
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>yaml-cpp</build_depend>
 
   <depend>rclcpp</depend>
   <depend>rclcpp_action</depend>
   <depend>std_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
   <depend>behaviortree_cpp</depend>
   <depend>behaviortree_ros2</depend>
   <depend>global_interfaces</depend>
-
+  <!-- <depend>yaml-cpp</depend> -->
+  <exec_depend>yaml-cpp</exec_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 

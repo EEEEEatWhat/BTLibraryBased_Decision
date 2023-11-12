@@ -1,0 +1,23 @@
+# 补给区
+supply_pose:
+  pose:
+    position:
+      x: 11.5
+      y: 0.5
+      z: 0.0
+    orientation:
+      roll:  0
+      pitch: 0
+      yaw:   -3.14
+
+# 出生点
+born_pose:
+  pose:
+    position:
+      x: 8.9
+      y: 4.5
+      z: 0
+    orientation:
+      roll:  0
+      pitch: 0
+      yaw:   3.14
