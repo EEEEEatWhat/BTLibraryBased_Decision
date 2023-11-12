@@ -37,6 +37,7 @@ private:
 
         goal_pose_.header.set__frame_id("map").set__stamp(rclcpp::Clock().now());
         goal_position.set__x(1.0).set__y(1.0).set__z(0);
+        tf_qnt.setRPY(1.1,1.2,1.3);
         goal_pose_.pose.set__position(goal_position);
         goal_pose_.pose.set__orientation(convert<tf2::Quaternion,geometry_msgs::msg::Quaternion>(tf_qnt,geo_qnt,true));
         
