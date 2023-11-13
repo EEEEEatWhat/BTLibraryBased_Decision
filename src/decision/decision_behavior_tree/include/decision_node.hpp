@@ -3,6 +3,7 @@
 #ifndef DECISION_BEHAVIOR_TREE__DECISION_NODE_HPP
 #define DECISION_BEHAVIOR_TREE__DECISION_NODE_HPP
 
+#include <memory>
 
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp/behavior_tree.h"
@@ -18,30 +19,41 @@ namespace decision_behavior_tree
 {
     class DecisionNode : public rclcpp::Node
     {
-    private:
-        std::shared_ptr<BT::Blackboard> blackboard_ ;
-        BT::Blackboard blackboard;
-        BT::BehaviorTreeFactory factory_;
-        BT::Tree tree_;
+    public:
+        DecisionNode(const rclcpp::NodeOptions &options);
+        ~DecisionNode();
 
-    private:
+        /**
+         * @brief RPY转四元数后返回四元数自身类的重载函数
+         * @return 四元数的类
+         **/
+        template <class A, class B>
+        B convert(const A &a, B &b, bool c);
+
         /**
          * @brief 载入配置信息
+         * @param yaml_file
+         *        yaml文件路径
+         * @param blackboard_
+         *        黑板指针
          * @return 是否成功
          **/
-        bool decodeConfig();
-
-    public:
-        DecisionNode(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
-        ~DecisionNode();
+        bool decodeConfig(std::string yaml_file, BT::Blackboard::Ptr blackboard_);
 
         /**
          * @brief 初始化
          **/
         void init();
 
-        template <class A, class B>
-        B convert(const A &a, B &b, bool c);
+    public:
+        BT::Tree tree_;
+        BT::Blackboard::Ptr blackboard_;
+
+    private:
+        rclcpp::NodeOptions options_;
+        BT::BehaviorTreeFactory factory_;
+        const std::string xml_file_path = "src/decision/decision_behavior_tree/behavior_tree.xml";
+        const std::string yaml_file_path = "src/decision/params/init_pose.yaml";
     };
 }
 
