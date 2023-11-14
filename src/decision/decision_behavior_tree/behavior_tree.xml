@@ -41,8 +41,12 @@
     <Action ID="execute_command"/>
 
     <Action ID="gain_blood_or_bullet"/>
+      <input_port name="result"
+                  default="{result}"/>
       <output_port name="supply_pose"
                   default="{supply_pose}"/>
+      <output_port name="if_supply"
+                  default="{if_supply}"/>
     </Action>
 
     <Condition ID="if_chassis_electric">
