@@ -15,6 +15,10 @@
 #include "tf2/convert.h"
 #include "yaml-cpp/yaml.h"
 #include "yamlsetup.h"
+
+
+#include "go_pub.hpp"
+#include "plugins/action/gain_blood_or_bullet_action.hpp"
 namespace decision_behavior_tree
 {
     class DecisionNode : public rclcpp::Node

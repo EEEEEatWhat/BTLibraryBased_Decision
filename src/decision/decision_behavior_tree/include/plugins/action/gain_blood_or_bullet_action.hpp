@@ -1,39 +1,45 @@
 #pragma once
 
-#ifndef DECISION_BEHAVIOR_TREE__PLUGINS__GAIN_BLOOD_OR_BULLET_ACTION_HPP_
-#define DECISION_BEHAVIOR_TREE__PLUGINS__GAIN_BLOOD_OR_BULLET_ACTION_HPP_
+#ifndef DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
+#define DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
 
 
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp/action_node.h"
-#include "behaviortree_ros2/bt_action_node.hpp"
-#include "global_interfaces/action/go_goal.hpp"
+#include "behaviortree_cpp/blackboard.h"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+
 
 namespace decision_behavior_tree
 {
-    class GainBloodOrBulletAction : public BT::RosActionNode<global_interfaces::action::Go>
+    class GainBloodOrBulletAction : public BT::SyncActionNode
     {
     public:
         
-        GainBloodOrBulletAction(const std::string& name, const BT::NodeConfig& config , const BT::RosNodeParams& params)
-                               : BT::RosActionNode<global_interfaces::action::Go>(name , config, params)
+        GainBloodOrBulletAction(const std::string& name, const BT::NodeConfig& config)
+                                : BT::SyncActionNode(name , config)
+        {};
+        ~GainBloodOrBulletAction()
         {};
 
 
         static BT::PortsList providedPorts()
         {
-            return { BT::InputPort<double>("goal")}; 
+            return { BT::InputPort<BT::NodeStatus>("result"),
+                    BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose"),
+                    BT::OutputPort<bool>("if_supply")}; 
         };
 
-        bool setGoal(RosActionNode::Goal &goal_) override ;
+        BT::NodeStatus tick() override
+        {
+            BT::Blackboard::Ptr blackboard = config().blackboard;
 
-        BT::NodeStatus onResultReceived(const WrappedResult& wr) override;
+            setOutput<geometry_msgs::msg::PoseStamped>("supply_pose", blackboard->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
+            setOutput<bool>("if_supply", true); // 动作结束后改为false
 
-        BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override;
-
-        BT::NodeStatus onFailure(BT::ActionNodeErrorCode error) override;
-
+            return BT::NodeStatus::SUCCESS;
+        }
     };
 }  // namespace decision_behavior_tree
 
-#endif //DECISION_BEHAVIOR_TREE__PLUGINS__GAIN_BLOOD_OR_BULLET_ACTION_HPP_
+#endif //DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
