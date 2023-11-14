@@ -50,7 +50,11 @@ public:
     goal_pose.pose.set__orientation(geo_qnt);
     tf2::convert<tf2::Quaternion,geometry_msgs::msg::Quaternion>(tf_qnt,geo_qnt);
     */
-    //TODO:(suzukisuncy&ynghawU,2023/11/14)补充端口和端口结构体  
+    // ~TODO:(suzukisuncy&ynghawU,2023/11/14)补充端口和端口结构体  
+    /* (ynghawU 2023/11/14 22:18) 应该完成力!在 src/decision/decision_behavior_tree/include/go_pub.hpp和
+                                src/decision/decision_behavior_tree/include/plugins/action/gain_blood_or_bullet_action.hpp
+                                测试 : ros2 run decision decision_node
+                                */
     goal_position.set__x(1.0).set__y(1.0).set__z(0);
     tf_qnt.setRPY(1.1,1.2,1.3);
     goal_pose.header.set__frame_id("map").set__stamp(rclcpp::Clock().now());
