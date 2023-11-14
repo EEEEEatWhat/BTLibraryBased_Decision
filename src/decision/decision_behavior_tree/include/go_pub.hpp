@@ -61,7 +61,8 @@ using namespace std::chrono_literals;
             RCLCPP_INFO(go_pub_node->get_logger(), "导航信息:x=%lf,y=%lf,w=%lf", goal_pose_.pose.position.x, goal_pose_.pose.position.y, goal_pose_.pose.orientation.w);
 
             publisher_->publish(goal_pose_);
-            // TODO:如果全部judge_ports的值都为false会报错!!!加个定时器持续尝试获取端口值?如果没有给它传值应该也不会调用这个tick所以不管也可以?
+            // FIXME:如果全部judge_ports的值都为false会报错!!!加个定时器持续尝试获取端口值?如果没有给它传值应该也不会调用这个tick所以不管也可以?
+            // TODO: (suzukisuncy)来点nav2回传数据,判断动作是否完成
             // 冻结一段时间等待动作完成再返回SUCCESS 
             // if()
             return BT::NodeStatus::SUCCESS;
