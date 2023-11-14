@@ -1,6 +1,3 @@
-#if WIN32
-    #define YAML_CPP_STATIC_DEFINE
-#endif
 #include "decision_node.hpp"
 
 namespace decision_behavior_tree
@@ -11,13 +8,15 @@ namespace decision_behavior_tree
         RCLCPP_INFO(this->get_logger() , "Decision node...");
         blackboard_ = BT::Blackboard::create();
 
-        // this->init();
+        
         RCLCPP_INFO(this->get_logger() , "starting...");
         if (!this->decodeConfig(yaml_file_path,blackboard_))
         {
             RCLCPP_ERROR(this->get_logger() , "Failed to get Config!");
             abort();
         }
+
+        this->init();
     }
 
     DecisionNode::~DecisionNode()
@@ -99,11 +98,32 @@ namespace decision_behavior_tree
         return true;
     }
 
-    
+    // 测试用
+    static const char* xml_text = R"(
+
+<root BTCPP_format="4" >
+    <BehaviorTree ID="MainTree">
+        <Sequence name="root">
+            <GainBloodOrBulletAction result="{result}" supply_pose = "{supply_pose}" if_supply="{if_supply}"/>
+            <GoPublisher result="{result}" supply_pose = "{supply_pose}" if_supply="{if_supply}" born_pose="{born_pose}" if_patrol="{if_patrol}"/>
+        </Sequence>
+    </BehaviorTree>
+</root>
+)";
 
     void DecisionNode::init()
     {
-        tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
+        // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
+
+        factory_.registerNodeType<decision_behavior_tree::GainBloodOrBulletAction>("GainBloodOrBulletAction");
+        factory_.registerNodeType<decision_behavior_tree::GoPublisher>("GoPublisher");
+        auto tree = factory_.createTreeFromText(xml_text,blackboard_);
+
+        while (rclcpp::ok())
+        {
+
+            tree.tickOnce();
+        };
     }
 
 
