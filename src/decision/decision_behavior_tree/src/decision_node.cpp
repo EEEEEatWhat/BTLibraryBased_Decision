@@ -103,10 +103,12 @@ namespace decision_behavior_tree
 
 <root BTCPP_format="4" >
     <BehaviorTree ID="MainTree">
-        <Sequence name="root">
+        <Parallel>
             <GainBloodOrBulletAction result="{result}" supply_pose = "{supply_pose}" if_supply="{if_supply}"/>
-            <GoPublisher result="{result}" supply_pose = "{supply_pose}" if_supply="{if_supply}" born_pose="{born_pose}" if_patrol="{if_patrol}"/>
-        </Sequence>
+            <RetryUntilSuccessful num_attempts="10">
+                <GoPublisher result="{result}" supply_pose = "{supply_pose}" if_supply="{if_supply}"/>
+            </RetryUntilSuccessful>
+        </Parallel>
     </BehaviorTree>
 </root>
 )";
