@@ -24,10 +24,9 @@ using namespace std::chrono_literals;
         GoPublisher(const std::string& name, const BT::NodeConfig& config) : BT::StatefulActionNode(name, config)
         {
             publisher_ = go_pub_node->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose", rclcpp::SystemDefaultsQoS());
-            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PolygonStamped>("/global_costmap/published_footprint",
+            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PolygonStamped>("global_costmap/published_footprint",
                             rclcpp::SystemDefaultsQoS(),std::bind(&GoPublisher::poseCallback,this,std::placeholders::_1));
         }
-        //(const std::string &topic_name, const rclcpp::QoS &qos, CallbackT &&callback, const rclcpp::SubscriptionOptionsWithAllocator<AllocatorT> &options = rclcpp::SubscriptionOptionsWithAllocator<AllocatorT>(), MessageMemoryStrategyT::SharedPtr msg_mem_strat = MessageMemoryStrategyT::create_default())
 
 
 
@@ -84,10 +83,13 @@ using namespace std::chrono_literals;
         BT::NodeStatus onRunning()
         {
             // 冻结一段时间等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
+            // std::cout << "111111" << std::endl;
             if(!now_pose.points.empty()){
+            std::cout << "2222222222" << std::endl;
+
                 auto distance_2 = (now_pose.points[0].x - goal_pose_.pose.position.x)*(now_pose.points[0].x - goal_pose_.pose.position.x) + 
                                     (now_pose.points[0].y - goal_pose_.pose.position.y)*(now_pose.points[0].y - goal_pose_.pose.position.y);
-                std::cout << "now_pose: x: " << now_pose.points[0].x << ", now_pose: y: " << now_pose.points[0].y << std::endl;
+                // std::cout << "now_pose: x: " << now_pose.points[0].x << ", now_pose: y: " << now_pose.points[0].y << std::endl;
                 if(distance_2 <= 0.5*0.5)
                 {
                     setOutput<BT::NodeStatus>("result", BT::NodeStatus::SUCCESS);
