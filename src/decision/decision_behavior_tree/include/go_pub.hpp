@@ -6,6 +6,8 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <cmath>
+#include <functional>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
@@ -15,9 +17,14 @@
 #include <geometry_msgs/msg/polygon.h>
 
 
+
 namespace decision_behavior_tree
 {
 using namespace std::chrono_literals;
+
+    auto pow2 = [](float x) {
+        return std::pow(x, 2);
+    };    
     class GoPublisher : public BT::StatefulActionNode
     {
     public:
@@ -26,7 +33,9 @@ using namespace std::chrono_literals;
             publisher_ = go_pub_node->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose", rclcpp::SystemDefaultsQoS());
             subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PoseStamped>("amcl_pose",
                             rclcpp::SystemDefaultsQoS(),std::bind(&GoPublisher::poseCallback,this,std::placeholders::_1));
-        }
+
+        };
+
 
 
 
@@ -82,16 +91,13 @@ using namespace std::chrono_literals;
         /// method invoked when the action is already in the RUNNING state.
         BT::NodeStatus onRunning()
         {
-            geometry_msgs::msg::Pose emptyPose;
             // 冻结一段时间等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
-            if(now_pose ){
+            if(PoseVector.empty()){
             std::cout << "2222222222" << std::endl;
-
-                auto distance_2 = (now_pose.points[0].x - goal_pose_.pose.position.x)*(now_pose.points[0].x - goal_pose_.pose.position.x) + 
-                                    (now_pose.points[0].y - goal_pose_.pose.position.y)*(now_pose.points[0].y - goal_pose_.pose.position.y);
-                // std::cout << "now_pose: x: " << now_pose.points[0].x << ", now_pose: y: " << now_pose.points[0].y << std::endl;
-                if(distance_2 <= 0.5*0.5)
+            auto IsInDistance = std::bind(&GoPublisher::isindistance,this,PoseVector.at(sizeof(PoseVector)),goal_pose_.pose);
+                if(IsInDistance())
                 {
+                    PoseVector.at(sizeof(PoseVector));//删除内存不安全
                     setOutput<BT::NodeStatus>("result", BT::NodeStatus::SUCCESS);
                     return BT::NodeStatus::SUCCESS;
                 }
@@ -112,17 +118,24 @@ using namespace std::chrono_literals;
         
         void poseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr amcl_pose_) 
         {
-            now_pose.set__position(amcl_pose_->pose.position);
-            std::cout << amcl_pose_->pose.position.x << std::endl;
-
+            PoseVector.push_back(amcl_pose_->pose);
+            std::cout<<PoseVector.empty()<<"\n";
         };
     
+        bool isindistance(geometry_msgs::msg::Pose now_pose,geometry_msgs::msg::Pose goal_pose){
+            auto distance2 = pow2(now_pose.position.x-goal_pose.position.x)+pow2(now_pose.position.y-goal_pose.position.y);
+            if(pow2(tolerance_distance) >= distance2)
+                return true;
+            return false;
+        };
+        
     private:
-        geometry_msgs::msg::Pose now_pose;
-        std::shared_ptr<rclcpp::Node>  go_pub_node = rclcpp::Node::make_shared("go_publisher_node");
+        float tolerance_distance = 0.5; //尽量写指针
+        geometry_msgs::msg::PoseStamped goal_pose_;
+        std::vector<geometry_msgs::msg::Pose> PoseVector; 
         rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_;
         rclcpp::Subscription<geometry_msgs::msg::PolygonStamped>::SharedPtr subscription_;
-        geometry_msgs::msg::PoseStamped goal_pose_;
+        std::shared_ptr<rclcpp::Node> go_pub_node = rclcpp::Node::make_shared("go_publisher_node");
 
     };
 } // namespace decision_behavior_tree
