@@ -24,7 +24,7 @@ using namespace std::chrono_literals;
         GoPublisher(const std::string& name, const BT::NodeConfig& config) : BT::StatefulActionNode(name, config)
         {
             publisher_ = go_pub_node->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose", rclcpp::SystemDefaultsQoS());
-            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PolygonStamped>("local_costmap/published_footprint",
+            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PoseStamped>("amcl_pose",
                             rclcpp::SystemDefaultsQoS(),std::bind(&GoPublisher::poseCallback,this,std::placeholders::_1));
         }
 
@@ -82,8 +82,9 @@ using namespace std::chrono_literals;
         /// method invoked when the action is already in the RUNNING state.
         BT::NodeStatus onRunning()
         {
+            geometry_msgs::msg::Pose emptyPose;
             // 冻结一段时间等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
-            if(!now_pose.points.empty()){
+            if(now_pose ){
             std::cout << "2222222222" << std::endl;
 
                 auto distance_2 = (now_pose.points[0].x - goal_pose_.pose.position.x)*(now_pose.points[0].x - goal_pose_.pose.position.x) + 
@@ -109,15 +110,15 @@ using namespace std::chrono_literals;
 
         };
         
-        void poseCallback(const geometry_msgs::msg::PolygonStamped::SharedPtr footprint) 
+        void poseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr amcl_pose_) 
         {
-            now_pose.set__points(footprint->polygon.points);
-            std::cout << footprint->polygon.points[0].x << std::endl;
+            now_pose.set__position(amcl_pose_->pose.position);
+            std::cout << amcl_pose_->pose.position.x << std::endl;
 
         };
     
     private:
-        geometry_msgs::msg::Polygon now_pose;
+        geometry_msgs::msg::Pose now_pose;
         std::shared_ptr<rclcpp::Node>  go_pub_node = rclcpp::Node::make_shared("go_publisher_node");
         rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_;
         rclcpp::Subscription<geometry_msgs::msg::PolygonStamped>::SharedPtr subscription_;
