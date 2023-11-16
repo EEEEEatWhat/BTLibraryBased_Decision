@@ -12,13 +12,14 @@
 
 namespace decision_behavior_tree
 {
-    class GainBloodOrBulletAction : public BT::SyncActionNode
+    class GainBloodOrBulletAction : public BT::StatefulActionNode
     {
     public:
         
         GainBloodOrBulletAction(const std::string& name, const BT::NodeConfig& config)
-                                : BT::SyncActionNode(name , config)
+                                : BT::StatefulActionNode(name , config)
         {};
+
         ~GainBloodOrBulletAction()
         {};
 
@@ -29,32 +30,38 @@ namespace decision_behavior_tree
                     BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose"),
                     BT::OutputPort<bool>("if_supply")}; 
         };
-
-        BT::NodeStatus tick() override
+    private:
+        /// Method called once, when transitioning from the state IDLE.
+        /// If it returns RUNNING, this becomes an asynchronous node.
+        BT::NodeStatus onStart()
         {
             BT::Blackboard::Ptr blackboard = config().blackboard;
             setOutput<geometry_msgs::msg::PoseStamped>("supply_pose", blackboard->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
             setOutput<bool>("if_supply", true); // 动作结束后改为false
+            return BT::NodeStatus::RUNNING;
+        };
 
-
-            std::thread thread([&](){
-            while (true)
+        /// method invoked when the action is already in the RUNNING state.
+        BT::NodeStatus onRunning()
+        {
+            if (getInput<BT::NodeStatus>("result") == BT::NodeStatus::SUCCESS)
             {
-                if (getInput<BT::NodeStatus>("result") == BT::NodeStatus::SUCCESS)
-                {
-                    setOutput<bool>("if_supply", false);
-                    break;
-                }
-                else std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                setOutput<bool>("if_supply", false);
+                return BT::NodeStatus::SUCCESS;
             }
-            
-            return BT::NodeStatus::SUCCESS;
-            });
-            thread.detach();
-            return BT::NodeStatus::SUCCESS;
+            else 
+                return BT::NodeStatus::RUNNING;
 
+        };
+        
 
-        }
+        /// when the method halt() is called and the action is RUNNING, this method is invoked.
+        /// This is a convenient place todo a cleanup, if needed.
+        void onHalted()
+        {
+            setOutput<bool>("if_supply", false);
+        };
+
     };
 }  // namespace decision_behavior_tree
 

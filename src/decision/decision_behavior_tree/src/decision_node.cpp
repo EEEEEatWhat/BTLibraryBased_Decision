@@ -53,6 +53,7 @@ namespace decision_behavior_tree
             Pose& temp_pose = it->second;
             // 获取位姿信息节点
             YAML::Node pose_node = yaml_node[pose_key];
+            
 
             // 获取位姿信息的各个字段值，并存储到临时对象中
             temp_pose.x = pose_node["pose"]["position"]["x"].as<double>();
@@ -120,10 +121,10 @@ namespace decision_behavior_tree
         factory_.registerNodeType<decision_behavior_tree::GainBloodOrBulletAction>("GainBloodOrBulletAction");
         factory_.registerNodeType<decision_behavior_tree::GoPublisher>("GoPublisher");
         auto tree = factory_.createTreeFromText(xml_text,blackboard_);
+            
 
         while (rclcpp::ok())
         {
-
             tree.tickOnce();
         };
     }
