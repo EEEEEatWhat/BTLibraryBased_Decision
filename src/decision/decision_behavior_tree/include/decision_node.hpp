@@ -28,24 +28,24 @@ namespace decision_behavior_tree
         ~DecisionNode();
 
         /**
-         * @brief RPY转四元数后返回四元数自身类的重载函数
-         * @return 四元数的类
+         *  @brief RPY转四元数后返回四元数自身类的重载函数
+         *  @return 四元数的类
          **/
         template <class A, class B>
         B convert(const A &a, B &b, bool c);
 
         /**
-         * @brief 载入配置信息
-         * @param yaml_file
-         *        yaml文件路径
-         * @param blackboard_
-         *        黑板指针
-         * @return 是否成功
+         *  @brief 载入配置信息
+         *  @param yaml_file
+         *         yaml文件路径
+         *  @param blackboard_
+         *         黑板指针
+         *  @return 是否成功
          **/
         bool decodeConfig(std::string yaml_file, BT::Blackboard::Ptr blackboard_);
 
         /**
-         * @brief 初始化
+         *  @brief 初始化
          **/
         void init();
 

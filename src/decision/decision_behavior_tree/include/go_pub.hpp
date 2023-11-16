@@ -12,7 +12,7 @@
 #include "behaviortree_cpp/action_node.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/polygon_stamped.hpp"
-
+#include <geometry_msgs/msg/polygon.h>
 
 
 namespace decision_behavior_tree
@@ -33,11 +33,12 @@ using namespace std::chrono_literals;
 
         static BT::PortsList providedPorts()
         {
-            return { BT::OutputPort<BT::NodeStatus>("result"),
-                    BT::InputPort<geometry_msgs::msg::PoseStamped>("supply_pose"),
-                    BT::InputPort<bool>("if_supply"),
-                    BT::InputPort<geometry_msgs::msg::PoseStamped>("born_pose"),
-                    // BT::InputPort<bool>("if_patrol")
+            return { 
+                BT::OutputPort<BT::NodeStatus>("result"),
+                BT::InputPort<geometry_msgs::msg::PoseStamped>("supply_pose"),
+                BT::InputPort<bool>("if_supply"),
+                BT::InputPort<geometry_msgs::msg::PoseStamped>("born_pose"),
+                // BT::InputPort<bool>("if_patrol")
             }; 
         }
 
@@ -83,15 +84,18 @@ using namespace std::chrono_literals;
         BT::NodeStatus onRunning()
         {
             // 冻结一段时间等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
-            auto distance_2 = (now_pose.points[0].x - goal_pose_.pose.position.x)*(now_pose.points[0].x - goal_pose_.pose.position.x) + 
-                                (now_pose.points[0].y - goal_pose_.pose.position.y)*(now_pose.points[0].y - goal_pose_.pose.position.y);
-            std::cout << "now_pose: x: " << now_pose.points[0].x << ", now_pose: y: " << now_pose.points[0].y << std::endl;
-            if(distance_2 <= 0.5*0.5)
-            {
-                setOutput<BT::NodeStatus>("result", BT::NodeStatus::SUCCESS);
-                return BT::NodeStatus::SUCCESS;
+            if(!now_pose.points.empty()){
+                auto distance_2 = (now_pose.points[0].x - goal_pose_.pose.position.x)*(now_pose.points[0].x - goal_pose_.pose.position.x) + 
+                                    (now_pose.points[0].y - goal_pose_.pose.position.y)*(now_pose.points[0].y - goal_pose_.pose.position.y);
+                std::cout << "now_pose: x: " << now_pose.points[0].x << ", now_pose: y: " << now_pose.points[0].y << std::endl;
+                if(distance_2 <= 0.5*0.5)
+                {
+                    setOutput<BT::NodeStatus>("result", BT::NodeStatus::SUCCESS);
+                    return BT::NodeStatus::SUCCESS;
+                }
             }
             return BT::NodeStatus::RUNNING;
+
         }
 
         /// when the method halt() is called and the action is RUNNING, this method is invoked.
