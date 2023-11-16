@@ -24,7 +24,7 @@ using namespace std::chrono_literals;
         GoPublisher(const std::string& name, const BT::NodeConfig& config) : BT::StatefulActionNode(name, config)
         {
             publisher_ = go_pub_node->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose", rclcpp::SystemDefaultsQoS());
-            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PolygonStamped>("global_costmap/published_footprint",
+            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PolygonStamped>("local_costmap/published_footprint",
                             rclcpp::SystemDefaultsQoS(),std::bind(&GoPublisher::poseCallback,this,std::placeholders::_1));
         }
 
@@ -83,7 +83,6 @@ using namespace std::chrono_literals;
         BT::NodeStatus onRunning()
         {
             // 冻结一段时间等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
-            // std::cout << "111111" << std::endl;
             if(!now_pose.points.empty()){
             std::cout << "2222222222" << std::endl;
 
@@ -96,6 +95,7 @@ using namespace std::chrono_literals;
                     return BT::NodeStatus::SUCCESS;
                 }
             }
+
             return BT::NodeStatus::RUNNING;
 
         }
@@ -111,7 +111,9 @@ using namespace std::chrono_literals;
         
         void poseCallback(const geometry_msgs::msg::PolygonStamped::SharedPtr footprint) 
         {
-            now_pose = footprint->polygon;
+            now_pose.set__points(footprint->polygon.points);
+            std::cout << footprint->polygon.points[0].x << std::endl;
+
         };
     
     private:
