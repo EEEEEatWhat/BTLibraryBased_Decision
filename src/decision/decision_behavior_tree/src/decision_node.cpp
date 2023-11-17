@@ -104,12 +104,9 @@ namespace decision_behavior_tree
 
 <root BTCPP_format="4" >
     <BehaviorTree ID="MainTree">
-        <Parallel>
-            <GainBloodOrBulletAction result="{result}" supply_pose = "{supply_pose}" if_supply="{if_supply}"/>
-            <RetryUntilSuccessful num_attempts="10">
-                <GoPublisher result="{result}" supply_pose = "{supply_pose}" if_supply="{if_supply}"/>
-            </RetryUntilSuccessful>
-        </Parallel>
+        <Sequence>
+            <GainBloodOrBulletAction supply_pose = "{supply_pose}"/>
+        </Sequence>
     </BehaviorTree>
 </root>
 )";
@@ -117,12 +114,10 @@ namespace decision_behavior_tree
     void DecisionNode::init()
     {
         // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
-
         factory_.registerNodeType<decision_behavior_tree::GainBloodOrBulletAction>("GainBloodOrBulletAction");
-        factory_.registerNodeType<decision_behavior_tree::GoPublisher>("GoPublisher");
-        auto tree = factory_.createTreeFromText(xml_text,blackboard_);
-            
 
+        auto tree = factory_.createTreeFromText(xml_text,blackboard_);
+        
         while (rclcpp::ok())
         {
             tree.tickOnce();
@@ -137,6 +132,9 @@ int main(int argc, char const **argv)
     rclcpp::init(argc,argv);
     rclcpp::NodeOptions options;
     auto decision_node = std::make_shared<decision_behavior_tree::DecisionNode>(options);
+    params.nh = decision_node;
+    params.default_port_value = "go_server_action";
+
     rclcpp::spin(decision_node);
     rclcpp::shutdown();
     return 0;

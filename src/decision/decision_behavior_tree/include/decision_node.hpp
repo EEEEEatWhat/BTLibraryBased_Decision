@@ -54,6 +54,7 @@ namespace decision_behavior_tree
         BT::Blackboard::Ptr blackboard_;
 
     private:
+        RosNodeParams params; 
         rclcpp::NodeOptions options_;
         BT::BehaviorTreeFactory factory_;
         const std::string xml_file_path = "src/decision/decision_behavior_tree/behavior_tree.xml";

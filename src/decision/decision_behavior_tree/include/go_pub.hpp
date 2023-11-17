@@ -107,7 +107,6 @@ using namespace std::chrono_literals;
             // 等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
 
             auto IsInDistance = std::bind(&GoPublisher::isindistance, this, transformStamped.transform.translation, goal_pose_.pose);
-            std::cout << "1111111" << std::endl;
             if (IsInDistance())
             {
                 std::cout<<"InDistance!"<<"\n";

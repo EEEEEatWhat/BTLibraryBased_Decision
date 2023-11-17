@@ -5,63 +5,74 @@
 
 
 #include "rclcpp/rclcpp.hpp"
-#include "behaviortree_cpp/action_node.h"
 #include "behaviortree_cpp/blackboard.h"
+#include "behaviortree_ros2/bt_action_node.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include <thread>
+#include "behaviortree_msgs/msg/"
 
 namespace decision_behavior_tree
 {
-    class GainBloodOrBulletAction : public BT::StatefulActionNode
+using namespace BT;
+
+    class GainBloodOrBulletAction : public RosActionNode<behaviortree_msgs::msg::PoseStamped>
     {
     public:
-        
-        GainBloodOrBulletAction(const std::string& name, const BT::NodeConfig& config)
-                                : BT::StatefulActionNode(name , config)
-        {};
+        GainBloodOrBulletAction(const std::string &name,
+                                const NodeConfig &conf,
+                                const RosNodeParams &params)
+            : RosActionNode<geometry_msgs::msg::PoseStamped>(name, conf, params)
+        {
+        }
 
-        ~GainBloodOrBulletAction()
-        {};
 
-
+    public:
         static BT::PortsList providedPorts()
         {
-            return { BT::InputPort<BT::NodeStatus>("result"),
-                    BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose"),
-                    BT::OutputPort<bool>("if_supply")}; 
-        };
-    private:
-        /// Method called once, when transitioning from the state IDLE.
-        /// If it returns RUNNING, this becomes an asynchronous node.
-        BT::NodeStatus onStart()
+            return providedBasicPorts({OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")});
+        }
+
+
+        bool setGoal(Goal &goal) override
         {
             BT::Blackboard::Ptr blackboard = config().blackboard;
-            setOutput<geometry_msgs::msg::PoseStamped>("supply_pose", blackboard->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
-            setOutput<bool>("if_supply", true); // 动作结束后改为false
-            return BT::NodeStatus::RUNNING;
+            goal.set__pose(blackboard->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
+            RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
+            return true;
         };
 
-        /// method invoked when the action is already in the RUNNING state.
-        BT::NodeStatus onRunning()
+
+        NodeStatus onResultReceived(const WrappedResult &wr) override
         {
-            if (getInput<BT::NodeStatus>("result") == BT::NodeStatus::SUCCESS)
-            {
-                setOutput<bool>("if_supply", false);
-                return BT::NodeStatus::SUCCESS;
-            }
-            else 
-                return BT::NodeStatus::RUNNING;
+            (void)wr;
+            std::stringstream ss;
+            ss << "Result received: ";
 
-        };
-        
+            RCLCPP_INFO(node_->get_logger(), ss.str().c_str());
+            return NodeStatus::SUCCESS;
+        }
 
-        /// when the method halt() is called and the action is RUNNING, this method is invoked.
-        /// This is a convenient place todo a cleanup, if needed.
-        void onHalted()
+
+        virtual NodeStatus onFailure(ActionNodeErrorCode error) override
         {
-            setOutput<bool>("if_supply", false);
-        };
+            RCLCPP_ERROR(node_->get_logger(), "Error: %d", error);
 
+            return NodeStatus::FAILURE;
+        }
+
+
+        NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback)
+        {
+            (void)feedback;
+            std::stringstream ss;
+            ss << "Next number in sequence received: ";
+            // for (auto number : feedback->partial_sequence) {
+            //   ss << number << " ";
+            // }
+            RCLCPP_INFO(node_->get_logger(), ss.str().c_str());
+            return NodeStatus::RUNNING;
+        }
+    private:
+        geometry_msgs::msg::PoseStamped goal_pose;
     };
 }  // namespace decision_behavior_tree
 
