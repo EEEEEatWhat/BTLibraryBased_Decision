@@ -13,9 +13,13 @@ find_package(rclcpp_action REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(behaviortree_ros2 REQUIRED)
 find_package(global_interfaces REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(nav2_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
-find_package(nav2_msgs REQUIRED)
+
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAMLCPP yaml-cpp REQUIRED)
@@ -25,12 +29,14 @@ endif()
 
 set(THIS_PACKAGE_DEPS
 rclcpp
+rclcpp_action
 behaviortree_cpp
-std_msgs
-nav2_msgs
 behaviortree_ros2
 global_interfaces
-rclcpp_action
+std_msgs
+nav2_msgs
+geometry_msgs
+tf2_ros
 tf2
 tf2_geometry_msgs
 )

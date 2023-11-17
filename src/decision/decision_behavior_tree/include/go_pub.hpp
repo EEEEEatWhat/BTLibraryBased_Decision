@@ -9,11 +9,17 @@
 #include <cmath>
 #include <functional>
 
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp/qos.hpp"
-#include "behaviortree_cpp/action_node.h"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/qos.hpp>
+#include <behaviortree_cpp/action_node.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <tf2/utils.h>
+#include <tf2/exceptions.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <tf2/LinearMath/Quaternion.h>
 
 
 
@@ -27,12 +33,11 @@ using namespace std::chrono_literals;
     class GoPublisher : public BT::StatefulActionNode
     {
     public:
-        GoPublisher(const std::string& name, const BT::NodeConfig& config) : BT::StatefulActionNode(name, config)
+        GoPublisher(const std::string& name, const BT::NodeConfig& config) : BT::StatefulActionNode(name, config), 
+        tf_buffer_(std::make_unique<tf2_ros::Buffer>(go_pub_node->get_clock())), 
+        tf_listener_(std::make_shared<tf2_ros::TransformListener>(*tf_buffer_))
         {
             publisher_ = go_pub_node->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose", rclcpp::SystemDefaultsQoS());
-            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("/amcl_pose",
-                            rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),std::bind(&GoPublisher::poseCallback,this,std::placeholders::_1));
-
         };
 
 
@@ -90,22 +95,27 @@ using namespace std::chrono_literals;
         /// method invoked when the action is already in the RUNNING state.
         BT::NodeStatus onRunning()
         {
+            std::cout << "111111111" << '\n';
+            geometry_msgs::msg::TransformStamped transformStamped;
+            try{
+            transformStamped = tf_buffer_->lookupTransform("base_link", "map", tf2::TimePointZero);
+            }
+            catch (tf2::TransformException &ex)
+            {
+                RCLCPP_WARN(go_pub_node->get_logger(), "%s", ex.what());
+            }
             // 等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
-            if(!PoseVector.empty()){
             std::cout << "222222222" << std::endl;
 
-            auto IsInDistance = std::bind(&GoPublisher::isindistance,this,PoseVector.back(),goal_pose_.pose);
+            auto IsInDistance = std::bind(&GoPublisher::isindistance, this, transformStamped.transform.translation, goal_pose_.pose);
             std::cout << "1111111" << std::endl;
-                if( IsInDistance())
-                {
-                    PoseVector.pop_back();//删除内存不安全
-                    setOutput<BT::NodeStatus>("result", BT::NodeStatus::SUCCESS);
-                    return BT::NodeStatus::SUCCESS;
-                }
+            if (IsInDistance())
+            {
+                setOutput<BT::NodeStatus>("result", BT::NodeStatus::SUCCESS);
+                return BT::NodeStatus::SUCCESS;
             }
 
             return BT::NodeStatus::RUNNING;
-
         }
 
         /// when the method halt() is called and the action is RUNNING, this method is invoked.
@@ -117,16 +127,10 @@ using namespace std::chrono_literals;
 
         };
         
-        void poseCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr amcl_pose_) 
-        {
-            std::cout << "333333333333" << std::endl;
-            
-            PoseVector.push_back(amcl_pose_->pose.pose);
-            std::cout<<PoseVector.empty()<<"\n";
-        };
+
     
-        bool isindistance(geometry_msgs::msg::Pose now_pose,geometry_msgs::msg::Pose goal_pose){
-            auto distance2 = pow2(now_pose.position.x-goal_pose.position.x)+pow2(now_pose.position.y-goal_pose.position.y);
+        bool isindistance(geometry_msgs::msg::Vector3 now_pose,geometry_msgs::msg::Pose goal_pose){
+            auto distance2 = pow2(now_pose.x-goal_pose.position.x)+pow2(now_pose.y-goal_pose.position.y);
             if(pow2(tolerance_distance) >= distance2)
                 return true;
             return false;
@@ -135,9 +139,11 @@ using namespace std::chrono_literals;
     private:
         float tolerance_distance = 0.5; //尽量写指针
         geometry_msgs::msg::PoseStamped goal_pose_;
-        std::vector<geometry_msgs::msg::Pose> PoseVector; 
         rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_;
-        rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr subscription_;
+        std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+        std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+        // std::unique_ptr<tf2_ros::Buffer> tf_buffer_ = std::make_unique<tf2_ros::Buffer>(go_pub_node->get_clock());
+        // std::shared_ptr<tf2_ros::TransformListener> transform_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
         std::shared_ptr<rclcpp::Node> go_pub_node = rclcpp::Node::make_shared("go_publisher_node");
 
     };
