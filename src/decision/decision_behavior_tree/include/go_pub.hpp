@@ -13,8 +13,7 @@
 #include "rclcpp/qos.hpp"
 #include "behaviortree_cpp/action_node.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/polygon_stamped.hpp"
-#include <geometry_msgs/msg/polygon.h>
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
 
 
@@ -31,8 +30,8 @@ using namespace std::chrono_literals;
         GoPublisher(const std::string& name, const BT::NodeConfig& config) : BT::StatefulActionNode(name, config)
         {
             publisher_ = go_pub_node->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose", rclcpp::SystemDefaultsQoS());
-            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PoseStamped>("amcl_pose",
-                            rclcpp::SystemDefaultsQoS(),std::bind(&GoPublisher::poseCallback,this,std::placeholders::_1));
+            subscription_ = go_pub_node->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>("/amcl_pose",
+                            rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable(),std::bind(&GoPublisher::poseCallback,this,std::placeholders::_1));
 
         };
 
@@ -91,13 +90,15 @@ using namespace std::chrono_literals;
         /// method invoked when the action is already in the RUNNING state.
         BT::NodeStatus onRunning()
         {
-            // 冻结一段时间等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
-            if(PoseVector.empty()){
-            std::cout << "2222222222" << std::endl;
-            auto IsInDistance = std::bind(&GoPublisher::isindistance,this,PoseVector.at(sizeof(PoseVector)),goal_pose_.pose);
-                if(IsInDistance())
+            // 等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
+            if(!PoseVector.empty()){
+            std::cout << "222222222" << std::endl;
+
+            auto IsInDistance = std::bind(&GoPublisher::isindistance,this,PoseVector.back(),goal_pose_.pose);
+            std::cout << "1111111" << std::endl;
+                if( IsInDistance())
                 {
-                    PoseVector.at(sizeof(PoseVector));//删除内存不安全
+                    PoseVector.pop_back();//删除内存不安全
                     setOutput<BT::NodeStatus>("result", BT::NodeStatus::SUCCESS);
                     return BT::NodeStatus::SUCCESS;
                 }
@@ -116,9 +117,11 @@ using namespace std::chrono_literals;
 
         };
         
-        void poseCallback(const geometry_msgs::msg::PoseStamped::SharedPtr amcl_pose_) 
+        void poseCallback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr amcl_pose_) 
         {
-            PoseVector.push_back(amcl_pose_->pose);
+            std::cout << "333333333333" << std::endl;
+            
+            PoseVector.push_back(amcl_pose_->pose.pose);
             std::cout<<PoseVector.empty()<<"\n";
         };
     
@@ -134,7 +137,7 @@ using namespace std::chrono_literals;
         geometry_msgs::msg::PoseStamped goal_pose_;
         std::vector<geometry_msgs::msg::Pose> PoseVector; 
         rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr publisher_;
-        rclcpp::Subscription<geometry_msgs::msg::PolygonStamped>::SharedPtr subscription_;
+        rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr subscription_;
         std::shared_ptr<rclcpp::Node> go_pub_node = rclcpp::Node::make_shared("go_publisher_node");
 
     };
