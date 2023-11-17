@@ -33,10 +33,11 @@ using namespace std::chrono_literals;
     class GoPublisher : public BT::StatefulActionNode
     {
     public:
-        GoPublisher(const std::string& name, const BT::NodeConfig& config) : BT::StatefulActionNode(name, config), 
-        tf_buffer_(std::make_unique<tf2_ros::Buffer>(go_pub_node->get_clock())), 
-        tf_listener_(std::make_shared<tf2_ros::TransformListener>(*tf_buffer_))
+        GoPublisher(const std::string& name, const BT::NodeConfig& config) : BT::StatefulActionNode(name, config)
         {
+            go_pub_node = rclcpp::Node::make_shared("go_publisher_node");
+            tf_buffer_ = std::make_unique<tf2_ros::Buffer>(go_pub_node->get_clock()); 
+            tf_listener_= std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
             publisher_ = go_pub_node->create_publisher<geometry_msgs::msg::PoseStamped>("goal_pose", rclcpp::SystemDefaultsQoS());
         };
 
@@ -95,7 +96,6 @@ using namespace std::chrono_literals;
         /// method invoked when the action is already in the RUNNING state.
         BT::NodeStatus onRunning()
         {
-            std::cout << "111111111" << '\n';
             geometry_msgs::msg::TransformStamped transformStamped;
             try{
             transformStamped = tf_buffer_->lookupTransform("base_link", "map", tf2::TimePointZero);
@@ -105,16 +105,18 @@ using namespace std::chrono_literals;
                 RCLCPP_WARN(go_pub_node->get_logger(), "%s", ex.what());
             }
             // 等待动作完成，将输出端口result改为SUCCESS再返回SUCCESS
-            std::cout << "222222222" << std::endl;
 
             auto IsInDistance = std::bind(&GoPublisher::isindistance, this, transformStamped.transform.translation, goal_pose_.pose);
             std::cout << "1111111" << std::endl;
             if (IsInDistance())
             {
+                std::cout<<"InDistance!"<<"\n";
                 setOutput<BT::NodeStatus>("result", BT::NodeStatus::SUCCESS);
                 return BT::NodeStatus::SUCCESS;
             }
-
+            RCLCPP_INFO(go_pub_node->get_logger(), "导航信息:x=%lf,y=%lf,w=%lf", goal_pose_.pose.position.x, goal_pose_.pose.position.y, goal_pose_.pose.orientation.w);
+            publisher_->publish(goal_pose_);
+            rclcpp::sleep_for(std::chrono::seconds(1s));
             return BT::NodeStatus::RUNNING;
         }
 
@@ -144,7 +146,7 @@ using namespace std::chrono_literals;
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
         // std::unique_ptr<tf2_ros::Buffer> tf_buffer_ = std::make_unique<tf2_ros::Buffer>(go_pub_node->get_clock());
         // std::shared_ptr<tf2_ros::TransformListener> transform_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-        std::shared_ptr<rclcpp::Node> go_pub_node = rclcpp::Node::make_shared("go_publisher_node");
+        std::shared_ptr<rclcpp::Node> go_pub_node ;
 
     };
 } // namespace decision_behavior_tree
