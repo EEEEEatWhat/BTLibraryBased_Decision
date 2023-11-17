@@ -1,4 +1,3 @@
-#pragma once
 
 #ifndef DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
 #define DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
@@ -8,28 +7,31 @@
 #include "behaviortree_cpp/blackboard.h"
 #include "behaviortree_ros2/bt_action_node.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "behaviortree_msgs/action/behavior_tree_pose.hpp"
+#include "global_interfaces/action/behavior_tree_pose.hpp"
 
 namespace decision_behavior_tree
 {
-using namespace BT;
-
-    class GainBloodOrBulletAction : public RosActionNode<behaviortree_msgs::action::BehaviorTreePose>
+    class GainBloodOrBulletAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
     public:
         GainBloodOrBulletAction(const std::string &name,
-                                const NodeConfig &conf,
-                                const RosNodeParams &params)
-            : RosActionNode<behaviortree_msgs::action::BehaviorTreePose>(name, conf, params)
+                                const BT::NodeConfig &conf,
+                                const BT::RosNodeParams &params)
+            : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params),
+            node_(params.nh),
+            server_timeout_(params.server_timeout)
         {
-        }
+        };
+
+        
 
 
-    public:
-        static PortsList providedPorts()
+        static BT::PortsList providedPorts()
         {
-            return {OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")};
-        }
+            return RosActionNode::providedPorts({BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")});
+
+            // return {BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")};
+        };
 
 
         bool setGoal(RosActionNode::Goal &goal) override
@@ -41,26 +43,26 @@ using namespace BT;
         };
 
 
-        NodeStatus onResultReceived(const WrappedResult &wr) override
+        BT::NodeStatus onResultReceived(const WrappedResult &wr) override
         {
             (void)wr;
             std::stringstream ss;
             ss << "Result received: ";
 
             RCLCPP_INFO(node_->get_logger(), ss.str().c_str());
-            return NodeStatus::SUCCESS;
-        }
+            return BT::NodeStatus::SUCCESS;
+        };
 
 
-        virtual NodeStatus onFailure(ActionNodeErrorCode error) override
+        virtual BT::NodeStatus onFailure(BT::ActionNodeErrorCode error) override
         {
             RCLCPP_ERROR(node_->get_logger(), "Error: %d", error);
 
-            return NodeStatus::FAILURE;
-        }
+            return BT::NodeStatus::FAILURE;
+        };
 
 
-        NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback)
+        BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback)
         {
             (void)feedback;
             std::stringstream ss;
@@ -69,9 +71,11 @@ using namespace BT;
             //   ss << number << " ";
             // }
             RCLCPP_INFO(node_->get_logger(), ss.str().c_str());
-            return NodeStatus::RUNNING;
-        }
+            return BT::NodeStatus::RUNNING;
+        };
     private:
+        std::shared_ptr<rclcpp::Node> node_;
+        const std::chrono::milliseconds server_timeout_;
         geometry_msgs::msg::PoseStamped goal_pose;
     };
 }  // namespace decision_behavior_tree

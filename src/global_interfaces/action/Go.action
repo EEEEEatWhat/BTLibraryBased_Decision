@@ -1,5 +1,0 @@
-float64 goal
----
-bool done
----
-float64 current_pos

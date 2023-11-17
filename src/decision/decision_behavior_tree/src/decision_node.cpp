@@ -114,8 +114,7 @@ namespace decision_behavior_tree
     void DecisionNode::init()
     {
         // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
-        factory.registerNodeType<>(node_name, params);
-        params.default_port_value = "go_server_action";
+        params.default_port_value = "goal_server_action";
         factory_.registerNodeType<decision_behavior_tree::GainBloodOrBulletAction>("GainBloodOrBulletAction", params);
 
         auto tree = factory_.createTreeFromText(xml_text,blackboard_);
@@ -134,7 +133,6 @@ int main(int argc, char const **argv)
     rclcpp::init(argc,argv);
     rclcpp::NodeOptions options;
     auto decision_node = std::make_shared<decision_behavior_tree::DecisionNode>(options);
-
     rclcpp::spin(decision_node);
     rclcpp::shutdown();
     return 0;
