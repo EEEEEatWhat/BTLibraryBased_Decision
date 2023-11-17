@@ -13,6 +13,7 @@ find_package(rclcpp_action REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(behaviortree_ros2 REQUIRED)
 find_package(global_interfaces REQUIRED)
+find_package(behaviortree_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -33,6 +34,7 @@ rclcpp_action
 behaviortree_cpp
 behaviortree_ros2
 global_interfaces
+behaviortree_msgs
 std_msgs
 nav2_msgs
 geometry_msgs

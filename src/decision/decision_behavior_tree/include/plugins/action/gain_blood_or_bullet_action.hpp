@@ -8,32 +8,32 @@
 #include "behaviortree_cpp/blackboard.h"
 #include "behaviortree_ros2/bt_action_node.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "behaviortree_msgs/msg/"
+#include "behaviortree_msgs/action/behavior_tree_pose.hpp"
 
 namespace decision_behavior_tree
 {
 using namespace BT;
 
-    class GainBloodOrBulletAction : public RosActionNode<behaviortree_msgs::msg::PoseStamped>
+    class GainBloodOrBulletAction : public RosActionNode<behaviortree_msgs::action::BehaviorTreePose>
     {
     public:
         GainBloodOrBulletAction(const std::string &name,
                                 const NodeConfig &conf,
                                 const RosNodeParams &params)
-            : RosActionNode<geometry_msgs::msg::PoseStamped>(name, conf, params)
+            : RosActionNode<behaviortree_msgs::action::BehaviorTreePose>(name, conf, params)
         {
         }
 
 
     public:
-        static BT::PortsList providedPorts()
+        static PortsList providedPorts()
         {
-            return providedBasicPorts({OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")});
+            return {OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")};
         }
 
 
-        bool setGoal(Goal &goal) override
-        {
+        bool setGoal(RosActionNode::Goal &goal) override
+        {   
             BT::Blackboard::Ptr blackboard = config().blackboard;
             goal.set__pose(blackboard->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
             RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
