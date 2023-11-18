@@ -1,4 +1,7 @@
-#include "behaviortree_ros2/bt_action_node.hpp"
+/*
+  BUG：WARNING:行为树的action通信有问题，该cpp文件仅供测试BT不正常，切勿使用！！！
+      如果可以稳定通信，并明确之前为什么不正常可以直接由BT发布坐标点
+*/#include "behaviortree_ros2/bt_action_node.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
@@ -50,7 +53,7 @@ public:
     goal_pose.pose.set__orientation(geo_qnt);
     tf2::convert<tf2::Quaternion,geometry_msgs::msg::Quaternion>(tf_qnt,geo_qnt);
     */
-    // ~TODO:(suzukisuncy&ynghawU,2023/11/14)补充端口和端口结构体  
+    // TODO:(suzukisuncy&ynghawU,2023/11/14)补充端口和端口结构体  
     /* (ynghawU 2023/11/14 22:18) 应该完成力!
     在 src/decision/decision_behavior_tree/include/go_pub.hpp和
     src/decision/decision_behavior_tree/include/plugins/action/gain_blood_or_bullet_action.hpp
