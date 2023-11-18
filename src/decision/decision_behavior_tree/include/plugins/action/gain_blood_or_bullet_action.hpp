@@ -17,9 +17,7 @@ namespace decision_behavior_tree
         GainBloodOrBulletAction(const std::string &name,
                                 const BT::NodeConfig &conf,
                                 const BT::RosNodeParams &params)
-            : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params),
-            node_(params.nh),
-            server_timeout_(params.server_timeout)
+            : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
         {
         };
 
@@ -28,7 +26,7 @@ namespace decision_behavior_tree
 
         static BT::PortsList providedPorts()
         {
-            return RosActionNode::providedPorts({BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")});
+            return providedBasicPorts({BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")});
 
             // return {BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")};
         };
@@ -56,7 +54,7 @@ namespace decision_behavior_tree
 
         virtual BT::NodeStatus onFailure(BT::ActionNodeErrorCode error) override
         {
-            RCLCPP_ERROR(node_->get_logger(), "Error: %d", error);
+            RCLCPP_ERROR(node_->get_logger(), "Error: %s", toStr(error));
 
             return BT::NodeStatus::FAILURE;
         };
@@ -75,7 +73,6 @@ namespace decision_behavior_tree
         };
     private:
         std::shared_ptr<rclcpp::Node> node_;
-        const std::chrono::milliseconds server_timeout_;
         geometry_msgs::msg::PoseStamped goal_pose;
     };
 }  // namespace decision_behavior_tree
