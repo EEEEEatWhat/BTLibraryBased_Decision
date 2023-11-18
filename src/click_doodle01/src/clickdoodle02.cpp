@@ -2,6 +2,7 @@
 #include "behaviortree_cpp/bt_factory.h"
 #include "behaviortree_cpp/action_node.h"
 #include "Dark_knight.h"
+#include "Green_Light.h"
 
 using namespace BT ;
 // We want to use this custom type
@@ -86,12 +87,13 @@ static const char* xml_text = R"(
             <PrintTarget   target="{GoalPosition}" />
             <Script        code=" OtherGoal:='-1;3' " />
             <PrintTarget   target="{OtherGoal}" />
-            <NavigateToPoseAction     x="5.1" y="7.4" theta="3.14"/>
+            <BehavioreTreePose        x="5.1" y="7.4" theta="3.14"/>
         </Sequence>
      </BehaviorTree>
  </root>
  )";
 
+            // <NavigateToPoseAction     x="5.1" y="7.4" theta="3.14"/>
 int main(int argc , char** argv)
 {
   BT::BehaviorTreeFactory factory;
@@ -101,9 +103,11 @@ int main(int argc , char** argv)
   factory.registerNodeType<PrintTarget>("PrintTarget");
   RosNodeParams params; 
   params.nh = node;
-  params.default_port_value = "navigate_to_pose";
+  // params.default_port_value = "navigate_to_pose";
   // factory.registerNodeType<NavAction>("NavAction",params);
-  factory.registerNodeType<NavigateToPoseAction>("NavigateToPoseAction",params);
+  // factory.registerNodeType<NavigateToPoseAction>("NavigateToPoseAction",params);
+  params.default_port_value = "BehaviorTreePose";
+  factory.registerNodeType<BehavioreTreePose>("BehavioreTreePose",params);
   auto tree = factory.createTreeFromText(xml_text);
   tree.tickWhileRunning();
   rclcpp::spin(node);  // 开始 ROS2 事件循环

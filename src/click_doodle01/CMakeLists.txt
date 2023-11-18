@@ -17,6 +17,7 @@ find_package(behaviortree_ros2 REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(global_interfaces REQUIRED)
 
 add_executable(decision src/decision.cpp)
 ament_target_dependencies(
@@ -36,6 +37,7 @@ ament_target_dependencies(
   nav2_msgs
   tf2
   tf2_geometry_msgs
+  global_interfaces
 )
 
 install(TARGETS 

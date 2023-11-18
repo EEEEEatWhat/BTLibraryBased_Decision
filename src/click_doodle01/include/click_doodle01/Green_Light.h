@@ -1,20 +1,19 @@
 #include "behaviortree_ros2/bt_action_node.hpp"
-#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "tf2/convert.h"
-
+#include "global_interfaces/action/behavior_tree_pose.hpp"
 using namespace BT;
-
-class NavigateToPoseAction: public RosActionNode<nav2_msgs::action::NavigateToPose>
+using global_interfaces::action::BehaviorTreePose;
+class BehavioreTreePose: public RosActionNode<BehaviorTreePose>
 {
 public:
-  NavigateToPoseAction(const std::string& name,
+  BehavioreTreePose(const std::string& name,
                   const NodeConfig& conf,
                   const RosNodeParams& params)
-    : RosActionNode<nav2_msgs::action::NavigateToPose>(name, conf, params)
+    : RosActionNode<BehaviorTreePose>(name, conf, params)
   {}
 private:
     geometry_msgs::msg::PoseStamped goal_pose;
@@ -70,7 +69,7 @@ public:
   // Based on the reply you may decide to return SUCCESS or FAILURE.
   NodeStatus onResultReceived(const WrappedResult& wr) override
   {
-    
+    (void)wr;
     std::stringstream ss;
     ss << "Result received: ";
     // for (auto number : wr.result->sequence) {
@@ -88,7 +87,7 @@ public:
   // If not overridden, it will return FAILURE by default.
   virtual NodeStatus onFailure(ActionNodeErrorCode error) override
   {
-    RCLCPP_ERROR(node_->get_logger(), "Error: %s", toStr(error));
+    RCLCPP_ERROR(node_->get_logger(), "Error: %d", error);
 
     return NodeStatus::FAILURE;
   }
@@ -100,10 +99,11 @@ public:
   // the action, and consider the TreeNode completed.
   // In that case, return SUCCESS or FAILURE.
   // The Cancel request will be send automatically to the server.
-  NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override
+  NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback)
   {
+    (void)feedback;
     std::stringstream ss;
-    ss << "Next number in sequence received: "<< feedback->current_pose.pose.position.x;
+    ss << "Next number in sequence received: ";
     // for (auto number : feedback->partial_sequence) {
     //   ss << number << " ";
     // }
