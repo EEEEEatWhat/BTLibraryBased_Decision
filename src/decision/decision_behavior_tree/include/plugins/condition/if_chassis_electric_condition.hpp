@@ -8,7 +8,7 @@
 
 namespace decision_behavior_tree
 {
-    class IfChassisElectricCondition : public BT::ConditionNode
+    class IfChassisElectricCondition : public BT::SimpleConditionNode
     {
     public:
         IfChassisElectricCondition(const std::string& name, const BT::NodeConfig& config);

@@ -6,8 +6,8 @@ namespace decision_behavior_tree
         :rclcpp::Node("decision_node",options) , options_(options)
     {
         RCLCPP_INFO(this->get_logger() , "Decision node...");
-        blackboard_ = BT::Blackboard::create();
 
+        blackboard_ = BT::Blackboard::create();
         
         RCLCPP_INFO(this->get_logger() , "starting...");
         if (!this->decodeConfig(yaml_file_path,blackboard_))
@@ -84,16 +84,18 @@ namespace decision_behavior_tree
 
             blackboard_->set<geometry_msgs::msg::PoseStamped>(key_prefix,goal_pose_);
 
+            
+            //测测写进去了没
             /*
-            测测写进去了没
             geometry_msgs::msg::PoseStamped retrieved_pose = blackboard_->get<geometry_msgs::msg::PoseStamped>(key_prefix);
+            std::cout << key_prefix << '\n';
             std::cout << "pose.x=" << retrieved_pose.pose.position.x << "," 
                         << "pose.y=" << retrieved_pose.pose.position.y << "," 
                         << "pose.z=" << retrieved_pose.pose.position.z << "," 
                         << "pose.ori.x=" << retrieved_pose.pose.orientation.x << "," 
                         << "pose.ori.y=" << retrieved_pose.pose.orientation.y << "," 
                         << "pose.ori.z=" << retrieved_pose.pose.orientation.z << "," 
-                        << "pose.ori.w=" << retrieved_pose.pose.orientation.w << std::endl;
+                        << "pose.ori.w=" << retrieved_pose.pose.orientation.w << '\n';
             */
         }
         return true;
@@ -116,26 +118,55 @@ namespace decision_behavior_tree
         // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
         auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
         params.nh = node;
-        params.default_port_value = "goal_server_action";
+        params.default_port_value = "goal_server_action"; 
         factory_.registerNodeType<decision_behavior_tree::GainBloodOrBulletAction>("GainBloodOrBulletAction", params);
 
-        auto tree = factory_.createTreeFromText(xml_text,blackboard_);
+        tree_ = factory_.createTreeFromText(xml_text,blackboard_);
         
         while (rclcpp::ok())
         {
-            tree.tickOnce();
+            tree_.tickOnce();
         };
     }
 
 
 }
 
+    // 测试用
+    static const char* xml_text = R"(
+
+<root BTCPP_format="4" >
+    <BehaviorTree ID="MainTree">
+        <Sequence>
+            <GainBloodOrBulletAction supply_pose = "{supply_pose}"/>
+        </Sequence>
+    </BehaviorTree>
+</root>
+)";
+
+
 int main(int argc, char const **argv)
 {
     rclcpp::init(argc,argv);
     rclcpp::NodeOptions options;
-    auto decision_node = std::make_shared<decision_behavior_tree::DecisionNode>(options);
-    rclcpp::spin(decision_node);
+    // auto decision_node = std::make_shared<decision_behavior_tree::DecisionNode>(options);
+        BT::Blackboard::Ptr blackboard_;
+        blackboard_ = BT::Blackboard::create();
+
+    auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
+        BT::RosNodeParams params; 
+        BT::BehaviorTreeFactory factory_;
+
+        params.nh = node;
+        params.default_port_value = "goal_server_action"; 
+
+        factory_.registerNodeType<decision_behavior_tree::GainBloodOrBulletAction>("GainBloodOrBulletAction", params);
+
+        auto tree = factory_.createTreeFromText(xml_text,blackboard_);
+
+
+    rclcpp::spin(node);
+    // rclcpp::spin(decision_node);
     rclcpp::shutdown();
     return 0;
 }

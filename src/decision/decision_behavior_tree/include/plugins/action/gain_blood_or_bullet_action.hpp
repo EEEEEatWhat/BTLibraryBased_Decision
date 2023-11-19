@@ -1,4 +1,3 @@
-
 #ifndef DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
 #define DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
 
@@ -19,6 +18,7 @@ namespace decision_behavior_tree
                                 const BT::RosNodeParams &params)
             : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
         {
+            blackboard_ = config().blackboard;
         };
 
         
@@ -34,8 +34,7 @@ namespace decision_behavior_tree
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
-            BT::Blackboard::Ptr blackboard = config().blackboard;
-            goal.set__pose(blackboard->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
             RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
             return true;
         };
@@ -60,7 +59,7 @@ namespace decision_behavior_tree
         };
 
 
-        BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback)
+        BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override
         {
             (void)feedback;
             std::stringstream ss;
@@ -73,6 +72,7 @@ namespace decision_behavior_tree
         };
     private:
         std::shared_ptr<rclcpp::Node> node_;
+        BT::Blackboard::Ptr blackboard_;
         geometry_msgs::msg::PoseStamped goal_pose;
     };
 }  // namespace decision_behavior_tree

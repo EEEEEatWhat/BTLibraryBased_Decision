@@ -7,10 +7,10 @@
           <Parallel failure_count="2"
                     success_count="1">
             <Inverter>
-              <is_blood_sufficient blood_condition="{blood_condition}"/>
+              <if_blood_sufficient blood_condition="{blood_condition}"/>
             </Inverter>
             <Inverter>
-              <is_bullet_sufficient bullet_condition="{bullet_condition}"/>
+              <if_bullet_sufficient bullet_condition="{bullet_condition}"/>
             </Inverter>
           </Parallel>
           <gain_blood_or_bullet/>
@@ -64,12 +64,12 @@
                   default="{command_condition}"/>
     </Condition>
 
-    <Condition ID="is_blood_sufficient">
+    <Condition ID="if_blood_sufficient">
       <input_port name="blood_condition"
                   default="{blood_condition}"/>
     </Condition>
 
-    <Condition ID="is_bullet_sufficient">
+    <Condition ID="if_bullet_sufficient">
       <input_port name="bullet_condition"
                   default="{bullet_condition}"/>
     </Condition>
