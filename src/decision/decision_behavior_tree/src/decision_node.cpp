@@ -106,6 +106,7 @@ namespace decision_behavior_tree
 <root BTCPP_format="4" >
     <BehaviorTree ID="MainTree">
         <Sequence>
+            <IfNeedSupply/>
             <PatrolToSupplyAction supply_pose = "{supply_pose}"/>
         </Sequence>
     </BehaviorTree>
@@ -116,9 +117,11 @@ namespace decision_behavior_tree
     {
         // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
         auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
+        Condition robocondition(blackboard_);
         params.nh = node;
         params.default_port_value = "BehaviorTreePose"; 
         factory_.registerNodeType<decision_behavior_tree::PatrolToSupplyAction>("PatrolToSupplyAction", params);
+        factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.CheckBlood(); });
         tree_ = factory_.createTreeFromText(xml_text,blackboard_);
         
         // while (rclcpp::ok())
