@@ -60,8 +60,8 @@ public:
     goal_pose.header.set__frame_id("map").set__stamp(rclcpp::Clock().now());
     goal_pose.pose.set__position(goal_position);
     goal_pose.pose.set__orientation(convert<tf2::Quaternion,geometry_msgs::msg::Quaternion>(tf_qnt,geo_qnt,true));
-    goal.set__pose(goal_pose);
-    RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
+    global_interfaces::action::BehaviorTreePose::Goal ans = goal.set__pose(goal_pose);
+    RCLCPP_INFO(node_->get_logger(),"发送Goal成功. . . ");
     return true;
   };
   
@@ -69,7 +69,6 @@ public:
   // Based on the reply you may decide to return SUCCESS or FAILURE.
   NodeStatus onResultReceived(const WrappedResult& wr) override
   {
-    (void)wr;
     std::stringstream ss;
     ss << "Result received: ";
     // for (auto number : wr.result->sequence) {
@@ -101,7 +100,6 @@ public:
   // The Cancel request will be send automatically to the server.
   NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback)
   {
-    (void)feedback;
     std::stringstream ss;
     ss << "Next number in sequence received: ";
     // for (auto number : feedback->partial_sequence) {
