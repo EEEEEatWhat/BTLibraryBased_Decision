@@ -1,5 +1,5 @@
-#ifndef DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
-#define DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
+#ifndef DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__PATROL_TO_SUPPLY_ACTION_HPP
+#define DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__PATROL_TO_SUPPLY_ACTION_HPP
 
 
 #include "rclcpp/rclcpp.hpp"
@@ -10,31 +10,28 @@
 
 namespace decision_behavior_tree
 {
-    class GainBloodOrBulletAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
+    class PatrolToSupplyAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
     public:
-        GainBloodOrBulletAction(const std::string &name,
+        PatrolToSupplyAction(const std::string &name,
                                 const BT::NodeConfig &conf,
                                 const BT::RosNodeParams &params)
             : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
         {
             blackboard_ = config().blackboard;
+
         };
-
-        
-
 
         static BT::PortsList providedPorts()
         {
             return providedBasicPorts({BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")});
-
-            // return {BT::OutputPort<geometry_msgs::msg::PoseStamped>("supply_pose")};
         };
 
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
             goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
+            // goal.set__prior('a');
             RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
             return true;
         };
@@ -42,11 +39,20 @@ namespace decision_behavior_tree
 
         BT::NodeStatus onResultReceived(const WrappedResult &wr) override
         {
-            (void)wr;
-            std::stringstream ss;
-            ss << "Result received: ";
-
-            RCLCPP_INFO(node_->get_logger(), ss.str().c_str());
+            switch (wr.code) {
+                case rclcpp_action::ResultCode::SUCCEEDED:
+                break;
+                case rclcpp_action::ResultCode::ABORTED:
+                    RCLCPP_INFO(node_->get_logger()," 任务被中止...");
+                    return BT::NodeStatus::FAILURE;
+                case rclcpp_action::ResultCode::CANCELED:
+                    RCLCPP_INFO(node_->get_logger()," 任务被取消...");
+                    return BT::NodeStatus::FAILURE;
+                default:
+                    RCLCPP_INFO(node_->get_logger()," 未知异常...");
+                    return BT::NodeStatus::FAILURE;
+            }
+            std::cout << "任务执行完毕..." << '\n';
             return BT::NodeStatus::SUCCESS;
         };
 
@@ -54,27 +60,21 @@ namespace decision_behavior_tree
         virtual BT::NodeStatus onFailure(BT::ActionNodeErrorCode error) override
         {
             RCLCPP_ERROR(node_->get_logger(), "Error: %s", toStr(error));
-
             return BT::NodeStatus::FAILURE;
         };
 
 
         BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override
         {
-            (void)feedback;
-            std::stringstream ss;
-            ss << "Next number in sequence received: ";
-            // for (auto number : feedback->partial_sequence) {
-            //   ss << number << " ";
-            // }
-            RCLCPP_INFO(node_->get_logger(), ss.str().c_str());
+            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f ", feedback->distance_remaining);
             return BT::NodeStatus::RUNNING;
         };
+        
     private:
-        std::shared_ptr<rclcpp::Node> node_;
+        // std::shared_ptr<rclcpp::Node> node_;
         BT::Blackboard::Ptr blackboard_;
         geometry_msgs::msg::PoseStamped goal_pose;
     };
 }  // namespace decision_behavior_tree
 
-#endif //DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__GAIN_BLOOD_OR_BULLET_ACTION_HPP
+#endif //DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__PATROL_TO_SUPPLY_ACTION_HPP
