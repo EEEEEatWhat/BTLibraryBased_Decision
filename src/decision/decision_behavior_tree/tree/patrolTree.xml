@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="patrolTree">
+    <Sequence>
+      <Sequence>
+        <IfNeedSupply/>
+        <PatrolToSupply IfNeedSupply=""/>
+      </Sequence>
+      <Sequence>
+        <GameStatus/>
+        <HappyPatrol/>
+      </Sequence>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="GameStatus"
+               editable="true"/>
+    <Action ID="HappyPatrol"
+            editable="true"/>
+    <Condition ID="IfNeedSupply"
+               editable="true"/>
+    <Action ID="PatrolToSupply"
+            editable="true">
+      <input_port name="IfNeedSupply"
+                  default="{IfNeedSupply}">获取该状态节点的返回值</input_port>
+    </Action>
+  </TreeNodesModel>
+
+</root>
