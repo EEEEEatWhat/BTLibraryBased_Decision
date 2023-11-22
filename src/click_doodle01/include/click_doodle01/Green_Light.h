@@ -55,13 +55,13 @@ public:
     src/decision/decision_behavior_tree/include/plugins/action/gain_blood_or_bullet_action.hpp
     测试 : ros2 run decision decision_node
     */
-    goal_position.set__x(1.0).set__y(1.0).set__z(0);
+    goal_position.set__x(0.5).set__y(1.0).set__z(0);
     tf_qnt.setRPY(1.1,1.2,1.3);
     goal_pose.header.set__frame_id("map").set__stamp(rclcpp::Clock().now());
     goal_pose.pose.set__position(goal_position);
     goal_pose.pose.set__orientation(convert<tf2::Quaternion,geometry_msgs::msg::Quaternion>(tf_qnt,geo_qnt,true));
     global_interfaces::action::BehaviorTreePose::Goal ans = goal.set__pose(goal_pose);
-    RCLCPP_INFO(node_->get_logger(),"发送Goal成功. . . ");
+    RCLCPP_INFO(node_->get_logger(),"设置goal. . . ");
     return true;
   };
   
@@ -86,7 +86,7 @@ public:
   // If not overridden, it will return FAILURE by default.
   virtual NodeStatus onFailure(ActionNodeErrorCode error) override
   {
-    RCLCPP_ERROR(node_->get_logger(), "Error: %d", error);
+    RCLCPP_ERROR(node_->get_logger(), "Error: %s", toStr(error));
 
     return NodeStatus::FAILURE;
   }
@@ -101,10 +101,8 @@ public:
   NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback)
   {
     std::stringstream ss;
-    ss << "Next number in sequence received: ";
-    // for (auto number : feedback->partial_sequence) {
-    //   ss << number << " ";
-    // }
+    ss << "feedback->current_pose.pose.position.x: "<<feedback->current_pose.pose.position.x;
+
     RCLCPP_INFO(node_->get_logger(), ss.str().c_str());
     return NodeStatus::RUNNING;
   }

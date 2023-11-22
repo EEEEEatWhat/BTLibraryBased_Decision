@@ -17,10 +17,9 @@
 
 using namespace std::placeholders;
 using geometry_msgs::msg::PoseStamped;
+
 using global_interfaces::action::BehaviorTreePose;
 using nav2_msgs::action::NavigateToPose;
-using GoalHandlePose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
-
 class GoalActionServer: public rclcpp::Node {
 public:
     GoalActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions()):        
@@ -33,18 +32,18 @@ public:
             std::bind(&GoalActionServer::handle_cancel,this,_1),
             std::bind(&GoalActionServer::handle_accepted,this,_1)
         );
-        RCLCPP_INFO(this->get_logger(),"创建BehaviorTreeAction服务端成功 !\n");
+        RCLCPP_INFO(this->get_logger(),"创建BehaviorTreeAction服务端成功 !");
         
         this->client_ptr_ = rclcpp_action::create_client<NavigateToPose>(this,"navigate_to_pose");
         send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
         send_goal_options.goal_response_callback =std::bind(&GoalActionServer::goal_response_callback, this, _1);
         send_goal_options.feedback_callback =std::bind(&GoalActionServer::feedback_callback, this, _1, _2);
         send_goal_options.result_callback =std::bind(&GoalActionServer::result_callback, this, _1);
-        RCLCPP_INFO(this->get_logger(),"创建Navigate_to_pose客户端成功 !\n");
+        RCLCPP_INFO(this->get_logger(),"创建Navigate_to_pose客户端成功 !");
     };
 private:
     rclcpp_action::GoalResponse handle_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const  BehaviorTreePose::Goal> goal_handle){
-
+        
         std::cout<<"BehaviorTreePose 接受到goal开始处理. . . "<<"\n";
         return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
     };
@@ -76,67 +75,83 @@ private:
         goal_msg.set__pose(goal_handle->get_goal()->pose);
         // goal_msg.set__behavior_tree();
         RCLCPP_INFO(this->get_logger(), "navigate_to_pose 组织Nav2数据！");
-
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
         send_goal_options.goal_response_callback =std::bind(&GoalActionServer::goal_response_callback, this, _1);
         send_goal_options.feedback_callback =std::bind(&GoalActionServer::feedback_callback, this, _1, _2);
         send_goal_options.result_callback =std::bind(&GoalActionServer::result_callback, this, _1);
         auto goal_handle_future = this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
         RCLCPP_INFO(this->get_logger(), "navigate_to_pose 发送Nav2数据！");
-        
         /*
-        if (rclcpp::spin_until_future_complete(this->shared_from_this(), goal_handle_future) !=
-            rclcpp::FutureReturnCode::SUCCESS)
-        {
-            RCLCPP_ERROR(this->get_logger(), "发送请求失败");
+            if (rclcpp::spin_until_future_complete(this->shared_from_this(), goal_handle_future) !=
+                rclcpp::FutureReturnCode::SUCCESS)
+            {
+                RCLCPP_ERROR(this->get_logger(), "发送请求失败");
+                return;
+            }
+        */
+        auto goal_future_handle_get = goal_handle_future.get();
+        if (!goal_future_handle_get) {
+            RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 请求失败");
             return;
         }
-        */
-            auto goal_future_handle_get = goal_handle_future.get();
-            if (!goal_future_handle_get) {
-                RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 请求失败");
-                // break;
-            }
-        /*
-            在此处阻塞，等待条件变量通知，获取navigation反馈值，并发布行为树反馈值
-        */
+        /* 在此处阻塞，等待条件变量通知，获取navigation反馈值，并发布行为树反馈值 */
         while(true) {
             std::unique_lock<std::mutex> ulguard(goal_mtx);
             execute_cv.wait(ulguard,[this]{
                 return IsGoalSent || IsFeedbackSent || IsResultSent; //任何一个回调函数被执行，都唤醒一次
             });
             //根据变量决定返回BT值是什么
-            //只要goal确定
             if(IsGoalSent){
                 RCLCPP_INFO(this->get_logger(),"navigate_to_pose 目标已接收");
                 IsGoalSent = false;
             }
             if(IsFeedbackSent) {
                 RCLCPP_INFO(this->get_logger(),"navigate_to_pose 发送反馈");
-                // goal_handle->publish_feedback();
+                try {
+                /*我知道这看起来很奇怪，但是尝试了 shared_ptr 总是出现 Segmentation fault */
+                auto Pfeedback_rec = std::make_shared<global_interfaces::action::BehaviorTreePose::Feedback>(feedback_rec);
+                goal_handle->publish_feedback(Pfeedback_rec);        
+                } catch(const std::exception& e) {
+                    std::cerr << e.what() << '\n';
+                }
                 IsFeedbackSent = false;
             }
             if(IsResultSent) {
-                RCLCPP_INFO(this->get_logger(),"navigate_to_pose 发送反馈");
-                // goal_handle->publish_feedback();
+                RCLCPP_INFO(this->get_logger(),"navigate_to_pose 发送结果");
                 IsResultSent = false;
+                switch (result_rec.code) {
+                    case rclcpp_action::ResultCode::SUCCEEDED:
+                        try {
+                            auto Presult_rec = std::make_shared<global_interfaces::action::BehaviorTreePose::Result>();
+                            Presult_rec->result_pose = result_rec.result->result_pose;
+                            goal_handle->succeed(Presult_rec);        
+                            std::cout<<"向BT返回成功状态"<<"\n";
+                        } catch(const std::exception& e) {
+                            std::cerr << e.what() << '\n';}
+                        break;
+                    case rclcpp_action::ResultCode::ABORTED:
+                        RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 任务被中止");
+                        try {
+                            auto Presult_rec = std::make_shared<global_interfaces::action::BehaviorTreePose::Result>();
+                            goal_handle->abort(Presult_rec);        
+                            std::cout<<"向BT返回ABORTED状态"<<"\n";
+                        } catch(const std::exception& e) {
+                            std::cerr << e.what() << '\n';}
+                        break;
+                    case rclcpp_action::ResultCode::CANCELED:
+                        RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 任务被取消");
+                        return;
+                    default:
+                        RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 未知异常");
+                        return;
+                }
                 break;
             }
         }
-        auto result_msg = std::make_shared<global_interfaces::action::BehaviorTreePose::Result>();
-        auto status = goal_future_handle_get->get_status();
-        try {
-            goal_handle->succeed(result_msg);        
-            std::cout<<"任务完成. . .  "<<"\n";
-        }
-        catch(const std::exception& e) {
-            std::cerr << e.what() << '\n';
-        }
-
     }
 
 
-    void goal_response_callback(GoalHandlePose::SharedPtr goal_handle){ 
+    void goal_response_callback(rclcpp_action::ClientGoalHandle<NavigateToPose>::SharedPtr goal_handle){ 
         if (!goal_handle) {
             RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 目标请求被服务器拒绝！");
         } 
@@ -150,48 +165,55 @@ private:
         execute_cv.notify_one();
     }
 
-    void feedback_callback(GoalHandlePose::SharedPtr goal_handle,const std::shared_ptr<const NavigateToPose::Feedback> feedback){
+    void feedback_callback(rclcpp_action::ClientGoalHandle<NavigateToPose>::SharedPtr goal_handle,const std::shared_ptr<const NavigateToPose::Feedback> feedback){
         std::cout<<"navigate_to_pose 连续反馈"<<"\n";
         std::unique_lock<std::mutex> ulguard(goal_mtx);
-        feedback_rec = feedback;
+        feedback_rec.current_pose = feedback->current_pose;
+        feedback_rec.distance_remaining = feedback->distance_remaining;
+        feedback_rec.estimated_time_remaining = feedback->estimated_time_remaining;
+        feedback_rec.navigation_time = feedback->navigation_time;
+        feedback_rec.number_of_recoveries = feedback->number_of_recoveries;
         IsFeedbackSent = true;
         ulguard.unlock();
         execute_cv.notify_one();
     }
 
-    void result_callback(const GoalHandlePose::WrappedResult & result){
+    void result_callback(const rclcpp_action::ClientGoalHandle<NavigateToPose>::WrappedResult & result){
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
+                RCLCPP_INFO(this->get_logger(), "navigate_to_pose 任务执行完毕");
                 break;
             case rclcpp_action::ResultCode::ABORTED:
                 RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 任务被中止");
-                return;
+                break;
             case rclcpp_action::ResultCode::CANCELED:
                 RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 任务被取消");
-                return;
+                break;
             default:
                 RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 未知异常");
-                return;
-        }
+                break;
         std::unique_lock<std::mutex> ulguard(goal_mtx);
-        result_rec = result.result->result;
         IsResultSent = true;
+        result_rec.code = result.code;
+        result_rec.goal_id = result.goal_id;
+        /* 等于最后一次反馈的坐标位置 */
+        result_rec.result->result_pose = feedback_rec.current_pose;
         ulguard.unlock();
         execute_cv.notify_one();
-        RCLCPP_INFO(this->get_logger(), "navigate_to_pose 任务执行完毕");
+        }
     }
 
 private:
-    std::mutex goal_mtx,feedback_mtx,result_mtx;
+    std::mutex goal_mtx;
+    std::condition_variable execute_cv;
     bool IsGoalSent     = false,
         IsFeedbackSent  = false,
         IsResultSent    = false;
-    std::condition_variable execute_cv;
     rclcpp_action::Server<BehaviorTreePose>::SharedPtr pose_sub;
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_ptr_;
-    rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions send_goal_options;
-    std::shared_ptr<const NavigateToPose::Feedback> feedback_rec;
-    std_msgs::msg::Empty  result_rec;
+    rclcpp_action::Client<NavigateToPose>::SendGoalOptions send_goal_options;
+    global_interfaces::action::BehaviorTreePose::Feedback feedback_rec;
+    rclcpp_action::ClientGoalHandle<BehaviorTreePose>::WrappedResult  result_rec;
     
 };
 
@@ -255,7 +277,7 @@ private:
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_ptr_;
 
   // 3-3.处理目标发送后的反馈；
-    void goal_response_callback(GoalHandlePose::SharedPtr goal_handle)
+    void goal_response_callback(rclcpp_action::ClientGoalHandle<NavigateToPose>::SharedPtr goal_handle)
     { 
     if (!goal_handle) {
         RCLCPP_ERROR(this->get_logger(), "目标请求被服务器拒绝！");
@@ -265,13 +287,13 @@ private:
 }
 
   // 3-4.处理连续反馈；
-    void feedback_callback(GoalHandlePose::SharedPtr goal_handle,const std::shared_ptr<const NavigateToPose::Feedback> feedback)
+    void feedback_callback(rclcpp_action::ClientGoalHandle<NavigateToPose>::SharedPtr goal_handle,const std::shared_ptr<const NavigateToPose::Feedback> feedback)
     {
         std::cout<<"连续反馈"<<"\n";
     }
 
   // 3-5.处理最终响应。
-    void result_callback(const GoalHandlePose::WrappedResult & result)
+    void result_callback(const rclcpp_action::ClientGoalHandle<NavigateToPose>::WrappedResult & result)
     {
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
