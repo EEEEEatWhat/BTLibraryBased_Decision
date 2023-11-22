@@ -4,7 +4,7 @@
     <Sequence>
       <Sequence>
         <IfNeedSupply/>
-        <PatrolToSupply IfNeedSupply=""/>
+        <PatrolToSupplyAction supply_pose = "{supply_pose}"/>
       </Sequence>
       <Sequence>
         <GameStatus/>
@@ -16,15 +16,15 @@
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
     <Condition ID="GameStatus"
-               editable="true"/>
+            editable="true"/>
     <Action ID="HappyPatrol"
             editable="true"/>
     <Condition ID="IfNeedSupply"
-               editable="true"/>
-    <Action ID="PatrolToSupply"
+            editable="true"/>
+    <Action ID="PatrolToSupplyAction"
             editable="true">
-      <input_port name="IfNeedSupply"
-                  default="{IfNeedSupply}">获取该状态节点的返回值</input_port>
+      <input_port name="supply_pose"
+                  default="{supply_pose}"/>
     </Action>
   </TreeNodesModel>
 
