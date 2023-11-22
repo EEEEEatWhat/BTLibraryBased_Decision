@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef DECISION_BEHAVIOR_TREE__DECISION_NODE_HPP
 #define DECISION_BEHAVIOR_TREE__DECISION_NODE_HPP
 
@@ -18,7 +16,7 @@
 
 
 #include "go_pub.hpp"
-#include "plugins/action/gain_blood_or_bullet_action.hpp"
+#include "plugins/action/patrol_to_supply_action.hpp"
 namespace decision_behavior_tree
 {
     class DecisionNode : public rclcpp::Node
@@ -57,7 +55,7 @@ namespace decision_behavior_tree
         BT::RosNodeParams params; 
         rclcpp::NodeOptions options_;
         BT::BehaviorTreeFactory factory_;
-        const std::string xml_file_path = "src/decision/decision_behavior_tree/behavior_tree.xml";
+        const std::string xml_file_path = "src/decision/decision_behavior_tree/tree/mainTree.xml";
         const std::string yaml_file_path = "src/decision/params/init_pose.yaml";
     };
 }
