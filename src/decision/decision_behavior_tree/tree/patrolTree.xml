@@ -4,10 +4,10 @@
     <Sequence>
       <Sequence>
         <IfNeedSupply/>
-        <PatrolToSupplyAction supply_pose = "{supply_pose}"/>
+        <PatrolToSupply supply_pose = "{supply_pose}"/>
       </Sequence>
       <Sequence>
-        <GameStatus/>
+        <CheckGameStatus/>
         <HappyPatrol/>
       </Sequence>
     </Sequence>
@@ -21,7 +21,7 @@
             editable="true"/>
     <Condition ID="IfNeedSupply"
             editable="true"/>
-    <Action ID="PatrolToSupplyAction"
+    <Action ID="PatrolToSupply"
             editable="true">
       <input_port name="supply_pose"
                   default="{supply_pose}"/>

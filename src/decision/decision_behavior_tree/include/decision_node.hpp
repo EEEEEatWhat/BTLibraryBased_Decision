@@ -16,9 +16,8 @@
 
 
 #include "go_pub.hpp"
-#include "plugins/action/patrol_to_supply_action.hpp"
-#include "plugins/condition/if_need_supply.hpp"
-#include "plugins/condition_node.hpp"
+#include "action/patrol_to_supply_action.hpp"
+#include "condition_node.hpp"
 namespace decision_behavior_tree
 {
     class DecisionNode : public rclcpp::Node
@@ -54,8 +53,7 @@ namespace decision_behavior_tree
         BT::Blackboard::Ptr blackboard_;
 
     private:
-        BT::RosNodeParams params; 
-        BT::NodeConfig config;
+        BT::RosNodeParams patrolParams; 
         rclcpp::NodeOptions options_;
         BT::BehaviorTreeFactory factory_;
         const std::string xml_file_path = "src/decision/decision_behavior_tree/tree/mainTree.xml";

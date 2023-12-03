@@ -82,20 +82,6 @@ namespace decision_behavior_tree
             goal_pose_.pose.set__orientation(convert<tf2::Quaternion, geometry_msgs::msg::Quaternion>(tf_qnt, geo_qnt, true));
 
             blackboard_->set<geometry_msgs::msg::PoseStamped>(key_prefix,goal_pose_);
-
-            
-            //测测写进去了没
-            /*
-            geometry_msgs::msg::PoseStamped retrieved_pose = blackboard_->get<geometry_msgs::msg::PoseStamped>(key_prefix);
-            std::cout << key_prefix << '\n';
-            std::cout << "pose.x=" << retrieved_pose.pose.position.x << "," 
-                        << "pose.y=" << retrieved_pose.pose.position.y << "," 
-                        << "pose.z=" << retrieved_pose.pose.position.z << "," 
-                        << "pose.ori.x=" << retrieved_pose.pose.orientation.x << "," 
-                        << "pose.ori.y=" << retrieved_pose.pose.orientation.y << "," 
-                        << "pose.ori.z=" << retrieved_pose.pose.orientation.z << "," 
-                        << "pose.ori.w=" << retrieved_pose.pose.orientation.w << '\n';
-            */
         }
         return true;
     }
@@ -107,7 +93,7 @@ namespace decision_behavior_tree
     <BehaviorTree ID="MainTree">
         <Sequence>
             <IfNeedSupply/>
-            <PatrolToSupplyAction supply_pose = "{supply_pose}"/>
+            <PatrolToSupply supply_pose = "{supply_pose}"/>
         </Sequence>
     </BehaviorTree>
 </root>
@@ -115,14 +101,19 @@ namespace decision_behavior_tree
 
     void DecisionNode::init()
     {
-        // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
         auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
         Condition robocondition(blackboard_);
-        params.nh = node;
-        params.default_port_value = "BehaviorTreePose"; 
-        factory_.registerNodeType<decision_behavior_tree::PatrolToSupplyAction>("PatrolToSupplyAction", params);
+        patrolParams.nh = node;
+        patrolParams.default_port_value = "BehaviorTreePose"; 
+
+        factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return robocondition.CheckEnemy()});
         factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.CheckBlood(); });
+        factory_.registerSimpleCondition("CheckGameStatus", [&](BT::TreeNode&) { return robocondition.CheckGameStatus(); });
+        factory_.registerNodeType<decision_behavior_tree::PatrolToSupplyAction>("PatrolToSupply", patrolParams);
+
+
         tree_ = factory_.createTreeFromText(xml_text,blackboard_);
+        // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
         
         // while (rclcpp::ok())
         // {
