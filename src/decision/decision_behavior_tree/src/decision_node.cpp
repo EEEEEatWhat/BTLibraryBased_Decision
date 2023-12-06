@@ -110,10 +110,11 @@ namespace decision_behavior_tree
         factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.CheckBlood(); });
         factory_.registerSimpleCondition("CheckGameStatus", [&](BT::TreeNode&) { return robocondition.CheckGameStatus(); });
         factory_.registerNodeType<decision_behavior_tree::PatrolToSupplyAction>("PatrolToSupply", patrolParams);
+        factory_.registerNodeType<decision_behavior_tree::GainBloodAction>("GainBlood");
 
+        tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
 
-        tree_ = factory_.createTreeFromText(xml_text,blackboard_);
-        // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
+        // tree_ = factory_.createTreeFromText(xml_text,blackboard_);
         
         // while (rclcpp::ok())
         // {

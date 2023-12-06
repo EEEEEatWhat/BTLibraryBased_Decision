@@ -31,7 +31,6 @@ namespace decision_behavior_tree
         bool setGoal(RosActionNode::Goal &goal) override
         {   
             goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
-            // goal.set__prior('a');
             RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
             return true;
         };
