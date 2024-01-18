@@ -1,5 +1,5 @@
-#ifndef DECISION_BEHAVIOR_TREE__ACTION__PATROL_TO_SUPPLY_ACTION_HPP
-#define DECISION_BEHAVIOR_TREE__ACTION__PATROL_TO_SUPPLY_ACTION_HPP
+#ifndef robot_decision__ACTION__PATROL_TO_SUPPLY_ACTION_HPP
+#define robot_decision__ACTION__PATROL_TO_SUPPLY_ACTION_HPP
 
 
 #include "rclcpp/rclcpp.hpp"
@@ -8,7 +8,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "global_interfaces/action/behavior_tree_pose.hpp"
 
-namespace decision_behavior_tree
+namespace robot_decision
 {
     class PatrolToSupplyAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
@@ -73,6 +73,6 @@ namespace decision_behavior_tree
         BT::Blackboard::Ptr blackboard_;
         geometry_msgs::msg::PoseStamped goal_pose;
     };
-}  // namespace decision_behavior_tree
+}  // namespace robot_decision
 
-#endif //DECISION_BEHAVIOR_TREE__PLUGINS__ACTION__PATROL_TO_SUPPLY_ACTION_HPP
+#endif //robot_decision__PLUGINS__ACTION__PATROL_TO_SUPPLY_ACTION_HPP

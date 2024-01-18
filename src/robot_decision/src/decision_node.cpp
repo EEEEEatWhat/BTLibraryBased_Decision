@@ -1,6 +1,6 @@
 #include "decision_node.hpp"
 
-namespace decision_behavior_tree
+namespace robot_decision
 {
     DecisionNode::DecisionNode(const rclcpp::NodeOptions &options)
         :rclcpp::Node("decision_node",options) , options_(options)
@@ -109,8 +109,8 @@ namespace decision_behavior_tree
         factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return robocondition.CheckEnemy()});
         factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.CheckBlood(); });
         factory_.registerSimpleCondition("CheckGameStatus", [&](BT::TreeNode&) { return robocondition.CheckGameStatus(); });
-        factory_.registerNodeType<decision_behavior_tree::PatrolToSupplyAction>("PatrolToSupply", patrolParams);
-        factory_.registerNodeType<decision_behavior_tree::GainBloodAction>("GainBlood");
+        factory_.registerNodeType<robot_decision::PatrolToSupplyAction>("PatrolToSupply", patrolParams);
+        factory_.registerNodeType<robot_decision::GainBloodAction>("GainBlood");
 
         tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
 
@@ -131,7 +131,7 @@ int main(int argc, char const **argv)
 {
     rclcpp::init(argc,argv);
     rclcpp::NodeOptions options;
-    auto decision_node = std::make_shared<decision_behavior_tree::DecisionNode>(options);
+    auto decision_node = std::make_shared<robot_decision::DecisionNode>(options);
     rclcpp::spin(decision_node);
     rclcpp::shutdown();
     return 0;

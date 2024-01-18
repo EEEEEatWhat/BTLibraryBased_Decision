@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef DECISION_BEHAVIOR_TREE__GO_SERVER_HPP_
-#define DECISION_BEHAVIOR_TREE__GO_SERVER_HPP_
+#ifndef ROBOT_DECISION__INCLUDE__GO_SERVER_HPP_
+#define ROBOT_DECISION__INCLUDE__GO_SERVER_HPP_
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/qos.hpp>

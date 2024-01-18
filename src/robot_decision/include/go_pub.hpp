@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef DECISION_BEHAVIOR_TREE__GO_PUB_HPP_
-#define DECISION_BEHAVIOR_TREE__GO_PUB_HPP_
+#ifndef ROBOT_DECISION__INCLUDE__GO_PUB_HPP_
+#define ROBOT_DECISION__INCLUDE__GO_PUB_HPP_
 
 #include <vector>
 #include <sstream>
@@ -23,7 +23,7 @@
 
 
 
-namespace decision_behavior_tree
+namespace robot_decision
 {
 using namespace std::chrono_literals;
 
@@ -148,6 +148,6 @@ using namespace std::chrono_literals;
         std::shared_ptr<rclcpp::Node> go_pub_node ;
 
     };
-} // namespace decision_behavior_tree
+} // namespace robot_decision
 
-#endif // DECISION_BEHAVIOR_TREE__GO_PUB_HPP_
+#endif // ROBOT_DECISION__INCLUDE__GO_PUB_HPP_

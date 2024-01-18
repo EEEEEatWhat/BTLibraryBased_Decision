@@ -1,5 +1,5 @@
-#ifndef DECISION_BEHAVIOR_TREE__ACTION__GAIN_BLOOD_ACTION_HPP_
-#define DECISION_BEHAVIOR_TREE__ACTION__GAIN_BLOOD_ACTION_HPP_
+#ifndef ROBOT_DECISION__INCLUDE__ACTION__GAIN_BLOOD_ACTION_HPP_
+#define ROBOT_DECISION__INCLUDE__ACTION__GAIN_BLOOD_ACTION_HPP_
 
 #include <string>
 #include <chrono>
@@ -11,7 +11,7 @@
 #include <logging.hpp>
 
 
-namespace decision_behavior_tree
+namespace robot_decision
 {
     class GainBloodAction : public BT::StatefulActionNode
     {

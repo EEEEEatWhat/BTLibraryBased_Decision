@@ -1,5 +1,5 @@
-#ifndef DECISION_BEHAVIOR_TREE__DECISION_NODE_HPP
-#define DECISION_BEHAVIOR_TREE__DECISION_NODE_HPP
+#ifndef ROBOT_DECISION__INCLUDE__DECISION_NODE_HPP
+#define ROBOT_DECISION__INCLUDE__DECISION_NODE_HPP
 
 #include <memory>
 
@@ -18,7 +18,7 @@
 #include "go_pub.hpp"
 #include "action/patrol_to_supply_action.hpp"
 #include "condition_node.hpp"
-namespace decision_behavior_tree
+namespace robot_decision
 {
     class DecisionNode : public rclcpp::Node
     {
@@ -56,7 +56,7 @@ namespace decision_behavior_tree
         BT::RosNodeParams patrolParams; 
         rclcpp::NodeOptions options_;
         BT::BehaviorTreeFactory factory_;
-        const std::string xml_file_path = "src/decision/decision_behavior_tree/tree/mainTree.xml";
+        const std::string xml_file_path = "src/decision/robot_decision/tree/mainTree.xml";
         const std::string yaml_file_path = "src/decision/params/init_pose.yaml";
     };
 }

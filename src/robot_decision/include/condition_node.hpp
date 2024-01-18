@@ -1,10 +1,10 @@
-#ifndef DECISION_BEHAVIOR_TREE__PLUGINS__CONDITION_NODE_HPP_
-#define DECISION_BEHAVIOR_TREE__PLUGINS__CONDITION_NODE_HPP_
+#ifndef ROBOT_DECISION__INCLUDE__CONDITION_NODE_HPP_
+#define ROBOT_DECISION__INCLUDE__CONDITION_NODE_HPP_
 
 #include "behaviortree_cpp/behavior_tree.h"
 
 
-namespace decision_behavior_tree{
+namespace robot_decision{
     /* 提供检查状态的各项接口 */
     class Condition
     {
