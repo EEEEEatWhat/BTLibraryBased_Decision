@@ -10,7 +10,7 @@ namespace robot_decision
         blackboard_ = BT::Blackboard::create();
         
         RCLCPP_INFO(this->get_logger() , "starting...");
-        if (!this->decodeConfig(yaml_file_path,blackboard_))
+        if (!this->Decode_config(init_pose_path,blackboard_))
         {
             RCLCPP_ERROR(this->get_logger() , "Failed to get Config!");
             abort();
@@ -30,7 +30,7 @@ namespace robot_decision
         return b;
     };
 
-    bool DecisionNode::decodeConfig(std::string yaml_file,BT::Blackboard::Ptr blackboard_)
+    bool DecisionNode::decodeConfig(std::string init_pose_path,BT::Blackboard::Ptr blackboard_)
     {
         struct Pose
         {
@@ -42,7 +42,7 @@ namespace robot_decision
             double yaw;
         };
 
-        YAML::Node yaml_node = YAML::LoadFile(yaml_file);
+        YAML::Node yaml_node = YAML::LoadFile(init_pose_path);
         std::map<std::string, Pose> poses_map = { {"supply_pose", {}} , {"born_pose", {}}};
         
         // 遍历位姿信息的键 自动按键的首字母顺序读取
