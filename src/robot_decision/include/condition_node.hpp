@@ -16,11 +16,10 @@ namespace robot_decision{
         Condition(BT::Blackboard::Ptr blackboard_): blackboard_(blackboard_)
         {}
         
-        BT::NodeStatus CheckBlood()
+        BT::NodeStatus Check_blood()
         {
-            // lowest_blood = blackboard_->get<float>("lowest_blood");
+            lowest_blood = blackboard_->get<float>("lowest_blood");
             // current_blood = // 裁判系统 参数服务器
-            lowest_blood = 100;
             current_blood = 50;
             if (current_blood < lowest_blood)
                 {
@@ -29,12 +28,12 @@ namespace robot_decision{
                 return BT::NodeStatus::FAILURE;
         }
 
-        BT::NodeStatus CheckEnemy()
+        BT::NodeStatus Check_enemy()
         {
             
         }
 
-        BT::NodeStatus CheckGameStatus()
+        BT::NodeStatus Check_game_status()
         {
             
         }

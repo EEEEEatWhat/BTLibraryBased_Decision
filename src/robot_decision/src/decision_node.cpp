@@ -10,13 +10,13 @@ namespace robot_decision
         blackboard_ = BT::Blackboard::create();
         
         RCLCPP_INFO(this->get_logger() , "starting...");
-        if (!this->Decode_config(init_pose_path,blackboard_))
+        if (!this->Decode_config_pose(init_pose_path, condition_path, blackboard_))
         {
             RCLCPP_ERROR(this->get_logger() , "Failed to get Config!");
             abort();
         }
         
-        this->init();
+        this->Init();
     }
 
     DecisionNode::~DecisionNode()
@@ -30,7 +30,7 @@ namespace robot_decision
         return b;
     };
 
-    bool DecisionNode::decodeConfig(std::string init_pose_path,BT::Blackboard::Ptr blackboard_)
+    bool DecisionNode::Decode_config_pose(std::string init_pose_path, std::string condition_path, BT::Blackboard::Ptr blackboard_)
     {
         struct Pose
         {
@@ -80,37 +80,44 @@ namespace robot_decision
             goal_position.set__x(poses_map[pose_key].x).set__y(poses_map[pose_key].y).set__z(poses_map[pose_key].z);
             goal_pose_.pose.set__position(goal_position);
             goal_pose_.pose.set__orientation(convert<tf2::Quaternion, geometry_msgs::msg::Quaternion>(tf_qnt, geo_qnt, true));
-
+    
             blackboard_->set<geometry_msgs::msg::PoseStamped>(key_prefix,goal_pose_);
+        }
+        float lowest_blood;
+        if (this->get_parameter<float>("lowest_blood", lowest_blood)) {
+            blackboard_->set<float>("lowest_blood", lowest_blood);
+            RCLCPP_INFO(this->get_logger(), "Lowest blood parameter set to: %f", lowest_blood);
+        } else {
+            RCLCPP_ERROR(this->get_logger(), "Failed to get lowest blood parameter");
         }
         return true;
     }
 
     // 测试用
-    static const char* xml_text = R"(
+//     static const char* xml_text = R"(
 
-<root BTCPP_format="4" >
-    <BehaviorTree ID="MainTree">
-        <Sequence>
-            <IfNeedSupply/>
-            <PatrolToSupply supply_pose = "{supply_pose}"/>
-        </Sequence>
-    </BehaviorTree>
-</root>
-)";
+// <root BTCPP_format="4" >
+//     <BehaviorTree ID="MainTree">
+//         <Sequence>
+//             <IfNeedSupply/>
+//             <PatrolToSupply supply_pose = "{supply_pose}"/>
+//         </Sequence>
+//     </BehaviorTree>
+// </root>
+// )";
 
-    void DecisionNode::init()
+    void DecisionNode::Init()
     {
         auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
         Condition robocondition(blackboard_);
         patrolParams.nh = node;
         patrolParams.default_port_value = "BehaviorTreePose"; 
 
-        factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return robocondition.CheckEnemy()});
-        factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.CheckBlood(); });
-        factory_.registerSimpleCondition("CheckGameStatus", [&](BT::TreeNode&) { return robocondition.CheckGameStatus(); });
+        factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return robocondition.Check_enemy(); });
+        factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.Check_blood(); });
+        factory_.registerSimpleCondition("CheckGameStatus", [&](BT::TreeNode&) { return robocondition.Check_game_status(); });
         factory_.registerNodeType<robot_decision::PatrolToSupplyAction>("PatrolToSupply", patrolParams);
-        factory_.registerNodeType<robot_decision::GainBloodAction>("GainBlood");
+        // factory_.registerNodeType<robot_decision::GainBloodAction>("GainBlood");
 
         tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
 
@@ -123,7 +130,7 @@ namespace robot_decision
         // };
     }
 
-
+    
 }
 
 

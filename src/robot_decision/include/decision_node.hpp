@@ -34,19 +34,19 @@ namespace robot_decision
         B convert(const A &a, B &b, bool c);
 
         /**
-         *  @brief 载入配置信息
-         *  @param yaml_file
-         *         yaml文件路径
+         *  @brief 载入信息
+         *  @param init_pose_path
+         *         目标点yaml文件路径
          *  @param blackboard_
          *         黑板指针
          *  @return 是否成功
          **/
-        bool Decode_config(std::string init_pose_path, BT::Blackboard::Ptr blackboard_);
+        bool Decode_config_pose(std::string init_pose_path, std::string condition_path, BT::Blackboard::Ptr blackboard_);
 
         /**
          *  @brief 初始化
          **/
-        void init();
+        void Init();
 
     public:
         BT::Tree tree_;
@@ -56,6 +56,7 @@ namespace robot_decision
         BT::RosNodeParams patrolParams; 
         rclcpp::NodeOptions options_;
         BT::BehaviorTreeFactory factory_;
+        const std::string condition_path = "robot_decision/config/condition.yaml";
         const std::string xml_file_path = "robot_decision/tree/mainTree.xml";
         const std::string init_pose_path = "robot_decision/config/init_pose.yaml";
     };
