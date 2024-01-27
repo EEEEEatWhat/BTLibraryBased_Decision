@@ -2,28 +2,22 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="attackTree">
     <Sequence>
-      <Sequence>
+      <Fallback>
         <IfNeedSupply/>
-        <PatrolToSupply IfNeedSupply="{IfNeedSupply}"/>
-      </Sequence>
-      <KeepTuoluo/>
-      <Attack/>
+        <PatrolToSupply/>
+      </Fallback>
+      <SetTuoluoStatus/>
     </Sequence>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="Attack"
-            editable="true"/>
     <Condition ID="IfNeedSupply"
                editable="true"/>
-    <Action ID="KeepTuoluo"
+    <Action ID="SetTuoluoStatus"
             editable="true"/>
     <Action ID="PatrolToSupply"
-            editable="true">
-      <input_port name="IfNeedSupply"
-                  default="{IfNeedSupply}">获取该状态节点的返回值</input_port>
-    </Action>
+            editable="true"/>
   </TreeNodesModel>
 
 </root>

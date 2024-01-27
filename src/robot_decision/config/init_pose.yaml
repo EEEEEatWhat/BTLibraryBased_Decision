@@ -21,3 +21,15 @@ born_pose:
       roll:  0
       pitch: 0
       yaw:   3.14
+
+# 巡逻点 (可能有多个)
+patrol_pose:
+  pose:
+    position:
+      x: 7
+      y: 5
+      z: 0
+    orientation:
+      roll:  0
+      pitch: 0
+      yaw:   3.14

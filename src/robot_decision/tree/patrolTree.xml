@@ -4,7 +4,7 @@
     <Sequence>
       <Sequence>
         <IfNeedSupply/>
-        <PatrolToSupply supply_pose = "{supply_pose}"/>
+        <PatrolToSupply/>
       </Sequence>
       <Sequence>
         <CheckGameStatus/>
@@ -22,10 +22,7 @@
     <Condition ID="IfNeedSupply"
             editable="true"/>
     <Action ID="PatrolToSupply"
-            editable="true">
-      <input_port name="supply_pose"
-                  default="{supply_pose}"/>
-    </Action>
+            editable="true"/>
   </TreeNodesModel>
 
 </root>

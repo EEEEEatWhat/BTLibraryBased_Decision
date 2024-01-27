@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <include path=""/>
+  <include path="/home/hannah/BTLibraryBased_Decision/src/robot_decision/tree/attackTree.xml"/>
+  <include path="/home/hannah/BTLibraryBased_Decision/src/robot_decision/tree/patrolTree.xml"/>
 
   <BehaviorTree ID="mainTree">
     <Sequence>
-      <GetData/>
       <Sequence>
         <IfFindEnemy/>
         <SubTree ID="attackTree"
-                 _autoremap="false"/>
+                _autoremap="false"/>
       </Sequence>
       <SubTree ID="patrolTree"
-               _autoremap="false"/>
+                _autoremap="false"/>
     </Sequence>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="GetData"
-            editable="true"/>
     <Condition ID="IfFindEnemy"
-               editable="true"/>
+                editable="true"/>
   </TreeNodesModel>
 
 </root>

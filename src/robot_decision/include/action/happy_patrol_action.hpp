@@ -1,5 +1,5 @@
-#ifndef PATROL_TO_SUPPLY_ACTION_HPP
-#define PATROL_TO_SUPPLY_ACTION_HPP
+#ifndef HAPPY_PATROL_ACTION_HPP
+#define HAPPY_PATROL_ACTION_HPP
 
 
 #include "rclcpp/rclcpp.hpp"
@@ -10,10 +10,10 @@
 
 namespace robot_decision
 {
-    class PatrolToSupplyAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
+    class HappyPatrolAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
     public:
-        PatrolToSupplyAction(const std::string &name,
+        HappyPatrolAction(const std::string &name,
                                 const BT::NodeConfig &conf,
                                 const BT::RosNodeParams &params)
             : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
@@ -23,7 +23,8 @@ namespace robot_decision
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
-            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
+            // 或者多次执行HappyPatrol动作节点然后每次执行时都设置不同的目标点
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_pose"));
             RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
             return true;
         };
@@ -67,4 +68,4 @@ namespace robot_decision
     };
 }  // namespace robot_decision
 
-#endif //PATROL_TO_SUPPLY_ACTION_HPP
+#endif //HAPPY_PATROL_ACTION_HPP

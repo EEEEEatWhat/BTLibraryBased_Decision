@@ -1,4 +1,5 @@
 /**:
     ros__parameters:
-        lowest_blood: 100.0
-
+        lowest_HP: 100
+        tuoluo_status: 0.
+        
