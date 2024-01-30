@@ -27,7 +27,7 @@ public:
     {
         // TODO: 通过当前自身是否无敌、比赛时间、是否有敌人等信息来设置小陀螺状态
         sleep(1);
-        msg.angular.z = 0.3;
+        msg.angular.z = 0.5;
 
         RCLCPP_INFO(node_->get_logger(),"设置小陀螺状态话题消息...\n");
         return true;
