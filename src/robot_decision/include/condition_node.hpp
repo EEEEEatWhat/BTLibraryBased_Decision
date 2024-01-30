@@ -40,7 +40,8 @@ namespace robot_decision{
 
         BT::NodeStatus Check_enemy()
         {
-            if(blackboard_->get<uint8_t>("if_find_enemy"))
+            // if(blackboard_->get<uint8_t>("if_find_enemy"))
+            if(1)
             {
                 RCLCPP_INFO(node_->get_logger(),"发现敌人，开始打弹.\n");
                 return BT::NodeStatus::SUCCESS;
@@ -52,6 +53,13 @@ namespace robot_decision{
         {
             // TODO: 通过解包函数解析字节流，获取裁判系统中的比赛状态（包括比赛时间、）
             // GameStatus = 0x0001,
+            // uint8_t game_type : 4; 
+            // uint8_t game_progress : 4; 
+            // uint16_t stage_remain_time;
+            blackboard_->set<uint8_t>("game_type", 4);
+            blackboard_->set<uint8_t>("game_progress", 4);
+            blackboard_->set<uint16_t>("stage_remain_time", 180); // 3min
+            
 
             return BT::NodeStatus::SUCCESS;
         }

@@ -1,5 +1,5 @@
-#ifndef PATROL_TO_SUPPLY_ACTION_HPP
-#define PATROL_TO_SUPPLY_ACTION_HPP
+#ifndef PATROL_1_HPP
+#define PATROL_1_HPP
 
 
 #include "rclcpp/rclcpp.hpp"
@@ -10,10 +10,10 @@
 
 namespace robot_decision
 {
-    class PatrolToSupplyAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
+    class Patrol_1 : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
     public:
-        PatrolToSupplyAction(const std::string &name,
+        Patrol_1(const std::string &name,
                                 const BT::NodeConfig &conf,
                                 const BT::RosNodeParams &params)
             : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
@@ -68,4 +68,4 @@ namespace robot_decision
     };
 }  // namespace robot_decision
 
-#endif //PATROL_TO_SUPPLY_ACTION_HPP
+#endif //PATROL_1_HPP

@@ -1,5 +1,5 @@
-#ifndef PATROL_TO_SUPPLY_ACTION_HPP
-#define PATROL_TO_SUPPLY_ACTION_HPP
+#ifndef PATROL_2_HPP
+#define PATROL_2_HPP
 
 
 #include "rclcpp/rclcpp.hpp"
@@ -10,10 +10,10 @@
 
 namespace robot_decision
 {
-    class PatrolToSupplyAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
+    class Patrol_2 : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
     public:
-        PatrolToSupplyAction(const std::string &name,
+        Patrol_2(const std::string &name,
                                 const BT::NodeConfig &conf,
                                 const BT::RosNodeParams &params)
             : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
@@ -23,9 +23,10 @@ namespace robot_decision
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
-            std::cout<<blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose").pose.position.x;
-            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
-            RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
+            sleep(2);
+            std::cout<<blackboard_->get<geometry_msgs::msg::PoseStamped>("born_pose").pose.position.x;
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("born_pose"));
+            RCLCPP_INFO(node_->get_logger(),"Goal2设置成功. . . ");
             return true;
         };
 
@@ -45,7 +46,7 @@ namespace robot_decision
                     RCLCPP_INFO(node_->get_logger()," 未知异常...");
                     return BT::NodeStatus::FAILURE;
             }
-            std::cout << "任务执行完毕..." << '\n';
+            std::cout << "任务2执行完毕..." << '\n';
             return BT::NodeStatus::SUCCESS;
         };
 
@@ -68,4 +69,4 @@ namespace robot_decision
     };
 }  // namespace robot_decision
 
-#endif //PATROL_TO_SUPPLY_ACTION_HPP
+#endif //PATROL_2_HPP

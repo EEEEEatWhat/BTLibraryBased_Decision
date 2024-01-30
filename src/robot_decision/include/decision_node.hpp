@@ -14,13 +14,19 @@
 #include "yaml-cpp/yaml.h"
 #include "yamlsetup.h"
 
-
+#include "structs.hpp"
 #include "go_pub.hpp"
 #include "action/patrol_to_supply_action.hpp"
 #include "action/happy_patrol_action.hpp"
 #include "action/gain_blood_action.hpp"
 #include "condition_node.hpp"
 #include "set_tuoluo_status.hpp"
+
+#include "action/patrol_1.hpp"
+#include "action/patrol_2.hpp"
+#include <iostream>
+#include <thread>
+#include <atomic>
 namespace robot_decision
 {
     class DecisionNode : public rclcpp::Node
@@ -60,6 +66,7 @@ namespace robot_decision
          **/
         void RigisteredMapSolver();
 
+        // void listenInput();
     public:
         BT::Tree tree_;
         BT::Blackboard::Ptr blackboard_;

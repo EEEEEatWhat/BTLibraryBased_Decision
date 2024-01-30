@@ -98,7 +98,6 @@ namespace robot_decision
 
         // Variables from referee system or Sensor set in blackboard
         
-        
         blackboard_->set<uint8_t>("if_find_enemy", 0);
 
         return true;
@@ -109,15 +108,45 @@ namespace robot_decision
 
     };
 
-    // 测试用
+    // void DecisionNode::listenInput()
+    // {
+    //     int input; // 0 patrol 1 tuoluo
+    //     while (!stop) {
+    //     std::getline(std::cin, input);
+    //     std::cout << "You entered: " << input << std::endl;
+    //     if(input)
+    //     {
+    //     }
+    // };
+
+//     // 测试用
     static const char* xml_text = R"(
 
 <root BTCPP_format="4" >
     <BehaviorTree ID="MainTree">
-        <Fallback>
-            <IfNeedSupply/>
-            <HappyPatrol/>
-        </Fallback>
+        <Sequence>
+            <Patrol_1/>
+            <Patrol_2/>
+        </Sequence>
+    </BehaviorTree>
+</root>
+)";
+
+    static const char* xml_text_1 = R"(
+
+<root BTCPP_format="4" >
+    <BehaviorTree ID="MainTree">
+        <Sequence>
+            <Repeat num_cycles="2">
+                <Sequence>
+                <Patrol_1/>
+                <Patrol_2/>
+                </Sequence>
+            </Repeat>
+            <Repeat num_cycles="1000">
+                <SetTuoluoStatus/>
+            </Repeat>
+        </Sequence>
     </BehaviorTree>
 </root>
 )";
@@ -130,27 +159,29 @@ namespace robot_decision
         actionParams.nh = node;
         actionParams.default_port_value = "BehaviorTreePose"; // name of the action server
         topicParams.nh = node;
-        topicParams.default_port_value = "tuoluo_status"; // name of the topic to publish
+        topicParams.default_port_value = "cmd_vel"; // name of the topic to publish
 
         factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return robocondition.Check_enemy(); });
         factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.Check_blood(); });
         factory_.registerSimpleCondition("CheckGameStatus", [&](BT::TreeNode&) { return robocondition.Check_game_status(); });
-        factory_.registerNodeType<robot_decision::PatrolToSupplyAction>("PatrolToSupply", actionParams);
 
+        factory_.registerNodeType<robot_decision::PatrolToSupplyAction>("PatrolToSupply", actionParams);
+        factory_.registerNodeType<robot_decision::Patrol_1>("Patrol_1", actionParams);
+        factory_.registerNodeType<robot_decision::Patrol_2>("Patrol_2", actionParams);
         factory_.registerNodeType<robot_decision::SetTuoluoStatus>("SetTuoluoStatus", topicParams);
         factory_.registerNodeType<robot_decision::GainBloodAction>("GainBlood");
         factory_.registerNodeType<robot_decision::HappyPatrolAction>("HappyPatrol", actionParams);
 
-        // tree_ = factory_.createTreeFromFile(xml_file_path,blackboard_);
-
-
-        tree_ = factory_.createTreeFromText(xml_text,blackboard_);
+        // factory_.registerBehaviorTreeFromFile(xml_file_path);
+        // tree_ = factory_.createTree("mainTree",blackboard_);
         
-        while (rclcpp::ok())
-        {
+        tree_ = factory_.createTreeFromText(xml_text_1,blackboard_);
+        
+        // while (rclcpp::ok())
+        // {
 
             tree_.tickWhileRunning();
-        };
+        // };
     }
 
     
