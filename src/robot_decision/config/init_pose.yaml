@@ -1,9 +1,9 @@
 # 补给区
-born_pose:
+supply_pose:
   pose:
     position:
-      x: 1.0
-      y: 0.5
+      x: 0.0
+      y: -1.85
       z: 0.0
     orientation:
       roll:  0
@@ -11,12 +11,12 @@ born_pose:
       yaw:   -3.14
 
 # 出生点
-supply_pose:
+born_pose:
   pose:
     position:
-      x: -1.0
-      y: 0.5
-      z: 0
+      x: -0.36
+      y: 2.55
+      z: 0.0
     orientation:
       roll:  0
       pitch: 0

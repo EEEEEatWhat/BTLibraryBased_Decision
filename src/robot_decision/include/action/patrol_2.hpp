@@ -60,7 +60,9 @@ namespace robot_decision
 
         BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override
         {
-            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f ", feedback->distance_remaining);
+            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f, pose = (%lf, %lf) ", feedback->distance_remaining,feedback->current_pose.pose.position.x,feedback->current_pose.pose.position.y);
+
+            // RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f ", feedback->distance_remaining);
             return BT::NodeStatus::RUNNING;
         };
         
