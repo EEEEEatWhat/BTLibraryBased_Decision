@@ -1,0 +1,24 @@
+/**:
+    ros__parameters:
+        #goal_pose:
+        enemy_door:
+            x: 1.0
+            y: 0.0
+            yaw: 3.14
+        enemy_outpost:
+            x: 2.0
+            y: 0.0
+            yaw: 3.14
+        keystone_heights:
+            x: 3.0
+            y: 0.0
+            yaw: 3.14
+        our_outpost:
+            x: 0.0
+            y: 0.0
+            yaw: 3.14
+
+        #condition:
+        lowest_HP: 100 # 最低允许血量
+        tuoluo_angular_vel: 0.7 # 小陀螺状态角速度
+        outpost_status: 0

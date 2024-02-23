@@ -2,6 +2,9 @@
 #define DECISION_NODE_HPP
 
 #include <memory>
+#include <iostream>
+#include <thread>
+#include <atomic>
 
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp/behavior_tree.h"
@@ -12,19 +15,13 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "tf2/convert.h"
 
-#include "go_pub.hpp"
-#include "action/patrol_to_supply_action.hpp"
-#include "action/happy_patrol_action.hpp"
-#include "action/gain_blood_action.hpp"
-#include "condition_node.hpp"
-#include "set_tuoluo_status.hpp"
+#include "action/go_enemy_door.hpp"
+#include "action/go_enemy_outpost.hpp"
+#include "action/go_keystone_heights.hpp"
+#include "action/go_our_outpost.hpp"
+#include "condition.hpp"
 
-#include "action/patrol_1.hpp"
-#include "action/patrol_2.hpp"
-#include <iostream>
-#include <thread>
-#include <atomic>
-namespace robot_decision
+namespace rmuc_decision
 {
     class DecisionNode : public rclcpp::Node
     {
@@ -51,7 +48,7 @@ namespace robot_decision
         /**
          *  @brief 初始化行为树
          **/
-        void Init();
+        void Init_behaviortree();
 
         /**
          *  @brief 注册解包函数
@@ -59,7 +56,7 @@ namespace robot_decision
          *         
          *  @return 
          **/
-        void RigisteredMapSolver();
+        void Rigister_MapSolver();
 
     public:
         BT::Tree tree_;

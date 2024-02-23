@@ -1,6 +1,5 @@
 #goal definition
 geometry_msgs/PoseStamped pose
-char prior
 ---
 #result definition
 geometry_msgs/PoseStamped result_pose

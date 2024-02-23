@@ -1,31 +1,22 @@
 cmake_minimum_required(VERSION 3.8)
-project(robot_decision)
+project(rmuc_decision)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rclcpp_action REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(behaviortree_cpp REQUIRED)
 find_package(behaviortree_ros2 REQUIRED)
-find_package(global_interfaces REQUIRED)
-find_package(std_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
-
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(YAMLCPP yaml-cpp REQUIRED)
-if(YAMLCPP_VERSION VERSION_GREATER "0.5.0")
-    add_definitions(-DHAVE_YAMLCPP_GT_0_5_0)
-endif()
+find_package(global_interfaces REQUIRED)
 
 set(THIS_PACKAGE_DEPS
 rclcpp
@@ -57,14 +48,9 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-
-
 add_executable(decision_node src/decision_node.cpp)
 ament_target_dependencies(decision_node
   ${THIS_PACKAGE_DEPS}
-)
-target_link_libraries(decision_node
-  ${YAMLCPP_LIBRARIES}
 )
 
 install(TARGETS
@@ -73,7 +59,8 @@ install(TARGETS
 )
 
 install(
-  DIRECTORY config launch # rviz
+  DIRECTORY config launch 
   DESTINATION share/${PROJECT_NAME}
 )
+
 ament_package()

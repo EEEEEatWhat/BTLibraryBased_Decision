@@ -19,7 +19,7 @@ public:
                     : BT::RosTopicPubNode<geometry_msgs::msg::Twist>(instance_name, conf, params)
     {
         blackboard_ = config().blackboard;
-        tuoluo_status = 0.f;
+        tuoluo_status = false;
     };
 
 
@@ -27,16 +27,15 @@ public:
     {
         // TODO: 通过当前自身是否无敌、比赛时间、是否有敌人等信息来设置小陀螺状态
         sleep(1);
-        msg.angular.z = 0.8;
-
-        RCLCPP_INFO(node_->get_logger(),"设置小陀螺状态话题消息...\n");
+        msg.angular.z = blackboard_->get<double>("tuoluo_angular_vel");
+        tuoluo_status = true;
+        RCLCPP_INFO(node_->get_logger(),"设置小陀螺状态，角速度为%lf...", msg.angular.z);
         return true;
     };
 
 private:
     BT::Blackboard::Ptr blackboard_;
-    // 小陀螺状态：0为不转，1为转
-    float tuoluo_status;
+    bool tuoluo_status;
 };
 
 };// namespace robot_decision

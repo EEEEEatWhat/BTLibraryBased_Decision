@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <include path=""/>
+
+  <BehaviorTree ID="Attack_door">
+    <ReactiveSequence>
+      <OutpostStatus/>
+      <NavStatus/>
+      <Fallback>
+        <IsGoEnemyDoor/>
+        <GoEnemyDoor/>
+      </Fallback>
+      <Taurus/>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Attack_outpost">
+    <ReactiveSequence>
+      <OutpostStatus/>
+      <NavStatus/>
+      <Fallback>
+        <IsGoEnemyOutpost/>
+        <GoEnemyOutpost/>
+      </Fallback>
+      <Taurus/>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Attack_robot">
+    <ReactiveSequence>
+      <OutpostStatus/>
+      <NavStatus/>
+      <Fallback>
+        <IsGoEnemyDoor/>
+        <GoEnemyDoor/>
+      </Fallback>
+      <Sensor/>
+      <Taurus/>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Defence_home">
+    <ReactiveSequence>
+      <OutpostStatus/>
+      <NavStatus/>
+      <Patrol/>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="Defence_outpost_door">
+    <ReactiveSequence>
+      <OutpostStatus/>
+      <NavStatus/>
+      <Fallback>
+        <IsGoOurOutpost/>
+        <GoOurOutpost/>
+      </Fallback>
+      <Taurus/>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="OpeningStage">
+    <AlwaysSuccess/>
+  </BehaviorTree>
+
+  <BehaviorTree ID="maintree">
+    <Sequence>
+      <GameStarted/>
+      <IsOpenStageStrategySet/>
+      <Switch6 case_1="0"
+               case_2="1"
+               case_3="2"
+               case_4="3"
+               case_5="4"
+               case_6="5"
+               variable="openstage_strategy">
+        <SubTree ID="Attack_door"/>
+        <SubTree ID="Attack_robot"/>
+        <SubTree ID="Attack_outpost"/>
+        <SubTree ID="Defence_outpost_door"/>
+        <SubTree ID="Defence_home"/>
+        <default_skip/>
+      </Switch6>
+      <GameRunning/>
+      <Sequence>
+        <Fallback>
+          <IsGoKeystoneHeights/>
+            <GoKeystoneHeights/>
+        </Fallback>
+        <Taurus/>
+      </Sequence>
+      <GameLastStage game_last_stage="false"/>
+      <IfThenElse>
+        <IsSetGameStatusAsLast/>
+        <ExecuteCommand/>
+      </IfThenElse>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="ExecuteCommand"
+            editable="true"/>
+    <Condition ID="GameLastStage"
+               editable="true">
+      <input_port name="game_last_stage"
+                  default="false"/>
+    </Condition>
+    <Condition ID="GameRunning"
+               editable="true">
+      <input_port name="game_running"
+                  default="false"/>
+    </Condition>
+    <Condition ID="GameStarted"
+               editable="true">
+      <input_port name="game_started"
+                  default="false"/>
+    </Condition>
+    <Action ID="GoEnemyDoor"
+            editable="true"/>
+    <Action ID="GoEnemyOutpost"
+            editable="true"/>
+    <Action ID="GoKeystoneHeights"
+            editable="true"/>
+    <Action ID="GoOurOutpost"
+            editable="true"/>
+    <Condition ID="IsGoEnemyDoor"
+               editable="true"/>
+    <Condition ID="IsGoEnemyOutpost"
+               editable="true"/>
+    <Condition ID="IsGoKeystoneHeights"
+               editable="true"/>
+    <Condition ID="IsGoOurOutpost"
+               editable="true"/>
+    <Condition ID="IsOpenStageStrategySet"
+               editable="true"/>
+    <Condition ID="IsSetGameStatusAsLast"
+               editable="true"/>
+    <Condition ID="NavStatus"
+               editable="true"/>
+    <Condition ID="OutpostStatus"
+               editable="true"/>
+    <Action ID="Patrol"
+            editable="true"/>
+    <Action ID="Sensor"
+            editable="true"/>
+    <Action ID="SetGameStatusAsRunning"
+            editable="true"/>
+    <Action ID="SetOpeningStrategy"
+            editable="true"/>
+    <Action ID="Taurus"
+            editable="true"/>
+  </TreeNodesModel>
+
+</root>

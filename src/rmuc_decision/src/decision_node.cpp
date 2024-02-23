@@ -1,6 +1,6 @@
 #include "decision_node.hpp"
 
-namespace robot_decision
+namespace rmuc_decision
 {
     DecisionNode::DecisionNode(const rclcpp::NodeOptions &options)
         :rclcpp::Node("decision_node",options) , options_(options)
@@ -15,9 +15,9 @@ namespace robot_decision
             RCLCPP_ERROR(this->get_logger() , "Failed to get Config!");
             abort();
         }
-        this->RigisteredMapSolver();
+        this->Rigister_MapSolver();
 
-        this->Init();
+        this->Init_behaviortree();
         RCLCPP_INFO(this->get_logger() , "init finished...");
     }
 
@@ -49,24 +49,25 @@ namespace robot_decision
 
             std::string x_key = pose_key + ".x";
             std::string y_key = pose_key + ".y";
+            std::string z_key = pose_key + ".z";
             std::string yaw_key = pose_key + ".yaw";
 
             this->declare_parameter<double>(x_key, 0.0);
             this->declare_parameter<double>(y_key, 0.0);
+            this->declare_parameter<double>(z_key, 0.0);
             this->declare_parameter<double>(yaw_key, 0.0);
             
             this->get_parameter<double>(x_key, temp_pose.pose.position.x);
             this->get_parameter<double>(y_key, temp_pose.pose.position.y);
+            this->get_parameter<double>(y_key, temp_pose.pose.position.z);
             this->get_parameter<double>(yaw_key, temp_yaw);
 
 
             tf_qnt.setRPY( 0 , 0 , temp_yaw);
             temp_pose.header.set__frame_id("map").set__stamp(rclcpp::Clock().now());
-            temp_pose.pose.position.set__z(0.0);
             temp_pose.pose.set__orientation(convert<tf2::Quaternion, geometry_msgs::msg::Quaternion>(tf_qnt, geo_qnt, true));
     
             blackboard_->set<geometry_msgs::msg::PoseStamped>(pose_key,temp_pose);
-            std::cout << pose_key << ":" << blackboard_->get<geometry_msgs::msg::PoseStamped>(pose_key).pose.position.x << std::endl;
         }
 
         // Variables defined in condition.yaml
@@ -82,7 +83,9 @@ namespace robot_decision
 
         // Variables from referee system or Sensor set in blackboard
 
-        // 当前阶段剩余时间（秒）
+        // 0x0001
+        //      当前比赛阶段（4为比赛中） uint8_t game_progress : 4; 
+        //      当前阶段剩余时间（秒）
         // 己方补给站前补血点的占领状态（1为已占领）
         // 己方补给站内部补血点的占领状态（1为已占领）
         // 己方2号环形高地的占领状态（1 为已被己方占领，2 为已被对方占领）
@@ -108,8 +111,7 @@ namespace robot_decision
 
         return true;
     };
-
-    void DecisionNode::RigisteredMapSolver()
+    void DecisionNode::Rigister_MapSolver()
     {
 
     };
@@ -127,56 +129,29 @@ namespace robot_decision
 </root>
 )";
 
-    static const char* xml_text_1 = R"(
-
-<root BTCPP_format="4" >
-    <BehaviorTree ID="MainTree">
-        <Sequence>
-            <Repeat num_cycles="2">
-                <Sequence>
-                <Patrol_1/>
-                <Patrol_2/>
-                </Sequence>
-            </Repeat>
-            <Repeat num_cycles="1000">
-                <SetTuoluoStatus/>
-            </Repeat>
-        </Sequence>
-    </BehaviorTree>
-</root>
-)";
-
-    void DecisionNode::Init()
+    void DecisionNode::Init_behaviortree()
     {
-        auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
-        blackboard_->set<rclcpp::Node::SharedPtr>("node",node);
-        Condition robocondition(blackboard_);
-        actionParams.nh = node;
-        actionParams.default_port_value = "BehaviorTreePose"; // name of the action server
-        topicParams.nh = node;
-        topicParams.default_port_value = "cmd_vel"; // name of the topic to publish
+        // auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
+        // blackboard_->set<rclcpp::Node::SharedPtr>("node",node);
+        // Condition robocondition(blackboard_);
+        // actionParams.nh = node;
+        // actionParams.default_port_value = "BehaviorTreePose"; // name of the action server
+        // topicParams.nh = node;
+        // topicParams.default_port_value = "cmd_vel"; // name of the topic to publish
 
-        factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return robocondition.Check_enemy(); });
-        factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.Check_blood(); });
-        factory_.registerSimpleCondition("CheckGameStatus", [&](BT::TreeNode&) { return robocondition.Check_game_status(); });
 
-        factory_.registerNodeType<robot_decision::PatrolToSupplyAction>("PatrolToSupply", actionParams);
-        factory_.registerNodeType<robot_decision::Patrol_1>("Patrol_1", actionParams);
-        factory_.registerNodeType<robot_decision::Patrol_2>("Patrol_2", actionParams);
-        factory_.registerNodeType<robot_decision::SetTuoluoStatus>("SetTuoluoStatus", topicParams);
-        factory_.registerNodeType<robot_decision::GainBloodAction>("GainBlood");
-        factory_.registerNodeType<robot_decision::HappyPatrolAction>("HappyPatrol", actionParams);
 
-        // factory_.registerBehaviorTreeFromFile(xml_file_path);
-        // tree_ = factory_.createTree("mainTree",blackboard_);
+
+        // // factory_.registerBehaviorTreeFromFile(xml_file_path);
+        // // tree_ = factory_.createTree("mainTree",blackboard_);
         
-        tree_ = factory_.createTreeFromText(xml_text,blackboard_);
+        // tree_ = factory_.createTreeFromText(xml_text,blackboard_);
         
-        while (rclcpp::ok())
-        {
+        // while (rclcpp::ok())
+        // {
 
-            // tree_.tickWhileRunning();
-        };
+        //     // tree_.tickWhileRunning();
+        // };
     }
 
     
@@ -187,7 +162,7 @@ int main(int argc, char const **argv)
 {
     rclcpp::init(argc,argv);
     rclcpp::NodeOptions options;
-    auto decision_node = std::make_shared<robot_decision::DecisionNode>(options);
+    auto decision_node = std::make_shared<rmuc_decision::DecisionNode>(options);
     rclcpp::spin(decision_node);
     rclcpp::shutdown();
     return 0;

@@ -1,5 +1,0 @@
-/**:
-    ros__parameters:
-        lowest_HP: 100
-        tuoluo_status: 0. # 小陀螺状态: 0为不转, 1为转
-        

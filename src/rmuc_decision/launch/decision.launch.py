@@ -9,7 +9,7 @@ from launch.conditions import IfCondition
 from launch_ros.actions import Node, SetUseSimTime
 
 def generate_launch_description():
-    package_path = get_package_share_directory('robot_decision')
+    package_path = get_package_share_directory('rmuc_decision')
     default_config_path = os.path.join(package_path, 'config', 'decision.yaml')
     # default_rviz_config_path = os.path.join(package_path, 'rviz', 'robot_decision.rviz')
 
