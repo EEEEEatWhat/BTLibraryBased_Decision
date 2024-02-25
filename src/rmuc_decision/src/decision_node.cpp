@@ -34,7 +34,8 @@ namespace rmuc_decision
 
     bool DecisionNode::Decode_config_pose(BT::Blackboard::Ptr blackboard_)
     {
-        // Variables defined in goal_pose.yaml
+        // Variables defined in decision.yaml
+        // goal_pose:
         std::map<std::string, geometry_msgs::msg::PoseStamped> poses_map = { {"enemy_door", {}} , {"enemy_outpost", {}} , {"keystone_heights", {}} , {"our_outpost", {}} };
 
         for (auto it = poses_map.begin(); it != poses_map.end(); ++it)
@@ -63,14 +64,15 @@ namespace rmuc_decision
             this->get_parameter<double>(yaw_key, temp_yaw);
 
 
-            tf_qnt.setRPY( 0 , 0 , temp_yaw);
+            tf_qnt.setRPY(0, 0, temp_yaw);
             temp_pose.header.set__frame_id("map").set__stamp(rclcpp::Clock().now());
             temp_pose.pose.set__orientation(convert<tf2::Quaternion, geometry_msgs::msg::Quaternion>(tf_qnt, geo_qnt, true));
     
             blackboard_->set<geometry_msgs::msg::PoseStamped>(pose_key,temp_pose);
         }
 
-        // Variables defined in condition.yaml
+        // decision:
+        blackboard_->set<int>("openstage_strategy", -1); // 初始化时先设置为默认值-1
 
         uint16_t lowest_HP;
         double tuoluo_angular_vel;
@@ -111,6 +113,7 @@ namespace rmuc_decision
 
         return true;
     };
+
     void DecisionNode::Rigister_MapSolver()
     {
 
@@ -131,26 +134,45 @@ namespace rmuc_decision
 
     void DecisionNode::Init_behaviortree()
     {
-        // auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
-        // blackboard_->set<rclcpp::Node::SharedPtr>("node",node);
-        // Condition robocondition(blackboard_);
-        // actionParams.nh = node;
-        // actionParams.default_port_value = "BehaviorTreePose"; // name of the action server
-        // topicParams.nh = node;
-        // topicParams.default_port_value = "cmd_vel"; // name of the topic to publish
+        auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
+        blackboard_->set<rclcpp::Node::SharedPtr>("node",node);
+        Condition condition(blackboard_);
+        actionParams.nh = node;
+        actionParams.default_port_value = "BehaviorTreePose"; // name of the action server
+        topicParams.nh = node;
+        topicParams.default_port_value = "cmd_vel"; // name of the topic to publish
+        // register nodes of behaviortree
+        
+        factory_.registerSimpleCondition("GameLastStage", [&](BT::TreeNode&) { return condition.Check_is_set_game_status_as_last(); });
+        factory_.registerSimpleCondition("GameRunning", [&](BT::TreeNode&) { return condition.Check_game_running(); });
+        factory_.registerSimpleCondition("GameStarted", [&](BT::TreeNode&) { return condition.Check_game_started(); });
+        factory_.registerSimpleCondition("IsGoEnemyDoor", [&](BT::TreeNode&) { return condition.Check_is_go_enemy_door(); });
+        factory_.registerSimpleCondition("IsGoEnemyOutpost", [&](BT::TreeNode&) { return condition.Check_game_started(); });
+        factory_.registerSimpleCondition("IsGoKeystoneHeights", [&](BT::TreeNode&) { return condition.Check_is_go_keystone_heights(); });
+        factory_.registerSimpleCondition("IsGoOurOutpost", [&](BT::TreeNode&) { return condition.Check_is_go_our_outpost(); });
+        factory_.registerSimpleCondition("IsOpenStageStrategySet", [&](BT::TreeNode&) { return condition.Check_openstage_strategy(); });
+        factory_.registerSimpleCondition("IsSetGameStatusAsLast", [&](BT::TreeNode&) { return condition.Check_is_set_game_status_as_last(); });
+        factory_.registerSimpleCondition("NavStatus", [&](BT::TreeNode&) { return condition.Check_Nav_status(); });
+        factory_.registerSimpleCondition("OutpostStatus", [&](BT::TreeNode&) { return condition.Check_outpost_status(); });
+        factory_.registerSimpleCondition("default_skip", [&](BT::TreeNode&) { return condition.Default_skip(); });
+        
+        // Action:ExecuteCommand
+        factory_.registerNodeType<rmuc_decision::GoEnemyDoor>("GoEnemyDoor", actionParams);
+        factory_.registerNodeType<rmuc_decision::GoEnemyOutpost>("GoEnemyOutpost", actionParams);
+        factory_.registerNodeType<rmuc_decision::GoKeystoneHeights>("GoKeystoneHeights", actionParams);
+        factory_.registerNodeType<rmuc_decision::GoOurOutpost>("GoOurOutpost", actionParams);
+        // Action:Patrol, Sensor, Taurus
 
 
-
-
-        // // factory_.registerBehaviorTreeFromFile(xml_file_path);
-        // // tree_ = factory_.createTree("mainTree",blackboard_);
+        // factory_.registerBehaviorTreeFromFile(xml_file_path);
+        // tree_ = factory_.createTree("mainTree",blackboard_);
         
         // tree_ = factory_.createTreeFromText(xml_text,blackboard_);
         
         // while (rclcpp::ok())
         // {
 
-        //     // tree_.tickWhileRunning();
+            // tree_.tickWhileRunning();
         // };
     }
 

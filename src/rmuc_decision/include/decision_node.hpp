@@ -68,7 +68,7 @@ namespace rmuc_decision
         rclcpp::NodeOptions options_;
         BT::BehaviorTreeFactory factory_;
         // const std::string xml_file_path = "robot_decision/tree/mainTree.xml";
-        const std::string xml_file_path = "/home/hannah/BTLibraryBased_Decision/src/robot_decision/tree/mainTree.xml";
+        const std::string xml_file_path = "../tree/Tree.xml";
     };
 }
 

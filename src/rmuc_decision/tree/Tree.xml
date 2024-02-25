@@ -85,11 +85,11 @@
       <Sequence>
         <Fallback>
           <IsGoKeystoneHeights/>
-            <GoKeystoneHeights/>
+          <GoKeystoneHeights/>
         </Fallback>
         <Taurus/>
       </Sequence>
-      <GameLastStage game_last_stage="false"/>
+      <GameLastStage/>
       <IfThenElse>
         <IsSetGameStatusAsLast/>
         <ExecuteCommand/>
@@ -102,20 +102,11 @@
     <Action ID="ExecuteCommand"
             editable="true"/>
     <Condition ID="GameLastStage"
-               editable="true">
-      <input_port name="game_last_stage"
-                  default="false"/>
-    </Condition>
+               editable="true"/>
     <Condition ID="GameRunning"
-               editable="true">
-      <input_port name="game_running"
-                  default="false"/>
-    </Condition>
+               editable="true"/>
     <Condition ID="GameStarted"
-               editable="true">
-      <input_port name="game_started"
-                  default="false"/>
-    </Condition>
+               editable="true"/>
     <Action ID="GoEnemyDoor"
             editable="true"/>
     <Action ID="GoEnemyOutpost"
@@ -144,12 +135,10 @@
             editable="true"/>
     <Action ID="Sensor"
             editable="true"/>
-    <Action ID="SetGameStatusAsRunning"
-            editable="true"/>
-    <Action ID="SetOpeningStrategy"
-            editable="true"/>
     <Action ID="Taurus"
             editable="true"/>
+    <Condition ID="default_skip"
+               editable="true"/>
   </TreeNodesModel>
 
 </root>
