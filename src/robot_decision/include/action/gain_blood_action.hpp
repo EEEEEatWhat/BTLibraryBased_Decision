@@ -6,7 +6,6 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp/action_node.h"
-#include "behaviortree_cpp/blackboard.h"
 
 
 namespace robot_decision
@@ -25,11 +24,6 @@ namespace robot_decision
         {
             blackboard_ = config().blackboard;
             node_ = blackboard_->get<rclcpp::Node::SharedPtr>("node");
-        }
-
-        static BT::PortsList providedPorts()
-        {
-            return{};
         }
 
         BT::NodeStatus onStart() override

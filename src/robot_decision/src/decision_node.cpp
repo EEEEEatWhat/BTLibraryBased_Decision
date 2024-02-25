@@ -150,23 +150,29 @@ namespace robot_decision
     {
         auto node = std::make_shared<rclcpp::Node>("rclcpp_node");
         blackboard_->set<rclcpp::Node::SharedPtr>("node",node);
-        Condition robocondition(blackboard_);
+        Condition condition(blackboard_);
         actionParams.nh = node;
         actionParams.default_port_value = "BehaviorTreePose"; // name of the action server
         topicParams.nh = node;
         topicParams.default_port_value = "cmd_vel"; // name of the topic to publish
 
-        factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return robocondition.Check_enemy(); });
-        factory_.registerSimpleCondition("IfNeedSupply", [&](BT::TreeNode&) { return robocondition.Check_blood(); });
-        factory_.registerSimpleCondition("CheckGameStatus", [&](BT::TreeNode&) { return robocondition.Check_game_status(); });
+        factory_.registerSimpleCondition("GameStarted", [&](BT::TreeNode&) { return condition.Check_game_started(); });
+        factory_.registerSimpleCondition("HPCheck", [&](BT::TreeNode&) { return condition.Check_blood(); });
+        factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return condition.Check_enemy(); });
+        factory_.registerSimpleCondition("SetStrategy", [&](BT::TreeNode&) { return condition.Set_strategy(); });
+        factory_.registerSimpleCondition("Stay", [&](BT::TreeNode&) { return condition.Stay(); });
 
+        factory_.registerNodeType<robot_decision::GainBloodAction>("GainBlood");
+        factory_.registerNodeType<robot_decision::GoEnemyBunker>("GoEnemyBunker", actionParams);
+        factory_.registerNodeType<robot_decision::GoEnemyStartup>("GoEnemyStartup", actionParams);
+        factory_.registerNodeType<robot_decision::GoOurBunker>("GoOurBunker", actionParams);
         factory_.registerNodeType<robot_decision::PatrolToSupplyAction>("PatrolToSupply", actionParams);
+        factory_.registerNodeType<robot_decision::SetTuoluoStatus>("SetTuoluoStatus", topicParams);
+        factory_.registerNodeType<robot_decision::HappyPatrolAction>("HappyPatrol", actionParams);
+        // Action: SearchEnemy, Wandering.
+
         factory_.registerNodeType<robot_decision::Patrol_1>("Patrol_1", actionParams);
         factory_.registerNodeType<robot_decision::Patrol_2>("Patrol_2", actionParams);
-        factory_.registerNodeType<robot_decision::SetTuoluoStatus>("SetTuoluoStatus", topicParams);
-        factory_.registerNodeType<robot_decision::GainBloodAction>("GainBlood");
-        factory_.registerNodeType<robot_decision::HappyPatrolAction>("HappyPatrol", actionParams);
-
         // factory_.registerBehaviorTreeFromFile(xml_file_path);
         // tree_ = factory_.createTree("mainTree",blackboard_);
         

@@ -21,9 +21,6 @@
 
 #include "action/patrol_1.hpp"
 #include "action/patrol_2.hpp"
-#include <iostream>
-#include <thread>
-#include <atomic>
 namespace robot_decision
 {
     class DecisionNode : public rclcpp::Node
@@ -70,8 +67,7 @@ namespace robot_decision
         BT::RosNodeParams topicParams; 
         rclcpp::NodeOptions options_;
         BT::BehaviorTreeFactory factory_;
-        // const std::string xml_file_path = "robot_decision/tree/mainTree.xml";
-        const std::string xml_file_path = "/home/hannah/BTLibraryBased_Decision/src/robot_decision/tree/mainTree.xml";
+        const std::string xml_file_path = "../tree/rmulTree.xml";
     };
 }
 

@@ -1,24 +1,21 @@
 /**:
     ros__parameters:
         #goal_pose:
-        enemy_door:
+        enemy_bunker_pose:
             x: 1.0
             y: 0.0
             yaw: 3.14
-        enemy_outpost:
+        enemy_startup_pose:
             x: 2.0
             y: 0.0
             yaw: 3.14
-        keystone_heights:
+        our_bunker_pose:
             x: 3.0
-            y: 0.0
-            yaw: 3.14
-        our_outpost:
-            x: 0.0
             y: 0.0
             yaw: 3.14
 
         #condition:
         lowest_HP: 100 # 最低允许血量
         tuoluo_angular_vel: 0.7 # 小陀螺状态角速度
-        outpost_status: 0
+        strategy: -1 # -1:未设置 0：游走 1：去对面哨兵启动区 2：去对面场地掩体 3：去我方场地掩体
+        
