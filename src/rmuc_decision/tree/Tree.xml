@@ -2,92 +2,99 @@
 <root BTCPP_format="4">
   <include path=""/>
 
-  <BehaviorTree ID="Attack_door">
-    <ReactiveSequence>
-      <OutpostStatus/>
-      <NavStatus/>
-      <Fallback>
-        <IsGoEnemyDoor/>
-        <GoEnemyDoor/>
-      </Fallback>
-      <Taurus/>
-    </ReactiveSequence>
-  </BehaviorTree>
-
   <BehaviorTree ID="Attack_outpost">
     <ReactiveSequence>
-      <OutpostStatus/>
       <NavStatus/>
       <Fallback>
         <IsGoEnemyOutpost/>
         <GoEnemyOutpost/>
       </Fallback>
-      <Taurus/>
     </ReactiveSequence>
   </BehaviorTree>
 
   <BehaviorTree ID="Attack_robot">
     <ReactiveSequence>
-      <OutpostStatus/>
       <NavStatus/>
       <Fallback>
         <IsGoEnemyDoor/>
         <GoEnemyDoor/>
       </Fallback>
-      <Sensor/>
-      <Taurus/>
+      <Fallback>
+        <IfFindEnemy/>
+        <SearchEnemy/>
+      </Fallback>
     </ReactiveSequence>
   </BehaviorTree>
 
   <BehaviorTree ID="Defence_home">
     <ReactiveSequence>
-      <OutpostStatus/>
       <NavStatus/>
       <Patrol/>
+      <Fallback>
+        <IfFindEnemy/>
+        <SearchEnemy/>
+      </Fallback>
     </ReactiveSequence>
   </BehaviorTree>
 
   <BehaviorTree ID="Defence_outpost_door">
     <ReactiveSequence>
-      <OutpostStatus/>
       <NavStatus/>
       <Fallback>
         <IsGoOurOutpost/>
         <GoOurOutpost/>
       </Fallback>
-      <Taurus/>
+      <Fallback>
+        <IfFindEnemy/>
+        <SearchEnemy/>
+      </Fallback>
     </ReactiveSequence>
-  </BehaviorTree>
-
-  <BehaviorTree ID="OpeningStage">
-    <AlwaysSuccess/>
   </BehaviorTree>
 
   <BehaviorTree ID="maintree">
     <Sequence>
       <GameStarted/>
       <IsOpenStageStrategySet/>
-      <Switch6 case_1="0"
+      <Fallback>
+        <OurOutpostCheck/>
+        <SetTuoluoStatus/>
+      </Fallback>
+      <Fallback>
+        <IsDeadCheck/>
+        <RebornNow/>
+      </Fallback>
+      <Fallback>
+        <HPCheck/>
+        <Inverter>
+          <SupplyZoneCheck/>
+        </Inverter>
+        <ReactiveSequence>
+          <PatrolToSupply/>
+          <GainBlood/>
+        </ReactiveSequence>
+      </Fallback>
+      <Switch5 case_1="0"
                case_2="1"
                case_3="2"
                case_4="3"
                case_5="4"
-               case_6="5"
                variable="openstage_strategy">
-        <SubTree ID="Attack_door"/>
         <SubTree ID="Attack_robot"/>
         <SubTree ID="Attack_outpost"/>
         <SubTree ID="Defence_outpost_door"/>
         <SubTree ID="Defence_home"/>
         <default_skip/>
-      </Switch6>
+      </Switch5>
       <GameRunning/>
       <Sequence>
         <Fallback>
           <IsGoKeystoneHeights/>
           <GoKeystoneHeights/>
         </Fallback>
-        <Taurus/>
+        <Fallback>
+          <IfFindEnemy/>
+          <SearchEnemy/>
+        </Fallback>
       </Sequence>
       <GameLastStage/>
       <IfThenElse>
@@ -100,6 +107,8 @@
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
     <Action ID="ExecuteCommand"
+            editable="true"/>
+    <Action ID="GainBlood"
             editable="true"/>
     <Condition ID="GameLastStage"
                editable="true"/>
@@ -115,6 +124,12 @@
             editable="true"/>
     <Action ID="GoOurOutpost"
             editable="true"/>
+    <Condition ID="HPCheck"
+               editable="true"/>
+    <Condition ID="IfFindEnemy"
+               editable="true"/>
+    <Condition ID="IsDeadCheck"
+               editable="true"/>
     <Condition ID="IsGoEnemyDoor"
                editable="true"/>
     <Condition ID="IsGoEnemyOutpost"
@@ -129,14 +144,20 @@
                editable="true"/>
     <Condition ID="NavStatus"
                editable="true"/>
-    <Condition ID="OutpostStatus"
+    <Condition ID="OurOutpostCheck"
                editable="true"/>
     <Action ID="Patrol"
             editable="true"/>
-    <Action ID="Sensor"
+    <Action ID="PatrolToSupply"
             editable="true"/>
-    <Action ID="Taurus"
+    <Action ID="RebornNow"
             editable="true"/>
+    <Action ID="SearchEnemy"
+            editable="true"/>
+    <Action ID="SetTuoluoStatus"
+            editable="true"/>
+    <Condition ID="SupplyZoneCheck"
+               editable="true"/>
     <Condition ID="default_skip"
                editable="true"/>
   </TreeNodesModel>
