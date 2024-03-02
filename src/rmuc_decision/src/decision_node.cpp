@@ -36,7 +36,8 @@ namespace rmuc_decision
     {
         // Variables defined in decision.yaml
         // goal_pose:
-        std::map<std::string, geometry_msgs::msg::PoseStamped> poses_map = { {"enemy_door", {}} , {"enemy_outpost", {}} , {"keystone_heights", {}} , {"our_outpost", {}} };
+        std::map<std::string, geometry_msgs::msg::PoseStamped> poses_map = 
+            { {"enemy_door", {}} , {"enemy_outpost", {}} , {"enemy_keystone_heights", {}} , {"our_keystone_heights", {}} , {"our_outpost", {}} };
 
         for (auto it = poses_map.begin(); it != poses_map.end(); ++it)
         {
@@ -72,7 +73,10 @@ namespace rmuc_decision
         }
 
         // decision:
-        blackboard_->set<int>("openstage_strategy", -1); // 初始化时先设置为默认值-1
+        blackboard_->set<std::string>("my_color", "red"); 
+        blackboard_->set<std::string>("openstage_strategy", "-1");
+        blackboard_->set<std::string>("outpost_status", "ALL_ALIVE");
+        blackboard_->set<std::string>("game_stage", "unready");
 
         uint16_t lowest_HP;
         double tuoluo_angular_vel;
@@ -88,6 +92,9 @@ namespace rmuc_decision
         // 0x0001
         //      当前比赛阶段（4为比赛中） uint8_t game_progress : 4; 
         //      当前阶段剩余时间（秒）
+        // 0x0003
+        //      红方前哨站血量
+        //      蓝方前哨站血量
         // 己方补给站前补血点的占领状态（1为已占领）
         // 己方补给站内部补血点的占领状态（1为已占领）
         // 己方2号环形高地的占领状态（1 为已被己方占领，2 为已被对方占领）
@@ -101,12 +108,13 @@ namespace rmuc_decision
         // 剩余金币数量（待定）
         // 己方哨兵巡逻区 // 梯高环高等增益点待定
         // 哨兵已经成功兑换的发弹量值（待定）
-        // 哨兵机器人是否确认复活
-        // 哨兵机器人是否想要兑换立即复活
-        // 哨兵想要兑换的发弹量值（开局为0，修改此值后，哨兵在补血点即可兑换允许发弹量）
-        // 哨兵想要远程兑换发弹量的请求次数（开局为0，修改此值即可请求远程兑换发弹量）
-        // 哨兵想要远程兑换血量的请求次数（开局为0，修改此值即可请求远程兑换血量）
-        // 前哨站状态 //where
+        // 0x0120
+        //      哨兵机器人是否确认复活
+        //      哨兵机器人是否想要兑换立即复活
+        //      哨兵想要兑换的发弹量值（开局为0，修改此值后，哨兵在补血点即可兑换允许发弹量）
+        //      哨兵想要远程兑换发弹量的请求次数（开局为0，修改此值即可请求远程兑换发弹量）
+        //      哨兵想要远程兑换血量的请求次数（开局为0，修改此值即可请求远程兑换血量）
+
 
         // 自瞄flag
         blackboard_->set<uint8_t>("if_find_enemy", 0);
@@ -126,7 +134,7 @@ namespace rmuc_decision
 <root BTCPP_format="4" >
     <BehaviorTree ID="MainTree">
         <Sequence>
-            <SetTuoluoStatus/>
+            <ExtSupplyProjectileActionCheck/>
         </Sequence>
     </BehaviorTree>
 </root>
@@ -146,34 +154,44 @@ namespace rmuc_decision
         factory_.registerSimpleCondition("GameLastStage", [&](BT::TreeNode&) { return condition.Check_is_set_game_status_as_last(); });
         factory_.registerSimpleCondition("GameRunning", [&](BT::TreeNode&) { return condition.Check_game_running(); });
         factory_.registerSimpleCondition("GameStarted", [&](BT::TreeNode&) { return condition.Check_game_started(); });
-        factory_.registerSimpleCondition("IsGoEnemyDoor", [&](BT::TreeNode&) { return condition.Check_is_go_enemy_door(); });
-        factory_.registerSimpleCondition("IsGoEnemyOutpost", [&](BT::TreeNode&) { return condition.Check_game_started(); });
-        factory_.registerSimpleCondition("IsGoKeystoneHeights", [&](BT::TreeNode&) { return condition.Check_is_go_keystone_heights(); });
-        factory_.registerSimpleCondition("IsGoOurOutpost", [&](BT::TreeNode&) { return condition.Check_is_go_our_outpost(); });
+        factory_.registerSimpleCondition("HPCheck", [&](BT::TreeNode&) { return condition.Check_blood(); });
+        factory_.registerSimpleCondition("IfFindEnemy", [&](BT::TreeNode&) { return condition.Check_enemy(); });
+        factory_.registerSimpleCondition("IsDeadCheck", [&](BT::TreeNode&) { return condition.Check_is_dead(); });
+        factory_.registerSimpleCondition("IfGoEnemyDoor", [&](BT::TreeNode&) { return condition.Check_if_go_enemy_door(); });
+        factory_.registerSimpleCondition("IfGoEnemyOutpost", [&](BT::TreeNode&) { return condition.Check_game_started(); });
+        factory_.registerSimpleCondition("IfGoKeystoneHeights", [&](BT::TreeNode&) { return condition.Check_if_go_keystone_heights(); });
+        factory_.registerSimpleCondition("IfGoOurOutpost", [&](BT::TreeNode&) { return condition.Check_if_go_our_outpost(); });
         factory_.registerSimpleCondition("IsOpenStageStrategySet", [&](BT::TreeNode&) { return condition.Check_openstage_strategy(); });
         factory_.registerSimpleCondition("IsSetGameStatusAsLast", [&](BT::TreeNode&) { return condition.Check_is_set_game_status_as_last(); });
         factory_.registerSimpleCondition("NavStatus", [&](BT::TreeNode&) { return condition.Check_Nav_status(); });
-        factory_.registerSimpleCondition("OutpostStatus", [&](BT::TreeNode&) { return condition.Check_outpost_status(); });
-        factory_.registerSimpleCondition("default_skip", [&](BT::TreeNode&) { return condition.Default_skip(); });
+        factory_.registerSimpleCondition("SupplyZoneCheck", [&](BT::TreeNode&) { return condition.Check_supply_zone(); });
+        factory_.registerSimpleCondition("DefaultSkip", [&](BT::TreeNode&) { return condition.Default_skip(); });
+        factory_.registerSimpleCondition("OurOutpostCheck", [&](BT::TreeNode&) { return condition.Check_our_outpost(); });
+
         
-        // Action:ExecuteCommand
+        // // Action:ExecuteCommand
+        factory_.registerNodeType<rmuc_decision::GainBloodAction>("GainBlood");
         factory_.registerNodeType<rmuc_decision::GoEnemyDoor>("GoEnemyDoor", actionParams);
         factory_.registerNodeType<rmuc_decision::GoEnemyOutpost>("GoEnemyOutpost", actionParams);
         factory_.registerNodeType<rmuc_decision::GoKeystoneHeights>("GoKeystoneHeights", actionParams);
         factory_.registerNodeType<rmuc_decision::GoOurOutpost>("GoOurOutpost", actionParams);
-        // Action:Patrol, Sensor, Taurus
+        factory_.registerNodeType<rmuc_decision::PatrolToSupplyAction>("PatrolToSupply", actionParams);
+        factory_.registerNodeType<rmuc_decision::SetTuoluoStatus>("SetTuoluoStatus", topicParams);
+        factory_.registerNodeType<rmuc_decision::Wandering>("wandering", topicParams);
+
+        // Action:Patrol, RebornNow, SearchEnemy
 
 
         // factory_.registerBehaviorTreeFromFile(xml_file_path);
         // tree_ = factory_.createTree("mainTree",blackboard_);
         
-        // tree_ = factory_.createTreeFromText(xml_text,blackboard_);
+        tree_ = factory_.createTreeFromText(xml_text,blackboard_);
         
-        // while (rclcpp::ok())
-        // {
+        while (rclcpp::ok())
+        {
 
-            // tree_.tickWhileRunning();
-        // };
+            tree_.tickWhileRunning();
+        };
     }
 
     

@@ -1,5 +1,5 @@
-#ifndef HAPPY_PATROL_ACTION_HPP
-#define HAPPY_PATROL_ACTION_HPP
+#ifndef PATROL_5_HPP
+#define PATROL_5_HPP
 
 
 #include "rclcpp/rclcpp.hpp"
@@ -10,10 +10,10 @@
 
 namespace robot_decision
 {
-    class HappyPatrolAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
+    class Patrol_5 : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
     public:
-        HappyPatrolAction(const std::string &name,
+        Patrol_5(const std::string &name,
                                 const BT::NodeConfig &conf,
                                 const BT::RosNodeParams &params)
             : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
@@ -23,8 +23,7 @@ namespace robot_decision
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
-            // 或者多次执行HappyPatrol动作节点然后每次执行时都设置不同的目标点
-            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_pose"));
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_3"));
             RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
             return true;
         };
@@ -59,7 +58,8 @@ namespace robot_decision
 
         BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override
         {
-            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f ", feedback->distance_remaining);
+            
+            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f, pose = (%lf, %lf) ", feedback->distance_remaining,feedback->current_pose.pose.position.x,feedback->current_pose.pose.position.y);
             return BT::NodeStatus::RUNNING;
         };
         
@@ -68,4 +68,4 @@ namespace robot_decision
     };
 }  // namespace robot_decision
 
-#endif //HAPPY_PATROL_ACTION_HPP
+#endif //PATROL_5_HPP

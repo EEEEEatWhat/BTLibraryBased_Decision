@@ -12,15 +12,24 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "tf2/convert.h"
 
-#include "go_pub.hpp"
-#include "action/patrol_to_supply_action.hpp"
-#include "action/happy_patrol_action.hpp"
-#include "action/gain_blood_action.hpp"
 #include "condition_node.hpp"
+#include "action/patrol_to_supply_action.hpp"
+#include "action/gain_blood_action.hpp"
 #include "set_tuoluo_status.hpp"
+
+#include "action/check_mode.hpp"
+
+#include "action/wandering.hpp"
+#include "action/go_enemy_bunker.hpp"
+#include "action/go_enemy_startup.hpp"
+#include "action/go_our_bunker.hpp"
 
 #include "action/patrol_1.hpp"
 #include "action/patrol_2.hpp"
+#include "action/patrol_3.hpp"
+#include "action/patrol_4.hpp"
+#include "action/patrol_5.hpp"
+
 namespace robot_decision
 {
     class DecisionNode : public rclcpp::Node
@@ -64,7 +73,9 @@ namespace robot_decision
 
     private:
         BT::RosNodeParams actionParams; 
+        BT::RosNodeParams actionParamsForPoses; 
         BT::RosNodeParams topicParams; 
+        BT::RosNodeParams topicParams2; 
         rclcpp::NodeOptions options_;
         BT::BehaviorTreeFactory factory_;
         const std::string xml_file_path = "../tree/rmulTree.xml";

@@ -23,8 +23,7 @@ namespace robot_decision
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
-            std::cout<<blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose").pose.position.x;
-            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("enemy_bunker_pose"));
             RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
             return true;
         };

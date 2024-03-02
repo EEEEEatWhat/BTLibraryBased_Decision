@@ -8,7 +8,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "global_interfaces/action/behavior_tree_send_poses.hpp"
 
-namespace robot_decision
+namespace rmuc_decision
 {
     class Wandering : public BT::RosActionNode<global_interfaces::action::BehaviorTreeSendPoses>
     {

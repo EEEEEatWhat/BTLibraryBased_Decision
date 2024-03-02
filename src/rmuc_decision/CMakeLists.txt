@@ -17,6 +17,7 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(global_interfaces REQUIRED)
+find_package(my_msg_interface REQUIRED)
 
 set(THIS_PACKAGE_DEPS
 rclcpp
@@ -24,6 +25,7 @@ rclcpp_action
 behaviortree_cpp
 behaviortree_ros2
 global_interfaces
+my_msg_interface
 std_msgs
 nav2_msgs
 geometry_msgs

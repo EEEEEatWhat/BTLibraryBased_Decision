@@ -8,7 +8,7 @@
 #include "behaviortree_cpp/action_node.h"
 
 
-namespace robot_decision
+namespace rmuc_decision
 {
     class GainBloodAction : public BT::StatefulActionNode
     {

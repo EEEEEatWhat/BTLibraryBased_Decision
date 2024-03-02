@@ -1,33 +1,31 @@
-#ifndef WANDERING_HPP
-#define WANDERING_HPP
+#ifndef PATROL_TO_SUPPLY_ACTION_HPP
+#define PATROL_TO_SUPPLY_ACTION_HPP
 
 
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp/blackboard.h"
 #include "behaviortree_ros2/bt_action_node.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "global_interfaces/action/behavior_tree_send_poses.hpp"
+#include "global_interfaces/action/behavior_tree_pose.hpp"
 
-namespace robot_decision
+namespace rmuc_decision
 {
-    class Wandering : public BT::RosActionNode<global_interfaces::action::BehaviorTreeSendPoses>
+    class PatrolToSupplyAction : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
     public:
-        Wandering(const std::string &name,
+        PatrolToSupplyAction(const std::string &name,
                                 const BT::NodeConfig &conf,
                                 const BT::RosNodeParams &params)
-            : BT::RosActionNode<global_interfaces::action::BehaviorTreeSendPoses>(name, conf, params)
+            : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
         {
             blackboard_ = config().blackboard;
         };
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
-            goal.poses.push_back(blackboard_->get<geometry_msgs::msg::PoseStamped>("our_bunker_pose"));
-            goal.poses.push_back(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_1"));
-            goal.poses.push_back(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_2"));
-            goal.poses.push_back(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_3"));
-            RCLCPP_INFO(node_->get_logger(),"多点Goal设置成功. . . ");
+            std::cout<<blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose").pose.position.x;
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
+            RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
             return true;
         };
 
@@ -61,14 +59,13 @@ namespace robot_decision
 
         BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override
         {
-            
-            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f, pose = (%lf, %lf) ", feedback->distance_remaining,feedback->current_pose.pose.position.x,feedback->current_pose.pose.position.y);
-            RCLCPP_INFO(node_->get_logger(), "Feedback: number of poses remaining = %d", feedback->number_of_poses_remaining);
+            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f ", feedback->distance_remaining);
             return BT::NodeStatus::RUNNING;
         };
         
     private:
         BT::Blackboard::Ptr blackboard_;
     };
-}
-#endif //WANDERING_HPP
+}  // namespace rmuc_decision
+
+#endif //PATROL_TO_SUPPLY_ACTION_HPP

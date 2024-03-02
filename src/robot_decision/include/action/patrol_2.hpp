@@ -24,8 +24,8 @@ namespace robot_decision
         bool setGoal(RosActionNode::Goal &goal) override
         {   
             sleep(2);
-            std::cout<<blackboard_->get<geometry_msgs::msg::PoseStamped>("born_pose").pose.position.x;
-            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("born_pose"));
+            std::cout<<blackboard_->get<geometry_msgs::msg::PoseStamped>("enemy_startup_pose").pose.position.x;
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("enemy_startup_pose"));
             RCLCPP_INFO(node_->get_logger(),"Goal2设置成功. . . ");
             return true;
         };

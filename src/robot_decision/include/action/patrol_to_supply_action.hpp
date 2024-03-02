@@ -23,8 +23,7 @@ namespace robot_decision
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
-            std::cout<<blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose").pose.position.x;
-            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("supply_pose"));
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("our_bunker_pose"));
             RCLCPP_INFO(node_->get_logger(),"Goal设置成功. . . ");
             return true;
         };
@@ -59,7 +58,7 @@ namespace robot_decision
 
         BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override
         {
-            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f ", feedback->distance_remaining);
+            RCLCPP_INFO(node_->get_logger(), "Feedback: remaining distance = %f, pose = (%lf, %lf) ", feedback->distance_remaining,feedback->current_pose.pose.position.x,feedback->current_pose.pose.position.y);
             return BT::NodeStatus::RUNNING;
         };
         

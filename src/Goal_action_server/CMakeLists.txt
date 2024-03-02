@@ -15,8 +15,18 @@ find_package(global_interfaces REQUIRED)
 find_package(nav2_msgs REQUIRED)
 
 add_executable(goalActionServer src/GoalActionServer.cpp)
+add_executable(goalActionServerWithPoses src/GoalActionServer_poses.cpp)
 ament_target_dependencies(
   goalActionServer
+  "rclcpp"
+  "geometry_msgs"
+  "std_msgs"
+  rclcpp_action
+  global_interfaces
+  nav2_msgs
+)
+ament_target_dependencies(
+  goalActionServerWithPoses
   "rclcpp"
   "geometry_msgs"
   "std_msgs"
@@ -35,8 +45,13 @@ ament_target_dependencies(
   global_interfaces
 )
 
-install(TARGETS goalActionServer client
+install(TARGETS goalActionServer goalActionServerWithPoses client
   DESTINATION lib/${PROJECT_NAME})
+
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

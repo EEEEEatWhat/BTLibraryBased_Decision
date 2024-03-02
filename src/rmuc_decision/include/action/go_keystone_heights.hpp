@@ -20,7 +20,12 @@ namespace rmuc_decision
 
         bool setGoal(RosActionNode::Goal &goal) override
         {   
-            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("keystone_heights"));
+            if(blackboard_->get<std::string>("outpost_status") == "OUR_ALIVE_AND_ENEMY_DEAD") {
+                goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("enemy_keystone_heights"));
+                RCLCPP_INFO(node_->get_logger(),"goal设置成功.为敌方梯形高地...");
+                return true;
+            } 
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("our_keystone_heights"));
             RCLCPP_INFO(node_->get_logger(),"goal设置成功.为梯形高地...");
             return true;
         };

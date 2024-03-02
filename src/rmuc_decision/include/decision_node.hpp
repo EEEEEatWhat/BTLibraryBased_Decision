@@ -2,9 +2,6 @@
 #define DECISION_NODE_HPP
 
 #include <memory>
-#include <iostream>
-#include <thread>
-#include <atomic>
 
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp/behavior_tree.h"
@@ -15,10 +12,14 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "tf2/convert.h"
 
+#include "action/gain_blood_action.hpp"
 #include "action/go_enemy_door.hpp"
 #include "action/go_enemy_outpost.hpp"
 #include "action/go_keystone_heights.hpp"
 #include "action/go_our_outpost.hpp"
+#include "action/patrol_to_supply_action.hpp"
+#include "action/wandering.hpp"
+#include "action/set_tuoluo_status.hpp"
 #include "condition.hpp"
 
 namespace rmuc_decision

@@ -6,24 +6,21 @@
     <ReactiveSequence>
       <NavStatus/>
       <Fallback>
-        <IsGoEnemyOutpost/>
+        <IfGoEnemyOutpost/>
         <GoEnemyOutpost/>
       </Fallback>
     </ReactiveSequence>
   </BehaviorTree>
 
   <BehaviorTree ID="Attack_robot">
-    <ReactiveSequence>
-      <NavStatus/>
+    <Sequence>
       <Fallback>
-        <IsGoEnemyDoor/>
+        <IfGoEnemyDoor/>
         <GoEnemyDoor/>
       </Fallback>
-      <Fallback>
-        <IfFindEnemy/>
-        <SearchEnemy/>
-      </Fallback>
-    </ReactiveSequence>
+      <IfFindEnemy/>
+      <GoEnemyNearby/>
+    </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="Defence_home">
@@ -41,7 +38,7 @@
     <ReactiveSequence>
       <NavStatus/>
       <Fallback>
-        <IsGoOurOutpost/>
+        <IfGoOurOutpost/>
         <GoOurOutpost/>
       </Fallback>
       <Fallback>
@@ -73,22 +70,21 @@
           <GainBlood/>
         </ReactiveSequence>
       </Fallback>
-      <Switch5 case_1="0"
+      <Switch4 case_1="0"
                case_2="1"
                case_3="2"
                case_4="3"
-               case_5="4"
-               variable="openstage_strategy">
+               variable="{openstage_strategy}">
         <SubTree ID="Attack_robot"/>
         <SubTree ID="Attack_outpost"/>
         <SubTree ID="Defence_outpost_door"/>
         <SubTree ID="Defence_home"/>
-        <default_skip/>
-      </Switch5>
+        <DefaultSkip/>
+      </Switch4>
       <GameRunning/>
       <Sequence>
         <Fallback>
-          <IsGoKeystoneHeights/>
+          <IfGoKeystoneHeights/>
           <GoKeystoneHeights/>
         </Fallback>
         <Fallback>
@@ -106,6 +102,8 @@
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
+    <Condition ID="DefaultSkip"
+               editable="true"/>
     <Action ID="ExecuteCommand"
             editable="true"/>
     <Action ID="GainBlood"
@@ -117,6 +115,8 @@
     <Condition ID="GameStarted"
                editable="true"/>
     <Action ID="GoEnemyDoor"
+            editable="true"/>
+    <Action ID="GoEnemyNearby"
             editable="true"/>
     <Action ID="GoEnemyOutpost"
             editable="true"/>
@@ -130,13 +130,13 @@
                editable="true"/>
     <Condition ID="IsDeadCheck"
                editable="true"/>
-    <Condition ID="IsGoEnemyDoor"
+    <Condition ID="IfGoEnemyDoor"
                editable="true"/>
-    <Condition ID="IsGoEnemyOutpost"
+    <Condition ID="IfGoEnemyOutpost"
                editable="true"/>
-    <Condition ID="IsGoKeystoneHeights"
+    <Condition ID="IfGoKeystoneHeights"
                editable="true"/>
-    <Condition ID="IsGoOurOutpost"
+    <Condition ID="IfGoOurOutpost"
                editable="true"/>
     <Condition ID="IsOpenStageStrategySet"
                editable="true"/>
@@ -157,8 +157,6 @@
     <Action ID="SetTuoluoStatus"
             editable="true"/>
     <Condition ID="SupplyZoneCheck"
-               editable="true"/>
-    <Condition ID="default_skip"
                editable="true"/>
   </TreeNodesModel>
 

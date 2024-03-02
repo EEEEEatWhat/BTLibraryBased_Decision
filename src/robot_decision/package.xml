@@ -15,6 +15,7 @@
   <depend>behaviortree_cpp</depend>
   <depend>behaviortree_ros2</depend>
   <depend>global_interfaces</depend>
+  <depend>my_msg_interface</depend>
   <depend>std_msgs</depend>
   <depend>nav2_msgs</depend>
   <depend>geometry_msgs</depend>
