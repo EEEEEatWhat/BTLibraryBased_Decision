@@ -1,13 +1,12 @@
-# BTLibraryBased_Decision（持续更新中...）
+# BTLibraryBased_Decision（屎山代码开发中...）
 - 简介
 - 代码框架
 - 节点（Node）介绍
-- GUI
 - 项目依赖
 - 食用说明
 
 ## 简介
-基于BehaviorTree.CPP(v4.4)和BehaviorTree.ROS2的行为树，为机器人提供智能人工()决策设计
+基于BehaviorTree.CPP(v4.5)和BehaviorTree.ROS2的行为树，为机器人提供智能人工()决策设计
 
 吉林大学TARS_Go战队2024赛季 哨兵决策代码（不完整版）。
 
@@ -17,24 +16,32 @@
 ├── README.md                            // 项目自述文件
 └── src
     |   
-    ├── base_interfaces_demo             // 基本接口示例
+    ├── rm_decision_interfaces           // 决策相关接口
     |   
-    ├── bt_test                          // 仅供节点测试使用
+    ├── rm_behavior_tree                 // 行为树
+    |    |   
+    |    ├── config                      // 决策相关的参数配置
+    |    |   
+    |    └── include                     
+    |    |   | 
+    |    |   ├── RefereeSystem           // 决策所需的裁判系统头文件
+    |    |   | 
+    |    |   └── rm_behavior_tree        // 包含行为树节点的相关插件、公共头文件、对裁判系统的客户端
+    |    |
+    |    ├── launch                      // 行为树的launch文件
+    |    |
+    |    ├── plugins                     // 实现行为树节点导出为插件
+    |    |
+    |    ├── src                         // 包含决策节点的cpp文件
+    |    |
+    |    └── tree                        // 各种行为树
+    |    
+    ├── Goal_action_server               // 为行为树与nav2的通信提供中间服务端
     |   
-    ├── click_doodle01                   // suncy_decision
-    |   
-    ├── cpp07_exercise                   // ros2-action通信示例
-    |   
-    ├── decision                         // 决策功能包
-    |   
-    ├── fake_msg_publisher               // 发布虚假测试消息
-    |
-    ├── global_interfaces                //全局通用消息文件
-    |
-    ├── lib                              // 主要依赖库
-    |    ├── BehaviorTree.CPP
-    |    └── BehaviorTree.ROS2
-    ├── nav2_msgs                        // nav2消息包
+    └── lib                              // 主要依赖库
+         ├── BehaviorTree.CPP
+         |
+         └── BehaviorTree.ROS2
 ```
 
 ## 节点（Node）介绍
@@ -58,14 +65,17 @@
 
 啥时候搓完就写
 
-### 节点关系图
-开个坑但可能不填。
-
-## GUI
-(吸溜)想要
 
 ## 项目依赖
-我去问问神奇海螺。
+
 
 ## 食用说明
-现在还不能吃啊啊啊。
+```
+mkdir -p decision_ws && cd decision_ws
+git clone https://github.com/EEEEEatWhat/BTLibraryBased_Decision.git
+colcon build --symlink-install
+. install/setup.bash
+### 启动BehaviorTreeAction服务端
+ros2 launch goal_action_server goalActionServer.launch.py
+### 启动决策节点
+ros2 launch rm_behavior_tree rm_behavior_tree.launch.py 
