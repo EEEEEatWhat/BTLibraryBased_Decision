@@ -132,12 +132,11 @@ TEST(Preconditions, Basic)
   auto tree = factory.createTreeFromText(xml_text);
   const auto status = tree.tickWhileRunning();
   ASSERT_EQ(status, NodeStatus::SUCCESS);
-  ASSERT_EQ(counters[0], 0);   // skipped
-  ASSERT_EQ(counters[1], 1);   // executed
-  ASSERT_EQ(counters[2], 0);   // skipped
-  ASSERT_EQ(counters[3], 1);   // executed
+  ASSERT_EQ(counters[0], 0);  // skipped
+  ASSERT_EQ(counters[1], 1);  // executed
+  ASSERT_EQ(counters[2], 0);  // skipped
+  ASSERT_EQ(counters[3], 1);  // executed
 }
-
 
 TEST(Preconditions, Issue533)
 {
@@ -176,18 +175,17 @@ TEST(Preconditions, Issue533)
   ASSERT_EQ(counters[2], 1);
 }
 
-
-class CoroTestNode: public BT::CoroActionNode
+class CoroTestNode : public BT::CoroActionNode
 {
 public:
-  CoroTestNode(const std::string& node_name,
-               const BT::NodeConfig& config) :
-    BT::CoroActionNode(node_name, config)
+  CoroTestNode(const std::string& node_name, const BT::NodeConfig& config)
+    : BT::CoroActionNode(node_name, config)
   {}
 
   virtual BT::NodeStatus tick() override
   {
-    for(int i=0; i<10; i++) {
+    for(int i = 0; i < 10; i++)
+    {
       times_ticked++;
       setStatusRunningAndYield();
     }
@@ -201,7 +199,6 @@ public:
 
   int times_ticked = 0;
 };
-
 
 TEST(Preconditions, Issue585)
 {
@@ -241,25 +238,28 @@ TEST(Preconditions, Issue615_NoSkipWhenRunning_A)
   auto tree = factory.createTreeFromText(xml_text);
 
   tree.rootBlackboard()->set("check", false);
-  ASSERT_EQ( tree.tickOnce(), NodeStatus::RUNNING );
+  ASSERT_EQ(tree.tickOnce(), NodeStatus::RUNNING);
 
   // the precondition should NOT be called, because
   // KeepRunningUntilFailure is in RUNNING state
   tree.rootBlackboard()->set("check", true);
-  ASSERT_EQ( tree.tickOnce(), NodeStatus::RUNNING );
+  ASSERT_EQ(tree.tickOnce(), NodeStatus::RUNNING);
 }
 
 class KeepRunning : public BT::StatefulActionNode
 {
 public:
-  KeepRunning(const std::string& name, const BT::NodeConfig& config) :
-    BT::StatefulActionNode(name, config){}
+  KeepRunning(const std::string& name, const BT::NodeConfig& config)
+    : BT::StatefulActionNode(name, config)
+  {}
 
-  static BT::PortsList providedPorts() {
+  static BT::PortsList providedPorts()
+  {
     return {};
   }
 
-  BT::NodeStatus onStart() override {
+  BT::NodeStatus onStart() override
+  {
     return BT::NodeStatus::RUNNING;
   }
 
@@ -268,7 +268,8 @@ public:
     return BT::NodeStatus::RUNNING;
   }
 
-  void onHalted() override {
+  void onHalted() override
+  {
     std::cout << "Node halted\n";
   }
 };
@@ -288,13 +289,77 @@ TEST(Preconditions, Issue615_NoSkipWhenRunning_B)
   auto tree = factory.createTreeFromText(xml_text);
 
   tree.rootBlackboard()->set("check", false);
-  ASSERT_EQ( tree.tickOnce(), NodeStatus::SKIPPED );
+  ASSERT_EQ(tree.tickOnce(), NodeStatus::SKIPPED);
 
   // Should not be skipped anymore
   tree.rootBlackboard()->set("check", true);
-  ASSERT_EQ( tree.tickOnce(), NodeStatus::RUNNING );
+  ASSERT_EQ(tree.tickOnce(), NodeStatus::RUNNING);
 
   // skipIf should be ignored, because KeepRunning is RUNNING and not IDLE
   tree.rootBlackboard()->set("check", false);
-  ASSERT_EQ( tree.tickOnce(), NodeStatus::RUNNING );
+  ASSERT_EQ(tree.tickOnce(), NodeStatus::RUNNING);
+}
+
+class SimpleOutput : public BT::SyncActionNode
+{
+public:
+  SimpleOutput(const std::string& name, const BT::NodeConfig& config)
+    : BT::SyncActionNode(name, config)
+  {}
+
+  static BT::PortsList providedPorts()
+  {
+    return { OutputPort<bool>("output") };
+  }
+
+  BT::NodeStatus tick() override
+  {
+    setOutput("output", true);
+    return BT::NodeStatus::SUCCESS;
+  }
+};
+
+TEST(Preconditions, Remapping)
+{
+  static constexpr auto xml_text = R"(
+  <root BTCPP_format="4">
+
+    <BehaviorTree ID="Main">
+      <Sequence>
+        <SimpleOutput  output="{param}" />
+        <Script  code="value:=true" />
+
+        <SubTree ID="Sub1" param="{param}"/>
+        <SubTree ID="Sub1" param="{value}"/>
+        <SubTree ID="Sub1" param="true"/>
+        <TestA/>
+      </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="Sub1">
+      <Sequence>
+        <SubTree ID="Sub2" _skipIf="param != true" />
+      </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="Sub2">
+      <TestB/>
+    </BehaviorTree>
+  </root>
+  )";
+
+  BehaviorTreeFactory factory;
+
+  std::array<int, 2> counters;
+  factory.registerNodeType<SimpleOutput>("SimpleOutput");
+  RegisterTestTick(factory, "Test", counters);
+
+  factory.registerBehaviorTreeFromText(xml_text);
+  auto tree = factory.createTree("Main");
+
+  auto status = tree.tickWhileRunning();
+
+  ASSERT_EQ(status, BT::NodeStatus::SUCCESS);
+  ASSERT_EQ(counters[0], 1);
+  ASSERT_EQ(counters[1], 3);
 }

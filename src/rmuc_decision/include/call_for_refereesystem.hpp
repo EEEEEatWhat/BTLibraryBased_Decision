@@ -8,7 +8,7 @@
 #include "my_msg_interface/srv/referee_msg.hpp"
 #include "forRefereeSystem/DataType.h"
 
-namespace rmuc_decision {
+namespace rm_behavior_tree {
     class CallForRefereeSystem
     {
     private:

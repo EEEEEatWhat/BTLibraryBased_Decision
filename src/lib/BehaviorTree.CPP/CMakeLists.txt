@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.3) # version on Ubuntu Focal
 
-project(behaviortree_cpp VERSION 4.4.0 LANGUAGES C CXX)
+project(behaviortree_cpp VERSION 4.5.2 LANGUAGES C CXX)
 
 set(CMAKE_CONFIG_PATH ${CMAKE_MODULE_PATH}  "${CMAKE_CURRENT_LIST_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CONFIG_PATH}")
@@ -19,8 +19,9 @@ endif()
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DWIN32_LEAN_AND_MEAN)
 else()
-    add_definitions(-Wpedantic)
+    add_definitions(-Wpedantic -fno-omit-frame-pointer)
 endif()
+
 
 #---- project configuration ----
 option(BTCPP_SHARED_LIBS "Build shared libraries" ON)
@@ -111,7 +112,7 @@ list(APPEND BT_SOURCE
     src/controls/reactive_sequence.cpp
     src/controls/reactive_fallback.cpp
     src/controls/sequence_node.cpp
-    src/controls/sequence_star_node.cpp
+    src/controls/sequence_with_memory_node.cpp
     src/controls/switch_node.cpp
     src/controls/while_do_else_node.cpp
 
@@ -160,6 +161,7 @@ target_link_libraries(${BTCPP_LIBRARY}
         Threads::Threads
         ${CMAKE_DL_LIBS}
         $<BUILD_INTERFACE:foonathan::lexy>
+    PUBLIC
         ${BTCPP_EXTRA_LIBRARIES}
 )
 
@@ -220,4 +222,3 @@ INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
     FILES_MATCHING PATTERN "*.h*")
 
 export_btcpp_package()
-

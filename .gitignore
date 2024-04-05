@@ -2,3 +2,5 @@
 /install
 /log
 /.vscode
+/src/rmuc_decision
+/src/robot_decision

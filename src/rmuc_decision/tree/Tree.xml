@@ -51,7 +51,11 @@
   <BehaviorTree ID="maintree">
     <Sequence>
       <GameStarted/>
-      <IsOpenStageStrategySet/>
+      <IfThenElse>
+        <CheckArmors/>
+        <FireOrSkip/>
+        <GoEnemyNearby/>
+      </IfThenElse>
       <Fallback>
         <OurOutpostCheck/>
         <SetTuoluoStatus/>
@@ -70,17 +74,11 @@
           <GainBlood/>
         </ReactiveSequence>
       </Fallback>
-      <Switch4 case_1="0"
-               case_2="1"
-               case_3="2"
-               case_4="3"
-               variable="{openstage_strategy}">
-        <SubTree ID="Attack_robot"/>
-        <SubTree ID="Attack_outpost"/>
-        <SubTree ID="Defence_outpost_door"/>
-        <SubTree ID="Defence_home"/>
-        <DefaultSkip/>
-      </Switch4>
+      <IsOpenStageStrategySet/>
+      <Fallback>
+        <IsArrived/>
+        <SendGoal/>
+      </Fallback>
       <GameRunning/>
       <Sequence>
         <Fallback>
@@ -102,9 +100,11 @@
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Condition ID="DefaultSkip"
-               editable="true"/>
+    <Action ID="CheckArmors"
+            editable="true"/>
     <Action ID="ExecuteCommand"
+            editable="true"/>
+    <Action ID="FireOrSkip"
             editable="true"/>
     <Action ID="GainBlood"
             editable="true"/>
@@ -128,8 +128,6 @@
                editable="true"/>
     <Condition ID="IfFindEnemy"
                editable="true"/>
-    <Condition ID="IsDeadCheck"
-               editable="true"/>
     <Condition ID="IfGoEnemyDoor"
                editable="true"/>
     <Condition ID="IfGoEnemyOutpost"
@@ -137,6 +135,10 @@
     <Condition ID="IfGoKeystoneHeights"
                editable="true"/>
     <Condition ID="IfGoOurOutpost"
+               editable="true"/>
+    <Condition ID="IsArrived"
+               editable="true"/>
+    <Condition ID="IsDeadCheck"
                editable="true"/>
     <Condition ID="IsOpenStageStrategySet"
                editable="true"/>
@@ -153,6 +155,8 @@
     <Action ID="RebornNow"
             editable="true"/>
     <Action ID="SearchEnemy"
+            editable="true"/>
+    <Action ID="SendGoal"
             editable="true"/>
     <Action ID="SetTuoluoStatus"
             editable="true"/>

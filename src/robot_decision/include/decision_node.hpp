@@ -59,13 +59,6 @@ namespace robot_decision
          **/
         void Init();
 
-        /**
-         *  @brief 注册解包函数
-         *  @param 
-         *         
-         *  @return 
-         **/
-        void RigisteredMapSolver();
 
     public:
         BT::Tree tree_;

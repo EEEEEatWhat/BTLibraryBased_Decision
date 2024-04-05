@@ -61,9 +61,8 @@ class TestNode : public BT::StatefulActionNode
 {
 public:
   TestNode(const std::string& name, const NodeConfig& config,
-           TestNodeConfig test_config = {}) :
-    StatefulActionNode(name, config),
-        _test_config(std::move(test_config))
+           TestNodeConfig test_config = {})
+    : StatefulActionNode(name, config), _test_config(std::move(test_config))
   {
     setRegistrationID("TestNode");
   }
@@ -76,7 +75,6 @@ public:
   void setConfig(const TestNodeConfig& config);
 
 private:
-
   virtual NodeStatus onStart() override;
 
   virtual NodeStatus onRunning() override;
@@ -88,7 +86,7 @@ private:
   TestNodeConfig _test_config;
   ScriptFunction _executor;
   TimerQueue<> _timer;
-  std::atomic_bool _completed;
+  std::atomic_bool _completed = false;
 };
 
-}   // namespace BT
+}  // namespace BT

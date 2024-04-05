@@ -19,7 +19,7 @@
 #include "behaviortree_cpp/controls/reactive_fallback.h"
 #include "behaviortree_cpp/controls/fallback_node.h"
 #include "behaviortree_cpp/controls/sequence_node.h"
-#include "behaviortree_cpp/controls/sequence_star_node.h"
+#include "behaviortree_cpp/controls/sequence_with_memory_node.h"
 #include "behaviortree_cpp/controls/switch_node.h"
 #include "behaviortree_cpp/controls/if_then_else_node.h"
 #include "behaviortree_cpp/controls/while_do_else_node.h"
@@ -41,6 +41,7 @@
 #include "behaviortree_cpp/actions/set_blackboard_node.h"
 #include "behaviortree_cpp/actions/test_node.h"
 #include "behaviortree_cpp/actions/sleep_node.h"
+#include "behaviortree_cpp/actions/unset_blackboard_node.h"
 
 #include "behaviortree_cpp/decorators/force_success_node.h"
 #include "behaviortree_cpp/decorators/force_failure_node.h"
@@ -94,9 +95,8 @@ inline NodeType getType()
   // clang-format on
 }
 
-
 const char* LibraryVersionString();
 
 int LibraryVersionNumber();
 
-}   // namespace BT
+}  // namespace BT

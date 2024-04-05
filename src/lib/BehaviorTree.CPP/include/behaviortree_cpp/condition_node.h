@@ -27,7 +27,9 @@ public:
 
   //Do nothing
   virtual void halt() override final
-  {}
+  {
+    resetStatus();
+  }
 
   virtual NodeType type() const override final
   {
@@ -44,7 +46,6 @@ public:
  * This avoids the hassle of inheriting from a ActionNode.
  *
  * Using lambdas or std::bind it is easy to pass a pointer to a method.
- * SimpleConditionNode does not support halting, NodeParameters, nor Blackboards.
  */
 class SimpleConditionNode : public ConditionNode
 {
@@ -62,6 +63,6 @@ protected:
 
   TickFunctor tick_functor_;
 };
-}   // namespace BT
+}  // namespace BT
 
 #endif

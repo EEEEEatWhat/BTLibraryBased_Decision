@@ -1,4 +1,4 @@
-﻿#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 #include "behaviortree_cpp/bt_factory.h"
 #include "../sample_nodes/dummy_nodes.h"
 #include "../sample_nodes/movebase_node.h"
@@ -31,7 +31,7 @@ TEST(SubTree, SiblingPorts_Issue_72)
 
   Tree tree = factory.createTreeFromText(xml_text);
 
-  for (auto& subtree : tree.subtrees)
+  for(auto& subtree : tree.subtrees)
   {
     subtree->blackboard->debugMessage();
     std::cout << "-----" << std::endl;
@@ -45,14 +45,14 @@ TEST(SubTree, SiblingPorts_Issue_72)
 class CopyPorts : public BT::SyncActionNode
 {
 public:
-  CopyPorts(const std::string& name, const BT::NodeConfig& config) :
-    BT::SyncActionNode(name, config)
+  CopyPorts(const std::string& name, const BT::NodeConfig& config)
+    : BT::SyncActionNode(name, config)
   {}
 
   BT::NodeStatus tick() override
   {
     auto msg = getInput<std::string>("in");
-    if (!msg)
+    if(!msg)
     {
       throw BT::RuntimeError("missing required input [message]: ", msg.error());
     }
@@ -62,7 +62,7 @@ public:
 
   static BT::PortsList providedPorts()
   {
-    return {BT::InputPort<std::string>("in"), BT::OutputPort<std::string>("out")};
+    return { BT::InputPort<std::string>("in"), BT::OutputPort<std::string>("out") };
   }
 };
 
@@ -208,11 +208,11 @@ TEST(SubTree, SubtreePlusB)
 class ReadInConstructor : public BT::SyncActionNode
 {
 public:
-  ReadInConstructor(const std::string& name, const BT::NodeConfig& config) :
-    BT::SyncActionNode(name, config)
+  ReadInConstructor(const std::string& name, const BT::NodeConfig& config)
+    : BT::SyncActionNode(name, config)
   {
     auto msg = getInput<std::string>("message");
-    if (!msg)
+    if(!msg)
     {
       throw BT::RuntimeError("missing required input [message]: ", msg.error());
     }
@@ -224,7 +224,7 @@ public:
   }
   static BT::PortsList providedPorts()
   {
-    return {BT::InputPort<std::string>("message")};
+    return { BT::InputPort<std::string>("message") };
   }
 };
 
@@ -294,11 +294,13 @@ public:
     : SyncActionNode(name, config)
   {}
 
-  static BT::PortsList providedPorts() {
-    return{ BT::BidirectionalPort<Pose2D>("pose") };
+  static BT::PortsList providedPorts()
+  {
+    return { BT::BidirectionalPort<Pose2D>("pose") };
   }
 
-  BT::NodeStatus tick() override {
+  BT::NodeStatus tick() override
+  {
     Pose2D pose;
     getInput("pose", pose);
     pose.theta *= 2;
@@ -306,7 +308,6 @@ public:
     return NodeStatus::SUCCESS;
   }
 };
-
 
 TEST(SubTree, StringConversions_Issue530)
 {
@@ -332,15 +333,16 @@ TEST(SubTree, StringConversions_Issue530)
 class NaughtyNav2Node : public BT::SyncActionNode
 {
 public:
-  NaughtyNav2Node(const std::string& name, const BT::NodeConfiguration& config) :
-    BT::SyncActionNode(name, config)
+  NaughtyNav2Node(const std::string& name, const BT::NodeConfiguration& config)
+    : BT::SyncActionNode(name, config)
   {
     std::cout << "CTOR:" << config.blackboard->get<std::string>("ros_node") << std::endl;
   }
 
   BT::NodeStatus tick() override
   {
-    std::cout << "tick:" << config().blackboard->get<std::string>("ros_node") << std::endl;
+    std::cout << "tick:" << config().blackboard->get<std::string>("ros_node")
+              << std::endl;
     return BT::NodeStatus::SUCCESS;
   }
   static BT::PortsList providedPorts()
@@ -349,34 +351,34 @@ public:
   }
 };
 
-TEST(SubTree, SubtreeIssue563)
+TEST(SubTree, SubtreeNav2_Issue563)
 {
   static const char* xml_text = R"(
 <root BTCPP_format="4" >
 
-<BehaviorTree ID="Tree1">
-  <Sequence>
-    <SetBlackboard output_key="the_message" value="hello world"/>
-    <SubTree ID="Tree2" _autoremap="true"/>
-    <SaySomething message="{reply}" />
-  </Sequence>
-</BehaviorTree>
+    <BehaviorTree ID="Tree1">
+      <Sequence>
+        <SetBlackboard output_key="the_message" value="hello world"/>
+        <SubTree ID="Tree2" _autoremap="true"/>
+        <SaySomething message="{reply}" />
+      </Sequence>
+    </BehaviorTree>
 
-<BehaviorTree ID="Tree2">
-    <SubTree ID="Tree3" _autoremap="true"/>
-</BehaviorTree>
+    <BehaviorTree ID="Tree2">
+        <SubTree ID="Tree3" _autoremap="true"/>
+    </BehaviorTree>
 
-<BehaviorTree ID="Tree3">
-    <SubTree ID="Talker" _autoremap="true"/>
-</BehaviorTree>
+    <BehaviorTree ID="Tree3">
+        <SubTree ID="Talker" _autoremap="true"/>
+    </BehaviorTree>
 
-<BehaviorTree ID="Talker">
-  <Sequence>
-    <SaySomething message="{the_message}" />
-    <Script code=" reply:='done' "/>
-    <NaughtyNav2Node/>
-  </Sequence>
-</BehaviorTree>
+    <BehaviorTree ID="Talker">
+      <Sequence>
+        <SaySomething message="{the_message}" />
+        <Script code=" reply:='done' "/>
+        <NaughtyNav2Node/>
+      </Sequence>
+    </BehaviorTree>
 
 </root>)";
 
@@ -395,6 +397,46 @@ TEST(SubTree, SubtreeIssue563)
   ASSERT_EQ(ret, NodeStatus::SUCCESS);
 }
 
+TEST(SubTree, SubtreeNav2_Issue724)
+{
+  static const char* xml_text = R"(
+<root BTCPP_format="4" >
+
+    <BehaviorTree ID="Tree1">
+      <Sequence>
+        <SubTree ID="Tree2" ros_node="{ros_node}"/>
+      </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="Tree2">
+        <SubTree ID="Tree3" ros_node="{ros_node}"/>
+    </BehaviorTree>
+
+    <BehaviorTree ID="Tree3">
+        <SubTree ID="Talker" ros_node="{ros_node}"/>
+    </BehaviorTree>
+
+    <BehaviorTree ID="Talker">
+      <Sequence>
+        <NaughtyNav2Node/>
+      </Sequence>
+    </BehaviorTree>
+
+</root>)";
+
+  BehaviorTreeFactory factory;
+  factory.registerNodeType<NaughtyNav2Node>("NaughtyNav2Node");
+
+  factory.registerBehaviorTreeFromText(xml_text);
+
+  auto blackboard = BT::Blackboard::create();
+  blackboard->set<std::string>("ros_node", "nav2_shouldnt_do_this");
+
+  Tree tree = factory.createTree("Tree1", blackboard);
+
+  auto ret = tree.tickOnce();
+  ASSERT_EQ(ret, NodeStatus::SUCCESS);
+}
 
 TEST(SubTree, SubtreeIssue592)
 {
@@ -417,7 +459,6 @@ TEST(SubTree, SubtreeIssue592)
   </BehaviorTree>
 
 </root>)";
-
 
   BehaviorTreeFactory factory;
   std::array<int, 1> counters;
@@ -460,20 +501,22 @@ TEST(SubTree, Issue623_String_to_Pose2d)
   tree.tickWhileRunning();
 }
 
-
 class Assert : public BT::SyncActionNode
 {
 public:
   Assert(const std::string& name, const BT::NodeConfiguration& config)
-    : BT::SyncActionNode(name, config) {}
+    : BT::SyncActionNode(name, config)
+  {}
 
-  static BT::PortsList providedPorts() {
-    return {BT::InputPort<bool>("condition")};
+  static BT::PortsList providedPorts()
+  {
+    return { BT::InputPort<bool>("condition") };
   }
 
 private:
-  virtual BT::NodeStatus tick() override {
-    if (getInput<bool>("condition").value())
+  virtual BT::NodeStatus tick() override
+  {
+    if(getInput<bool>("condition").value())
       return BT::NodeStatus::SUCCESS;
     else
       return BT::NodeStatus::FAILURE;
@@ -506,7 +549,6 @@ TEST(SubTree, Issue653_SetBlackboard)
   auto tree = factory.createTreeFromText(xml_text);
   tree.tickWhileRunning();
 }
-
 
 TEST(SubTree, SubtreeModels)
 {
@@ -547,4 +589,110 @@ TEST(SubTree, SubtreeModels)
   tree.tickWhileRunning();
 }
 
+class PrintToConsole : public BT::SyncActionNode
+{
+public:
+  PrintToConsole(const std::string& name, const BT::NodeConfiguration& config,
+                 std::vector<std::string>* console)
+    : BT::SyncActionNode(name, config), console_(console)
+  {}
 
+  static BT::PortsList providedPorts()
+  {
+    return { BT::InputPort<std::string>("message") };
+  }
+
+private:
+  virtual BT::NodeStatus tick() override
+  {
+    if(auto res = getInput<std::string>("message"))
+    {
+      console_->push_back(res.value());
+      return BT::NodeStatus::SUCCESS;
+    }
+    else
+      return BT::NodeStatus::FAILURE;
+  }
+  std::vector<std::string>* console_;
+};
+
+TEST(SubTree, RemappingIssue696)
+{
+  // clang-format off
+
+  static const char* xml_text = R"(
+  <root BTCPP_format="4">
+    <BehaviorTree ID="Subtree1">\n"
+      <Sequence>
+        <PrintToConsole message="{msg1}"/>
+        <PrintToConsole message="{msg2}"/>
+      </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="Subtree2">
+      <Sequence>
+        <SubTree ID="Subtree1" msg1="foo1" _autoremap="true"/>
+        <SubTree ID="Subtree1" msg1="foo2" _autoremap="true"/>
+      </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="MainTree">
+      <SubTree ID="Subtree2" msg2="bar"/>
+    </BehaviorTree>
+  </root>
+ )";
+
+  // clang-format on
+
+  BehaviorTreeFactory factory;
+  std::vector<std::string> console;
+  factory.registerNodeType<PrintToConsole>("PrintToConsole", &console);
+
+  factory.registerBehaviorTreeFromText(xml_text);
+  auto tree = factory.createTree("MainTree");
+  tree.tickWhileRunning();
+
+  ASSERT_EQ(console.size(), 4);
+  ASSERT_EQ(console[0], "foo1");
+  ASSERT_EQ(console[1], "bar");
+  ASSERT_EQ(console[2], "foo2");
+  ASSERT_EQ(console[3], "bar");
+}
+
+TEST(SubTree, PrivateAutoRemapping)
+{
+  // clang-format off
+
+  static const char* xml_text = R"(
+  <root BTCPP_format="4">
+    <BehaviorTree ID="Subtree">\n"
+      <Sequence>
+        <SetBlackboard output_key="public_value"   value="hello"/>
+        <SetBlackboard output_key="_private_value" value="world"/>
+      </Sequence>
+    </BehaviorTree>
+
+    <BehaviorTree ID="MainTree">
+      <Sequence>
+        <SubTree ID="Subtree" _autoremap="true"/>
+        <PrintToConsole message="{public_value}"/>
+        <PrintToConsole message="{_private_value}"/>
+      </Sequence>
+    </BehaviorTree>
+  </root>
+ )";
+
+  // clang-format on
+  BehaviorTreeFactory factory;
+  std::vector<std::string> console;
+  factory.registerNodeType<PrintToConsole>("PrintToConsole", &console);
+
+  factory.registerBehaviorTreeFromText(xml_text);
+  auto tree = factory.createTree("MainTree");
+  const auto res = tree.tickWhileRunning();
+
+  // should fail because _private_value is not autoremapped
+  ASSERT_EQ(res, BT::NodeStatus::FAILURE);
+  ASSERT_EQ(console.size(), 1);
+  ASSERT_EQ(console[0], "hello");
+}

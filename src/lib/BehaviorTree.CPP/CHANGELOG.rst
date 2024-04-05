@@ -2,6 +2,85 @@
 Changelog for package behaviortree_cpp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+4.5.2 (2024-03-07)
+------------------
+* bugfix: string to enum/integer/boolean in scripts
+* bug fix in scripting comparison
+* added more pretty-prints to demangler
+* fixes and checks in default values, based on PR `#773 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/773>`_
+* Initialize std::atomic_bool (`#772 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/772>`_)
+* Fix issue `#767 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/767>`_ and `#768 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/768>`_
+* updated default port syntax: "{=}"
+* new default port capability: blackbard entries
+* fix issue `#757 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/757>`_ : skipped nodes should not call post-condition ALWAYS
+* Merge pull request `#756 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/756>`_ from imere/imere-patch-1
+* fix(test): Typo in gtest_blackboard.cpp
+* Contributors: Davide Faconti, Lu Z, Marq Rasmussen
+
+4.5.1 (2024-01-23)
+------------------
+* Support enums and real numbers in Node Switch
+* improve Any::castPtr and add example
+* fix issue `#748 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/748>`_ : static error messages
+* Merge pull request `#746 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/746>`_ from galou/snprintf
+  Use snprintf instead of sprintf
+* Use snprintf instead of sprintf
+  - Augment the buffer size on doc error.
+  - Let sprintf in switch_node.h since the max. string length is known.
+* Contributors: Davide Faconti, Gaël Écorchard
+
+4.5.0 (2024-01-10)
+------------------
+* fix typo in unit test `#733 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/733>`_
+* allow Input/Output ports with type Any
+* Merge pull request `#703 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/703>`_ from galou/export_xsd
+  Implement writeTreeXSD() to generate an XSD
+* Any::isType() will return the original type. Cherry picking from `#708 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/708>`_
+* fix `#734 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/734>`_
+* remove unneeded includes
+* add Any::castPtr
+* add alias KeyValueVector
+* Merge pull request `#730 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/730>`_ from adlarkin/add_metadata
+  Add optional metadata to TreeNodeManifest
+* Contributors: Ashton Larkin, Davide Faconti, Gaël Écorchard
+
+4.4.3 (2023-12-19)
+------------------
+* Merge pull request #709 from galou/unset_blackboard
+* fix issue `#725 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/725>`_ : SetBlackboard can copy entries
+* add more unit tests
+* fix typos `#721 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/721>`_
+* fix: guard macro declaration to prevent redefinition warning
+* fix: Rename scoped lock so it doesn't hide the outer lock triggering a compiler warning
+* add private ports to exclude from autoremapping `#706 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/706>`_
+* fix issue `#713 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/713>`_:  getNodesByPath should be const
+* Contributors: Davide Faconti, Nestor Gonzalez, Tony Paulussen
+
+4.4.2 (2023-11-28)
+------------------
+* fix issue `#702 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/702>`_ : output ports require {}
+* Merge pull request `#691 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/691>`_ from galou/small_refactor_and_doc
+  Small code refactor, log- and doc changes
+* Merge pull request `#701 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/701>`_ from tony-p/fix/file-loggers-protected
+  fix: ensure public get config overload is used
+* ci: use pixi github action
+* fix: ensure public get config overload is used
+* Small code refactor, log- and doc changes
+* Contributors: Davide Faconti, Gaël Écorchard, Tony Paulussen
+
+4.4.1 (2023-11-12)
+------------------
+* erase server_port+1
+* add reset by default in base classes (fix `#694 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/694>`_)
+* fix issue `#696 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/696>`_ (wrong autoremapping)
+* Remove traces of SequenceStar
+* fix `#685 <https://github.com/BehaviorTree/BehaviorTree.CPP/issues/685>`_ (timeout in ZMP publisher)
+* clang: fix warning
+  fix warning: lambda capture 'this' is not used
+* Use feature test macro to check availability of `std::from_chars`
+* fix warning in older compilers
+* Contributors: Christoph Hertzberg, Davide Faconti, Gaël Écorchard, Shen Xingjian, Sid
+
 4.4.0 (2023-10-16)
 ------------------
 * Update ex05_subtree_model.cpp

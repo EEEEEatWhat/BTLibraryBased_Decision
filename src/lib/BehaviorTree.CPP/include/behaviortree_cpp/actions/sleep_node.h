@@ -15,7 +15,6 @@ namespace BT
 class SleepNode : public StatefulActionNode
 {
 public:
-
   SleepNode(const std::string& name, const NodeConfig& config);
 
   ~SleepNode() override
@@ -31,15 +30,15 @@ public:
 
   static PortsList providedPorts()
   {
-    return {InputPort<unsigned>("msec")};
+    return { InputPort<unsigned>("msec") };
   }
 
 private:
   TimerQueue<> timer_;
   uint64_t timer_id_;
 
-  std::atomic_bool timer_waiting_;
+  std::atomic_bool timer_waiting_ = false;
   std::mutex delay_mutex_;
 };
 
-}   // namespace BT
+}  // namespace BT

@@ -4,8 +4,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "global_interfaces/action/behavior_tree_pose.hpp"
-using global_interfaces::action::BehaviorTreePose;
+#include "rm_decision_interfaces/action/behavior_tree_pose.hpp"
+using rm_decision_interfaces::action::BehaviorTreePose;
 using GoalHandlePose = rclcpp_action::ClientGoalHandle<BehaviorTreePose>;
 using namespace std::placeholders;
 

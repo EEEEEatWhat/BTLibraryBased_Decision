@@ -10,28 +10,33 @@
  *  But this time we also show how to connect
  */
 
-// A custom structuree that I want to visualize in Groot2
-struct Position2D {
+// A custom struct  that I want to visualize in Groot2
+struct Position2D
+{
   double x;
   double y;
 };
 
-// Allows Position2D to be visualized in Groot2
-// You still need BT::RegisterJsonDefinition<Position2D>(PositionToJson)
-void PositionToJson(nlohmann::json& j, const Position2D& p)
+// This macro will generate the code that is needed to convert
+// the object to/from JSON.
+// You still need to call BT::RegisterJsonDefinition<Position2D>()
+// in main()
+BT_JSON_CONVERTER(Position2D, pos)
 {
-  j["x"] = p.x;
-  j["y"] = p.y;
+  add_field("x", &pos.x);
+  add_field("y", &pos.y);
 }
 
 // Simple Action that updates an instance of Position2D in the blackboard
-class UpdatePosition: public BT::SyncActionNode
+class UpdatePosition : public BT::SyncActionNode
 {
 public:
-  UpdatePosition(const std::string& name, const BT::NodeConfig& config):
-    BT::SyncActionNode(name, config) {}
+  UpdatePosition(const std::string& name, const BT::NodeConfig& config)
+    : BT::SyncActionNode(name, config)
+  {}
 
-  BT::NodeStatus tick() override {
+  BT::NodeStatus tick() override
+  {
     _pos.x += 0.2;
     _pos.y += 0.1;
     setOutput("pos", _pos);
@@ -40,10 +45,11 @@ public:
 
   static BT::PortsList providedPorts()
   {
-    return {BT::OutputPort<Position2D>("pos")};
+    return { BT::OutputPort<Position2D>("pos") };
   }
+
 private:
-  Position2D _pos = {0, 0};
+  Position2D _pos = { 0, 0 };
 };
 
 // clang-format off
@@ -97,7 +103,7 @@ int main()
   factory.registerBehaviorTreeFromText(xml_text);
 
   // Add this to allow Groot2 to visualize your custom type
-  BT::RegisterJsonDefinition<Position2D>(PositionToJson);
+  BT::RegisterJsonDefinition<Position2D>();
 
   auto tree = factory.createTree("MainTree");
 

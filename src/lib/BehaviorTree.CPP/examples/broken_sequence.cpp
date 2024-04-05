@@ -21,7 +21,7 @@ public:
     time_ = 5;
     stop_loop_ = false;
     int i = 0;
-    while (!stop_loop_ && i++ < time_)
+    while(!stop_loop_ && i++ < time_)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -35,7 +35,7 @@ public:
 
 private:
   int time_;
-  std::atomic_bool stop_loop_;
+  std::atomic_bool stop_loop_ = false;
 };
 
 int main()
@@ -51,7 +51,7 @@ int main()
 
   NodeStatus status = NodeStatus::RUNNING;
 
-  while (status == NodeStatus::RUNNING)
+  while(status == NodeStatus::RUNNING)
   {
     status = root.executeTick();
 

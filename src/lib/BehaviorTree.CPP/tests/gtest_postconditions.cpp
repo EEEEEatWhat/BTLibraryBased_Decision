@@ -85,5 +85,3 @@ TEST(PostConditions, Issue601)
 
   ASSERT_EQ(tree.rootBlackboard()->get<std::string>("test"), "halted");
 }
-
-

@@ -1,0 +1,6 @@
+uint8 confirm_res
+uint8 confirm_insta_res
+uint16 pending_missile_exch
+uint8 remote_missile_req_count
+uint8 remote_health_req_count 
+uint16 sender_id

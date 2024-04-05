@@ -45,7 +45,8 @@ public:
 
   static PortsList providedPorts()
   {
-    return {InputPort<unsigned>("delay_msec", "Tick the child after a few milliseconds")};
+    return { InputPort<unsigned>("delay_msec", "Tick the child after a few "
+                                               "milliseconds") };
   }
 
   void halt() override;
@@ -56,12 +57,12 @@ private:
 
   virtual BT::NodeStatus tick() override;
 
-  bool delay_started_;
-  std::atomic_bool delay_complete_;
-  bool delay_aborted_;
+  bool delay_started_ = false;
+  std::atomic_bool delay_complete_ = false;
+  bool delay_aborted_ = false;
   unsigned msec_;
-  bool read_parameter_from_ports_;
+  bool read_parameter_from_ports_ = false;
   std::mutex delay_mutex_;
 };
 
-}   // namespace BT
+}  // namespace BT

@@ -171,6 +171,7 @@ protected:
   std::string prev_action_name_;
   bool action_name_may_change_ = false;
   const std::chrono::milliseconds server_timeout_;
+  const std::chrono::milliseconds wait_for_server_timeout_;
 
 private:
 
@@ -199,7 +200,8 @@ template<class T> inline
                                   const RosNodeParams &params):
   BT::ActionNodeBase(instance_name, conf),
   node_(params.nh),
-  server_timeout_(params.server_timeout)
+  server_timeout_(params.server_timeout),
+  wait_for_server_timeout_(params.wait_for_server_timeout)
 {
   // Three cases:
   // - we use the default action_name in RosNodeParams when port is empty
@@ -260,7 +262,7 @@ template<class T> inline
 
   prev_action_name_ = action_name;
 
-  bool found = action_client_->wait_for_action_server(server_timeout_);
+  bool found = action_client_->wait_for_action_server(wait_for_server_timeout_);
   if(!found)
   {
     RCLCPP_ERROR(node_->get_logger(), "%s: Action server with name '%s' is not reachable.",
@@ -350,6 +352,10 @@ template<class T> inline
     };
     //--------------------
 
+    // Check if server is ready
+    if(!action_client_->action_server_is_ready())
+      return onFailure(SERVER_UNREACHABLE);
+
     future_goal_handle_ = action_client_->async_send_goal( goal, goal_options );
     time_goal_sent_ = node_->now();
 
@@ -384,7 +390,7 @@ template<class T> inline
         future_goal_handle_ = {};
 
         if (!goal_handle_) {
-          throw std::runtime_error("Goal was rejected by the action server");
+          return CheckStatus( onFailure( GOAL_REJECTED_BY_SERVER ) );
         }
       }
     }
@@ -437,7 +443,7 @@ template<class T> inline
                  prev_action_name_.c_str());
   }
 
-  if (callback_group_executor_.spin_until_future_complete(future_result) !=
+  if (callback_group_executor_.spin_until_future_complete(future_result, server_timeout_) !=
       rclcpp::FutureReturnCode::SUCCESS)
   {
     RCLCPP_ERROR( node_->get_logger(), "Failed to get result call failed :( for [%s]",

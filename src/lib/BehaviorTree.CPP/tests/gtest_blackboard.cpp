@@ -1,4 +1,4 @@
-/* Copyright (C) 2018-2019 Davide Faconti, Eurecat - All Rights Reserved
+/* Copyright (C) 2018-2023 Davide Faconti, Eurecat - All Rights Reserved
 *
 *   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
 *   to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -11,32 +11,30 @@
 */
 
 #include <gtest/gtest.h>
-#include "action_test_node.h"
-#include "condition_test_node.h"
-#include "behaviortree_cpp/behavior_tree.h"
 #include "behaviortree_cpp/bt_factory.h"
 #include "behaviortree_cpp/blackboard.h"
-#include "behaviortree_cpp/xml_parsing.h"
+
+#include "../sample_nodes/dummy_nodes.h"
 
 using namespace BT;
 
 class BB_TestNode : public SyncActionNode
 {
 public:
-  BB_TestNode(const std::string& name, const NodeConfig& config) :
-    SyncActionNode(name, config)
+  BB_TestNode(const std::string& name, const NodeConfig& config)
+    : SyncActionNode(name, config)
   {}
 
   NodeStatus tick()
   {
     int value = 0;
     auto res = getInput<int>("in_port");
-    if (!res)
+    if(!res)
     {
       throw RuntimeError("BB_TestNode needs input: ", res.error());
     }
     value = res.value() * 2;
-    if (!setOutput("out_port", value))
+    if(!setOutput("out_port", value))
     {
       throw RuntimeError("BB_TestNode failed output");
     }
@@ -45,15 +43,15 @@ public:
 
   static PortsList providedPorts()
   {
-    return {BT::InputPort<int>("in_port"), BT::OutputPort<int>("out_port")};
+    return { BT::InputPort<int>("in_port"), BT::OutputPort<int>("out_port") };
   }
 };
 
 class BB_TypedTestNode : public SyncActionNode
 {
 public:
-  BB_TypedTestNode(const std::string& name, const NodeConfig& config) :
-    SyncActionNode(name, config)
+  BB_TypedTestNode(const std::string& name, const NodeConfig& config)
+    : SyncActionNode(name, config)
   {}
 
   NodeStatus tick()
@@ -63,13 +61,13 @@ public:
 
   static PortsList providedPorts()
   {
-    return {BT::InputPort("input"),
-            BT::InputPort<int>("input_int"),
-            BT::InputPort<std::string>("input_string"),
+    return { BT::InputPort("input"),
+             BT::InputPort<int>("input_int"),
+             BT::InputPort<std::string>("input_string"),
 
-            BT::OutputPort("output"),
-            BT::OutputPort<int>("output_int"),
-            BT::OutputPort<std::string>("output_string")};
+             BT::OutputPort("output"),
+             BT::OutputPort<int>("output_int"),
+             BT::OutputPort<std::string>("output_string") };
   }
 };
 
@@ -119,7 +117,7 @@ TEST(BlackboardTest, GetInputsFromText)
   EXPECT_THROW(missing_out.executeTick(), RuntimeError);
 
   config.blackboard = bb;
-  config.output_ports["out_port"] = "=";
+  config.output_ports["out_port"] = "{=}";
 
   BB_TestNode node("good_one", config);
   node.executeTick();
@@ -309,10 +307,9 @@ TEST(BlackboardTest, AnyPtrLocked)
   // Safe way to access a pointer
   {
     std::atomic_llong cycles = 0;
-    auto func = [&]()
-    {
+    auto func = [&]() {
       auto start = std::chrono::system_clock::now();
-      while( (std::chrono::system_clock::now() - start) < timeout)
+      while((std::chrono::system_clock::now() - start) < timeout)
       {
         auto r1 = blackboard->getAnyLocked("testmove");
         auto value_ptr = (r1.get()->cast<long*>());
@@ -321,8 +318,8 @@ TEST(BlackboardTest, AnyPtrLocked)
       }
     };
 
-    auto t1 = std::thread(func); // other thread
-    func(); // this thread
+    auto t1 = std::thread(func);  // other thread
+    func();                       // this thread
     t1.join();
 
     // number of increments and cycles is expected to be the same
@@ -332,10 +329,9 @@ TEST(BlackboardTest, AnyPtrLocked)
   // UNSAFE way to access a pointer
   {
     std::atomic_llong cycles = 0;
-    auto func = [&]()
-    {
+    auto func = [&]() {
       auto start = std::chrono::system_clock::now();
-      while( (std::chrono::system_clock::now() - start) < timeout)
+      while((std::chrono::system_clock::now() - start) < timeout)
       {
         auto value_ptr = blackboard->get<long*>("testmove");
         (*value_ptr)++;
@@ -383,7 +379,7 @@ TEST(ParserTest, Issue605_whitespaces)
   auto tree = factory.createTree("MainTree");
   const auto status = tree.tickWhileRunning();
 
-  for(auto const& subtree: tree.subtrees)
+  for(auto const& subtree : tree.subtrees)
   {
     subtree->blackboard->debugMessage();
   }
@@ -392,19 +388,17 @@ TEST(ParserTest, Issue605_whitespaces)
   ASSERT_EQ(false, tree.rootBlackboard()->get<bool>("my_value"));
 }
 
-
 class ComparisonNode : public BT::ConditionNode
 {
 public:
-
-  ComparisonNode(const std::string& name, const BT::NodeConfiguration& config):
-    BT::ConditionNode(name, config) {}
+  ComparisonNode(const std::string& name, const BT::NodeConfiguration& config)
+    : BT::ConditionNode(name, config)
+  {}
 
   static BT::PortsList providedPorts()
   {
-    return {BT::InputPort<int32_t>("first"),
-            BT::InputPort<int32_t>("second"),
-            BT::InputPort<std::string>("operator")};
+    return { BT::InputPort<int32_t>("first"), BT::InputPort<int32_t>("second"),
+             BT::InputPort<std::string>("operator") };
   }
 
   BT::NodeStatus tick() override
@@ -412,18 +406,17 @@ public:
     int32_t firstValue = 0;
     int32_t secondValue = 0;
     std::string inputOperator;
-    if (!getInput("first", firstValue) ||
-        !getInput("second", secondValue) ||
-        !getInput("operator", inputOperator))
+    if(!getInput("first", firstValue) || !getInput("second", secondValue) ||
+       !getInput("operator", inputOperator))
     {
       throw RuntimeError("can't access input");
     }
-    if( (inputOperator == "==" && firstValue == secondValue) ||
-        (inputOperator == "!=" && firstValue != secondValue) ||
-        (inputOperator == "<=" && firstValue <= secondValue) ||
-        (inputOperator == ">=" && firstValue <= secondValue) ||
-        (inputOperator == "<" && firstValue < secondValue) ||
-        (inputOperator == ">" && firstValue < secondValue) )
+    if((inputOperator == "==" && firstValue == secondValue) ||
+       (inputOperator == "!=" && firstValue != secondValue) ||
+       (inputOperator == "<=" && firstValue <= secondValue) ||
+       (inputOperator == ">=" && firstValue >= secondValue) ||
+       (inputOperator == "<" && firstValue < secondValue) ||
+       (inputOperator == ">" && firstValue > secondValue))
     {
       return BT::NodeStatus::SUCCESS;
     }
@@ -459,5 +452,113 @@ TEST(BlackboardTest, IssueSetBlackboard)
   ASSERT_EQ(42, tree.rootBlackboard()->get<int>("value"));
 }
 
+struct Point
+{
+  double x;
+  double y;
+};
 
+TEST(BlackboardTest, SetBlackboard_Issue725)
+{
+  BT::BehaviorTreeFactory factory;
 
+  const std::string xml_text = R"(
+  <root BTCPP_format="4">
+    <BehaviorTree ID="MainTree">
+      <SetBlackboard value="{first_point}" output_key="other_point" />
+    </BehaviorTree>
+  </root> )";
+
+  factory.registerNodeType<DummyNodes::SaySomething>("SaySomething");
+  factory.registerBehaviorTreeFromText(xml_text);
+  auto tree = factory.createTree("MainTree");
+  auto& blackboard = tree.subtrees.front()->blackboard;
+
+  const Point point = { 2, 7 };
+  blackboard->set("first_point", point);
+
+  const auto status = tree.tickOnce();
+
+  Point other_point = blackboard->get<Point>("other_point");
+
+  ASSERT_EQ(status, BT::NodeStatus::SUCCESS);
+  ASSERT_EQ(other_point.x, point.x);
+  ASSERT_EQ(other_point.y, point.y);
+}
+
+TEST(BlackboardTest, NullOutputRemapping)
+{
+  auto bb = Blackboard::create();
+
+  NodeConfig config;
+
+  config.blackboard = bb;
+  config.input_ports["in_port"] = "{my_input_port}";
+  config.output_ports["out_port"] = "";
+  bb->set("my_input_port", 11);
+
+  BB_TestNode node("good_one", config);
+
+  // This will throw because setOutput should fail in BB_TestNode::tick()
+  ASSERT_ANY_THROW(node.executeTick());
+}
+
+TEST(BlackboardTest, BlackboardBackup)
+{
+  BT::BehaviorTreeFactory factory;
+
+  const std::string xml_text = R"(
+  <root BTCPP_format="4" >
+    <BehaviorTree ID="MySubtree">
+      <Sequence>
+        <Script code=" important_value:= sub_value " />
+        <Script code=" my_value=false " />
+        <SaySomething message="{message}" />
+      </Sequence>
+    </BehaviorTree>
+    <BehaviorTree ID="MainTree">
+      <Sequence>
+        <Script code=" my_value:=true; another_value:='hi' " />
+        <SubTree ID="MySubtree" sub_value="true" message="{another_value}" _autoremap="true" />
+      </Sequence>
+    </BehaviorTree>
+  </root> )";
+
+  factory.registerNodeType<DummyNodes::SaySomething>("SaySomething");
+  factory.registerBehaviorTreeFromText(xml_text);
+  auto tree = factory.createTree("MainTree");
+
+  // Blackboard Backup
+  const auto bb_backup = BlackboardBackup(tree);
+
+  std::vector<std::vector<std::string>> expected_keys;
+  for(const auto& sub : tree.subtrees)
+  {
+    std::vector<std::string> keys;
+    for(const auto& str_view : sub->blackboard->getKeys())
+    {
+      keys.push_back(std::string(str_view));
+    }
+    expected_keys.push_back(keys);
+  }
+
+  auto status = tree.tickWhileRunning();
+
+  ASSERT_EQ(status, BT::NodeStatus::SUCCESS);
+
+  // Restore Blackboard
+  ASSERT_EQ(bb_backup.size(), tree.subtrees.size());
+  BlackboardRestore(bb_backup, tree);
+
+  for(size_t i = 0; i < tree.subtrees.size(); i++)
+  {
+    const auto keys = tree.subtrees[i]->blackboard->getKeys();
+    ASSERT_EQ(expected_keys[i].size(), keys.size());
+    for(size_t a = 0; a < keys.size(); a++)
+    {
+      ASSERT_EQ(expected_keys[i][a], keys[a]);
+    }
+  }
+  status = tree.tickWhileRunning();
+  ASSERT_EQ(status, BT::NodeStatus::SUCCESS);
+}
