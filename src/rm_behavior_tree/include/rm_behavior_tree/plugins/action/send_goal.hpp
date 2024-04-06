@@ -23,13 +23,16 @@ namespace rm_behavior_tree{
         static BT::PortsList providedPorts(){
             return {
                 BT::InputPort<std::string>("action_name"),
+                BT::InputPort<std::string>("goal_name"),
             };
         };
 
         bool setGoal(RosActionNode::Goal &goal) override
-        {   
-            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>("goal_pose"));
-            RCLCPP_INFO(node_->get_logger(),"set goal successfully. . . ");
+        {
+            std::string goal_name;
+            getInput("goal_name", goal_name);
+            goal.set__pose(blackboard_->get<geometry_msgs::msg::PoseStamped>(goal_name));
+            RCLCPP_INFO(node_->get_logger(),"set goal %s successfully...", goal_name.c_str());
             return true;
         };
 
@@ -66,7 +69,7 @@ namespace rm_behavior_tree{
 
         BT::NodeStatus onFeedback(const std::shared_ptr<const Feedback> feedback) override
         {
-            
+            (void)feedback;
             return BT::NodeStatus::RUNNING;
         };
         

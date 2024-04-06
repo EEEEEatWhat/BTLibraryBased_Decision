@@ -38,6 +38,7 @@ namespace rm_behavior_tree{
             msg_update_plugin_libs = {
                 "send_sentrycmd",
                 "send_goal",
+                "set_own_status",
             };
             bt_plugin_libs = {
                 "fire_or_skip",
@@ -48,9 +49,9 @@ namespace rm_behavior_tree{
                 "is_dead_check",
                 "is_arrived",
                 "reborn_now",
+                "set_enemy_goal",
                 // "reset_res_data",
                 // "set_supply_goal",
-                // "set_enemy_goal",
             };
             this->decode_config();
             this->run();
@@ -59,27 +60,44 @@ namespace rm_behavior_tree{
         void decode_config(){
             bool en_test;
             bool en_instaRes;
+            bool en_gimbal_spin;
+            bool en_chassis_spin;
             uint16_t hp_threshold;
             bool en_chase_enemy;
             double tracking_scope;
+            double gimbal_angular_vel;
+            int chassis_angular_vel;
             this->declare_parameter("en_test", false);
             this->declare_parameter("en_instaRes", false);
+            this->declare_parameter("en_gimbal_spin", true);
+            this->declare_parameter("en_chassis_spin", true);
             this->declare_parameter("hp_threshold", 100);
             this->declare_parameter("en_chase_enemy", false);
             this->declare_parameter("tracking_scope", 5.0);
+            this->declare_parameter("gimbal_angular_vel", 1.2);
+            this->declare_parameter("chassis_angular_vel", 6);
             this->get_parameter("en_test", en_test);
             this->get_parameter("en_instaRes", en_instaRes);
+            this->get_parameter("en_gimbal_spin", en_gimbal_spin);
+            this->get_parameter("en_chassis_spin", en_chassis_spin);
             this->get_parameter("hp_threshold", hp_threshold);
             this->get_parameter("en_chase_enemy", en_chase_enemy);
             this->get_parameter("tracking_scope", tracking_scope);
+            this->get_parameter("gimbal_angular_vel", gimbal_angular_vel);
+            this->get_parameter("chassis_angular_vel", chassis_angular_vel);
             blackboard_->set<bool>("en_test", en_test);
             blackboard_->set<bool>("en_instaRes", en_instaRes);
+            blackboard_->set<bool>("en_gimbal_spin", en_gimbal_spin);
+            blackboard_->set<bool>("en_chassis_spin", en_chassis_spin);
             blackboard_->set<uint16_t>("hp_threshold", hp_threshold);
             blackboard_->set<bool>("en_chase_enemy", en_chase_enemy);
             blackboard_->set<double>("tracking_scope", tracking_scope);
+            blackboard_->set<double>("gimbal_angular_vel", gimbal_angular_vel);
+            blackboard_->set<int>("chassis_angular_vel", chassis_angular_vel);
 
             blackboard_->set<std::string>("game_stage", "not_started");
             blackboard_->set<int>("res_count", 0); // 累积复活次数
+            blackboard_->set<bool>("initial_set_param_rotation", false);
 
             // For Sentrycmd
             blackboard_->set<uint8_t>("confirmRes", 0);
@@ -87,11 +105,11 @@ namespace rm_behavior_tree{
             blackboard_->set<uint16_t>("pendingMissileExch", 0);
             blackboard_->set<uint8_t>("remoteMissileReqCount", 0);
             blackboard_->set<uint8_t>("remoteHealthReqCount", 0);
-            blackboard_->set<uint16_t>("sender_id", 0x0007);
 
             // For goal pose
             std::map<std::string, geometry_msgs::msg::PoseStamped> poses_map = {
-                {"supply_zone_pose", {}},
+                {"home_pose", {}},
+                {"supply_zone_pose", {}}
             };
             this->decode_goal_pose(poses_map, blackboard_);
         }

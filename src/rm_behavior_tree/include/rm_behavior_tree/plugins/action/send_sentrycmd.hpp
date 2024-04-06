@@ -22,7 +22,6 @@ public:
         msg.set__pending_missile_exch(blackboard_->get<uint16_t>("pendingMissileExch"));
         msg.set__remote_missile_req_count(blackboard_->get<uint8_t>("remoteMissileReqCount"));
         msg.set__remote_health_req_count(blackboard_->get<uint8_t>("remoteHealthReqCount"));
-        msg.set__sender_id(blackboard_->get<uint16_t>("sender_id"));
         return true;
     };
 

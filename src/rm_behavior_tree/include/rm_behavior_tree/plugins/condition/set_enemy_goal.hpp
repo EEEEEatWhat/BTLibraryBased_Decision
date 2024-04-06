@@ -63,7 +63,7 @@ namespace rm_behavior_tree{
         temp_pose.header.set__frame_id("map").set__stamp(rclcpp::Clock().now());
         temp_pose.pose.position.set__x(aimLocation.x).set__y(aimLocation.y).set__z(0.0);
         temp_pose.pose.set__orientation(convert<tf2::Quaternion, geometry_msgs::msg::Quaternion>(tf_qnt, geo_qnt, true));
-        RCLCPP_INFO(node_->get_logger(),"goal设置成功.为识别到的附近的敌方车... ");
+        blackboard_->set<geometry_msgs::msg::PoseStamped>("enemy_pose",temp_pose);
         return BT::NodeStatus::SUCCESS;
     }
 
@@ -72,9 +72,3 @@ namespace rm_behavior_tree{
 }  // namespace rm_behavior_tree
 
 #endif
-
-#include "behaviortree_cpp/bt_factory.h"
-BT_REGISTER_NODES(factory)
-{
-    factory.registerNodeType<rm_behavior_tree::SetEnemyGoal>("SetEnemyGoal");
-}

@@ -60,7 +60,10 @@ add_library(send_sentrycmd SHARED
 plugins/action/send_sentrycmd.cpp
 )
 list(APPEND plugin_libs send_sentrycmd)
-
+add_library(set_own_status SHARED 
+plugins/action/set_own_status.cpp
+)
+list(APPEND plugin_libs set_own_status)
 
 add_library(game_status_check SHARED 
 plugins/condition/game_status_check.cpp
@@ -90,6 +93,10 @@ add_library(reborn_now SHARED
 plugins/condition/reborn_now.cpp
 )
 list(APPEND plugin_libs reborn_now)
+add_library(set_enemy_goal SHARED 
+plugins/condition/set_enemy_goal.cpp
+)
+list(APPEND plugin_libs set_enemy_goal)
 
 add_executable(rm_behavior_tree src/rm_behavior_tree.cpp)
 ament_target_dependencies(rm_behavior_tree
@@ -107,6 +114,7 @@ install(TARGETS
   fire_or_skip
   send_goal
   send_sentrycmd
+  set_own_status
   game_status_check
   hp_check
   supply_zone_check
@@ -114,6 +122,7 @@ install(TARGETS
   is_dead_check
   is_arrived
   reborn_now
+  set_enemy_goal
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -22,11 +22,15 @@ namespace rm_behavior_tree
 
 
         static BT::PortsList providedPorts(){
-            return {};
+            return {
+                BT::InputPort<int>("wait_time"),
+            };
         }
 
         BT::NodeStatus onStart() override{
-            wait_time = std::chrono::milliseconds(1500);
+            int temp_time;
+            getInput("wait_time", temp_time);
+            wait_time = std::chrono::milliseconds(temp_time*1000);
             if (wait_time <= std::chrono::milliseconds(0)){
                 RCLCPP_INFO(node_->get_logger(),"wait_time too short, action over.");
                 return BT::NodeStatus::SUCCESS;

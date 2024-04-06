@@ -81,6 +81,29 @@ namespace rm_behavior_tree{
         } catch (tf2::TransformException &ex) {
             RCLCPP_WARN(rclcpp::get_logger("WARN"), "%s", ex.what());
         }
+    };
+
+    void setParam_rotation(BT::Blackboard::Ptr blackboard_, int speed){
+        using ResultFuturePtr = std::shared_future<std::vector<rcl_interfaces::msg::SetParametersResult>>;
+        ResultFuturePtr set_param_future_rotation;
+        rclcpp::SyncParametersClient::SharedPtr param_client_;
+        std::vector<rclcpp::Parameter> params;
+        auto node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
+        if(blackboard_->get<bool>("initial_set_param_rotation")){
+            return;
+        }
+        if (!param_client_->service_is_ready()){
+            RCLCPP_WARN(node_->get_logger(), "Service not ready, skipping parameter set");
+            return;
+        }
+        params.push_back(rclcpp::Parameter("self_rotation",speed));
+        auto result = param_client_->set_parameters_atomically(params);
+        if(result.successful){
+            RCLCPP_INFO(node_->get_logger(),"rotation speed set to %d successfully...",speed);
+        } else {
+            RCLCPP_INFO(node_->get_logger(),"Failed to set rotation parameter");
+        }
+        blackboard_->set<bool>("initial_set_param_rotation", true);
     }
 
 }

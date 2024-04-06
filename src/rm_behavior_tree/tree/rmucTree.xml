@@ -1,51 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <BehaviorTree ID="Attack_outpost">
-    <ReactiveSequence>
-      <NavStatus/>
-      <Fallback>
-        <IfGoEnemyOutpost/>
-        <GoEnemyOutpost/>
-      </Fallback>
-    </ReactiveSequence>
-  </BehaviorTree>
-
-  <BehaviorTree ID="Attack_robot">
-    <Sequence>
-      <Fallback>
-        <IfGoEnemyDoor/>
-        <GoEnemyDoor/>
-      </Fallback>
-      <IfFindEnemy/>
-      <GoEnemyNearby/>
-    </Sequence>
-  </BehaviorTree>
-
-  <BehaviorTree ID="Defence_home">
-    <ReactiveSequence>
-      <NavStatus/>
-      <Patrol/>
-      <Fallback>
-        <IfFindEnemy/>
-        <SearchEnemy/>
-      </Fallback>
-    </ReactiveSequence>
-  </BehaviorTree>
-
-  <BehaviorTree ID="Defence_outpost_door">
-    <ReactiveSequence>
-      <NavStatus/>
-      <Fallback>
-        <IfGoOurOutpost/>
-        <GoOurOutpost/>
-      </Fallback>
-      <Fallback>
-        <IfFindEnemy/>
-        <SearchEnemy/>
-      </Fallback>
-    </ReactiveSequence>
-  </BehaviorTree>
-
   <BehaviorTree ID="maintree">
     <Sequence>
       <SetOwnStatus/>
@@ -68,20 +22,21 @@
           <SupplyZoneCheck/>
         </Inverter>
         <ReactiveSequence>
-          <SetSupplyGoal/>
           <Fallback>
             <IsArrived/>
-            <SendGoal action_name="/BehaviorTreePose"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="supply_zone_pose"/>
           </Fallback>
-          <GainBlood/>
+          <FireOrSkip wait_time="4"/>
         </ReactiveSequence>
       </Fallback>
       <IfThenElse>
         <CheckArmors topic_name="/tracker/target"/>
-        <FireOrSkip/>
+        <FireOrSkip wait_time="1"/>
         <Sequence>
           <SetEnemyGoal/>
-          <SendGoal action_name="/BehaviorTreePose"/>
+          <SendGoal action_name="/BehaviorTreePose"
+                    goal_name="enemy_pose"/>
         </Sequence>
       </IfThenElse>
       <Fallback>
@@ -91,7 +46,8 @@
       <IsOpenStageStrategySet/>
       <Fallback>
         <IsArrived/>
-        <SendGoal action_name="/BehaviorTreePose"/>
+        <SendGoal action_name="/BehaviorTreePose"
+                  goal_name="goal_pose"/>
       </Fallback>
       <GameRunning/>
       <Sequence>
@@ -122,15 +78,18 @@
     <Action ID="ExecuteCommand"
             editable="true"/>
     <Action ID="FireOrSkip"
-            editable="true"/>
+            editable="true">
+      <input_port name="wait_time"
+                  default="1"/>
+    </Action>
     <Action ID="GainBlood"
             editable="true"/>
     <Condition ID="GameLastStage"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="GameRunning"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="GameStatusCheck"
-               editable="true"/>
+              editable="true"/>
     <Action ID="GoEnemyDoor"
             editable="true"/>
     <Action ID="GoEnemyNearby"
@@ -142,57 +101,59 @@
     <Action ID="GoOurOutpost"
             editable="true"/>
     <Condition ID="HPCheck"
-               editable="true">
+              editable="true">
       <input_port name="hp_threshold"
                   default="300"/>
     </Condition>
     <Condition ID="IfFindEnemy"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="IfGoEnemyDoor"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="IfGoEnemyOutpost"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="IfGoKeystoneHeights"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="IfGoOurOutpost"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="IsArrived"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="IsDeadCheck"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="IsOpenStageStrategySet"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="IsSetGameStatusAsLast"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="NavStatus"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="OurOutpostCheck"
-               editable="true"/>
+              editable="true"/>
     <Action ID="Patrol"
             editable="true"/>
     <Condition ID="RebornNow"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="ResetResData"
-               editable="true"/>
+              editable="true"/>
     <Action ID="SearchEnemy"
             editable="true"/>
     <Action ID="SendGoal"
             editable="true"/>
       <input_port name="action_name"
             default="/BehaviorTreePose"/>
+      <input_port name="goal_name"
+            default="home_pose"/>
     <Action ID="SendSentrycmd"
             editable="true">
       <input_port name="topic_name"
                   default="/sentry_cmd"/>
     </Action>
     <Condition ID="SetEnemyGoal"
-               editable="true"/>
+              editable="true"/>
     <Action ID="SetOwnStatus"
             editable="true"/>
     <Condition ID="SetSupplyGoal"
-               editable="true"/>
+              editable="true"/>
     <Condition ID="SupplyZoneCheck"
-               editable="true"/>
+              editable="true"/>
   </TreeNodesModel>
 
 </root>
