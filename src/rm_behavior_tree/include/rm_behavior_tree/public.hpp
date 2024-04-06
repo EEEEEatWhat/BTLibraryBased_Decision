@@ -89,6 +89,7 @@ namespace rm_behavior_tree{
         rclcpp::SyncParametersClient::SharedPtr param_client_;
         std::vector<rclcpp::Parameter> params;
         auto node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
+        param_client_ = std::make_shared<rclcpp::SyncParametersClient>(node_, "serial_driver");
         if(blackboard_->get<bool>("initial_set_param_rotation")){
             return;
         }

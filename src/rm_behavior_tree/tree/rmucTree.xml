@@ -27,12 +27,12 @@
             <SendGoal action_name="/BehaviorTreePose"
                       goal_name="supply_zone_pose"/>
           </Fallback>
-          <FireOrSkip wait_time="4"/>
+          <WaitAction wait_time="4"/>
         </ReactiveSequence>
       </Fallback>
       <IfThenElse>
         <CheckArmors topic_name="/tracker/target"/>
-        <FireOrSkip wait_time="1"/>
+        <WaitAction wait_time="1"/>
         <Sequence>
           <SetEnemyGoal/>
           <SendGoal action_name="/BehaviorTreePose"
@@ -77,7 +77,7 @@
     </Action>
     <Action ID="ExecuteCommand"
             editable="true"/>
-    <Action ID="FireOrSkip"
+    <Action ID="WaitAction"
             editable="true">
       <input_port name="wait_time"
                   default="1"/>

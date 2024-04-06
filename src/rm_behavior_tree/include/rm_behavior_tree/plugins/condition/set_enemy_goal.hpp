@@ -44,7 +44,9 @@ namespace rm_behavior_tree{
         return newLocation;
     }
 
-    static BT::PortsList providedPorts(){};
+    static BT::PortsList providedPorts(){
+        return {};
+    };
 
     BT::NodeStatus set_enemy_goal(){
         auto enemy_x = blackboard_->get<double>("enemy_x");

@@ -20,6 +20,7 @@ public:
 
     bool setMessage(geometry_msgs::msg::Twist &msg) override
     {
+        sleep(2);
         if(blackboard_->get<bool>("en_gimbal_spin")){
             msg.angular.z = blackboard_->get<double>("gimbal_angular_vel");
             RCLCPP_INFO(node_->get_logger(),"设置云台角速度为%lf...", msg.angular.z);

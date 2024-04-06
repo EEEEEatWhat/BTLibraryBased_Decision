@@ -97,6 +97,10 @@ add_library(set_enemy_goal SHARED
 plugins/condition/set_enemy_goal.cpp
 )
 list(APPEND plugin_libs set_enemy_goal)
+add_library(wait_action SHARED 
+plugins/condition/wait_action.cpp
+)
+list(APPEND plugin_libs wait_action)
 
 add_executable(rm_behavior_tree src/rm_behavior_tree.cpp)
 ament_target_dependencies(rm_behavior_tree
@@ -123,6 +127,7 @@ install(TARGETS
   is_arrived
   reborn_now
   set_enemy_goal
+  wait_action
   DESTINATION lib/${PROJECT_NAME}
 )
 

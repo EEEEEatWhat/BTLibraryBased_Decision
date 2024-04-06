@@ -16,7 +16,9 @@ namespace rm_behavior_tree{
         node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
     }
 
-    static BT::PortsList providedPorts(){};
+    static BT::PortsList providedPorts(){
+        return {};
+    };
 
     BT::NodeStatus reset_res_data(){
         blackboard_->set<uint8_t>("confirmInstaRes",0);
