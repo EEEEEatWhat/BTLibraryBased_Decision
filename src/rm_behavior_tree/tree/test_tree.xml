@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
   <BehaviorTree ID="mainTree">
+    <!-- <ReactiveSequence> -->
     <Sequence>
-      <WaitAction wait_time="1"/>
+      <FireOrSkip wait_time="1"/>
       <SetOwnStatus topic_name="cmd_vel"/>
       <!-- <SendGoal action_name="/BehaviorTreePose"/> -->
     </Sequence>

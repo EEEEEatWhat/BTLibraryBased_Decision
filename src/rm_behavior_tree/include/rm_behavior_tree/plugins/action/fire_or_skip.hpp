@@ -44,7 +44,7 @@ namespace rm_behavior_tree
             std::this_thread::sleep_for(std::chrono::milliseconds(wait_time));
             if(std::chrono::system_clock::now() >= _completion_time){
                 RCLCPP_INFO(node_->get_logger(),"wait finished...");
-                return BT::NodeStatus::FAILURE;
+                return BT::NodeStatus::SUCCESS;
             }
             return BT::NodeStatus::RUNNING;
         }
@@ -54,7 +54,7 @@ namespace rm_behavior_tree
         }
 
         ~FireOrSkip(){
-            halt();
+            // halt();
         };
     };
 }

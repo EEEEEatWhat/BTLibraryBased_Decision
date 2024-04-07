@@ -41,7 +41,7 @@ namespace rm_behavior_tree{
                 "set_own_status",
             };
             bt_plugin_libs = {
-                // "fire_or_skip",
+                "fire_or_skip",
                 "game_status_check",
                 "hp_check",
                 "supply_zone_check",
@@ -50,7 +50,6 @@ namespace rm_behavior_tree{
                 "is_arrived",
                 "reborn_now",
                 "set_enemy_goal",
-                "wait_action",
                 // "reset_res_data",
                 // "set_supply_goal",
             };
@@ -171,10 +170,14 @@ namespace rm_behavior_tree{
                 factory.registerBehaviorTreeFromFile(tree_path);
             }
             auto tree_ = factory.createTree("mainTree",blackboard_);
-            while (rclcpp::ok())
-            {
-                tree_.tickWhileRunning();
-            };
+
+            BT::NodeStatus status = tree_.tickOnce();
+
+            while(status == BT::NodeStatus::RUNNING && rclcpp::ok()){
+                tree_.sleep(std::chrono::milliseconds(100));
+                tree_.tickOnce();
+            }
+
         };
 
         ~RMBehaviorTree(){};
