@@ -12,13 +12,13 @@
 #include "rclcpp/future_return_code.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "rm_decision_interfaces/action/behavior_tree_pose.hpp"
+#include "global_interfaces/action/behavior_tree_pose.hpp"
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 
 using namespace std::placeholders;
 using geometry_msgs::msg::PoseStamped;
 
-using rm_decision_interfaces::action::BehaviorTreePose;
+using global_interfaces::action::BehaviorTreePose;
 using nav2_msgs::action::NavigateToPose;
 class GoalActionServer: public rclcpp::Node {
 public:
@@ -97,7 +97,7 @@ private:
 
     void feedback_callback(rclcpp_action::ClientGoalHandle<NavigateToPose>::SharedPtr goal_handle,const std::shared_ptr<const NavigateToPose::Feedback> feedback){
         std::cout<<"navigate_to_pose 连续反馈"<<"\n";
-        auto Pfeedback_rec = std::make_shared<rm_decision_interfaces::action::BehaviorTreePose::Feedback>();
+        auto Pfeedback_rec = std::make_shared<global_interfaces::action::BehaviorTreePose::Feedback>();
         Pfeedback_rec->current_pose = feedback->current_pose;
         Pfeedback_rec->distance_remaining = feedback->distance_remaining;
         Pfeedback_rec->estimated_time_remaining = feedback->estimated_time_remaining;
@@ -107,7 +107,7 @@ private:
     }
 
     void result_callback(const rclcpp_action::ClientGoalHandle<NavigateToPose>::WrappedResult & result){
-        auto Presult_rec = std::make_shared<rm_decision_interfaces::action::BehaviorTreePose::Result>();
+        auto Presult_rec = std::make_shared<global_interfaces::action::BehaviorTreePose::Result>();
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
                 RCLCPP_INFO(this->get_logger(), "navigate_to_pose 任务执行完毕");
@@ -138,7 +138,7 @@ private:
     rclcpp_action::Server<BehaviorTreePose>::SharedPtr pose_sub;
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_ptr_;
     rclcpp_action::Client<NavigateToPose>::SendGoalOptions send_goal_options;
-    rm_decision_interfaces::action::BehaviorTreePose::Feedback feedback_rec;
+    global_interfaces::action::BehaviorTreePose::Feedback feedback_rec;
     std::shared_ptr<rclcpp_action::ServerGoalHandle<BehaviorTreePose>> my_goal_handle;
 };
 

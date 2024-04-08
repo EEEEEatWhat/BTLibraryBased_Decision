@@ -34,6 +34,7 @@ namespace rm_behavior_tree{
             params_decision.nh = decision_node;
             call_for_refereesystem_node = std::make_shared<rm_behavior_tree::CallForRefereeSystem>(blackboard_);
             blackboard_->set<std::shared_ptr<rm_behavior_tree::CallForRefereeSystem>>("call_for_refereesystem_node",call_for_refereesystem_node);
+            
             // ROS Node
             msg_update_plugin_libs = {
                 "send_sentrycmd",

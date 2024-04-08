@@ -1,0 +1,6 @@
+float32 chassis_power
+uint16 buffer_energy
+uint16 shooter_17mm_1_barrel_heat
+uint16 shooter_17mm_2_barrel_heat
+uint16 launching_frequency
+float32 initial_speed

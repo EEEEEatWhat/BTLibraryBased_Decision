@@ -18,7 +18,9 @@
   <depend>tf2</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend>rm_decision_interfaces</depend>
+  <depend>global_interfaces</depend>
+  <depend>my_msg_interface</depend>
+  <depend>auto_aim_interfaces</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

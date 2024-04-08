@@ -14,7 +14,6 @@ namespace rm_behavior_tree{
     GameStatusCheck(const std::string & name, const BT::NodeConfig & conf)
         : BT::SimpleConditionNode(name, std::bind(&GameStatusCheck::check_game_status, this), conf){
         // RCLCPP_INFO(rclcpp::get_logger("TEST"),"GameStatusCheck created!");
-        std::cout << "GameStatusCheck created!" << std::endl;
         blackboard_ = config().blackboard;
         node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
     }
@@ -24,10 +23,10 @@ namespace rm_behavior_tree{
     };
 
     BT::NodeStatus check_game_status(){
-        if(blackboard_->get<std::string>("game_stage") == "started") {
-            RCLCPP_INFO(node_->get_logger(),"game has started!");
-            return BT::NodeStatus::SUCCESS;
-        }
+        // if(blackboard_->get<std::string>("game_stage") == "started") {
+        //     RCLCPP_INFO(node_->get_logger(),"game has started!");
+        //     return BT::NodeStatus::SUCCESS;
+        // }
         auto call_for_refereesystem_node = blackboard_->get<std::shared_ptr<rm_behavior_tree::CallForRefereeSystem>>("call_for_refereesystem_node");
         call_for_refereesystem_node->sendRequest(0x0001); // game_status_t
         while(!call_for_refereesystem_node->checkResponseReceived()) {

@@ -5,17 +5,17 @@
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_ros2/bt_action_node.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "rm_decision_interfaces/action/behavior_tree_pose.hpp"
+#include "global_interfaces/action/behavior_tree_pose.hpp"
 #include "behaviortree_ros2/plugins.hpp"
 
 namespace rm_behavior_tree{
-    class SendGoal : public BT::RosActionNode<rm_decision_interfaces::action::BehaviorTreePose>
+    class SendGoal : public BT::RosActionNode<global_interfaces::action::BehaviorTreePose>
     {
     public:
         SendGoal(const std::string &name,
                                 const BT::NodeConfig &conf,
                                 const BT::RosNodeParams &params)
-            : BT::RosActionNode<rm_decision_interfaces::action::BehaviorTreePose>(name, conf, params)
+            : BT::RosActionNode<global_interfaces::action::BehaviorTreePose>(name, conf, params)
         {
             blackboard_ = config().blackboard;
         };

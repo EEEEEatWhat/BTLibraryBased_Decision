@@ -10,7 +10,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "tf2/convert.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "rm_decision_interfaces/msg/target.hpp"
+#include "auto_aim_interfaces/msg/target.hpp"
 
 namespace rm_behavior_tree{
     /**
@@ -60,7 +60,7 @@ namespace rm_behavior_tree{
      *  @brief 通过查tf获得敌方车在map下的坐标
      *  @return void
      **/
-    void get_enemy_pose(BT::Blackboard::Ptr blackboard_, const std::shared_ptr<rm_decision_interfaces::msg::Target>& last_msg){
+    void get_enemy_pose(BT::Blackboard::Ptr blackboard_, const std::shared_ptr<auto_aim_interfaces::msg::Target>& last_msg){
         std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
         auto node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
@@ -90,9 +90,9 @@ namespace rm_behavior_tree{
         std::vector<rclcpp::Parameter> params;
         auto node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
         param_client_ = std::make_shared<rclcpp::SyncParametersClient>(node_, "serial_driver");
-        if(blackboard_->get<bool>("initial_set_param_rotation")){
-            return;
-        }
+        // if(blackboard_->get<bool>("initial_set_param_rotation")){
+        //     return;
+        // }
         if (!param_client_->service_is_ready()){
             RCLCPP_WARN(node_->get_logger(), "Service not ready, skipping parameter set");
             return;

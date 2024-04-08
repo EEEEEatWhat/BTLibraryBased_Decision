@@ -16,7 +16,9 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(rm_decision_interfaces REQUIRED)
+find_package(global_interfaces REQUIRED)
+find_package(my_msg_interface REQUIRED)
+find_package(auto_aim_interfaces REQUIRED)
 
 set(THIS_PACKAGE_DEPS
 rclcpp
@@ -28,7 +30,9 @@ tf2_ros
 tf2
 tf2_geometry_msgs
 geometry_msgs
-rm_decision_interfaces
+global_interfaces
+my_msg_interface
+auto_aim_interfaces
 )
 
 include_directories(

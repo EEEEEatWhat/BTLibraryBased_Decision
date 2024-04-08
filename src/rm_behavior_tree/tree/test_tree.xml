@@ -5,6 +5,7 @@
     <Sequence>
       <FireOrSkip wait_time="1"/>
       <SetOwnStatus topic_name="cmd_vel"/>
+      <GameStatusCheck/>
       <!-- <SendGoal action_name="/BehaviorTreePose"/> -->
     </Sequence>
   </BehaviorTree>

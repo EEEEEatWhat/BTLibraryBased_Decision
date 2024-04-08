@@ -4,7 +4,7 @@
 #include <functional>
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp/behavior_tree.h"
-#include "rm_decision_interfaces/srv/referee_msg.hpp"
+#include "my_msg_interface/srv/referee_msg.hpp"
 #include "RefereeSystem/DataType.h"
 
 namespace rm_behavior_tree {
@@ -15,16 +15,15 @@ namespace rm_behavior_tree {
         BT::Blackboard::Ptr blackboard_;
         uint16_t cmd_id_req;
         bool response_received_;
-        rclcpp::Client<rm_decision_interfaces::srv::RefereeMsg>::SharedPtr client;
+        rclcpp::Client<my_msg_interface::srv::RefereeMsg>::SharedPtr client;
     public:
         CallForRefereeSystem(BT::Blackboard::Ptr blackboard) : blackboard_(blackboard) {
-            RCLCPP_INFO(rclcpp::get_logger("TEST"),"referee system...");
             node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
-            client = node_->create_client<rm_decision_interfaces::srv::RefereeMsg>("RequestSerialize");
+            client = node_->create_client<my_msg_interface::srv::RefereeMsg>("RequestSerialize");
         };
 
 
-        rclcpp::Client<rm_decision_interfaces::srv::RefereeMsg>::FutureAndRequestId sendRequest(uint16_t cmd_id_) {
+        rclcpp::Client<my_msg_interface::srv::RefereeMsg>::FutureAndRequestId sendRequest(uint16_t cmd_id_) {
             response_received_ = false;
             while (!client->wait_for_service(std::chrono::seconds(1))) {
             if (!rclcpp::ok()) {
@@ -34,7 +33,7 @@ namespace rm_behavior_tree {
             RCLCPP_INFO(node_->get_logger(), "waiting for service to appear...");
             }
 
-            auto request = std::make_shared<rm_decision_interfaces::srv::RefereeMsg::Request>();
+            auto request = std::make_shared<my_msg_interface::srv::RefereeMsg::Request>();
             request->cmd_id = cmd_id_;
             cmd_id_req = cmd_id_;
             return client->async_send_request(request);
@@ -96,7 +95,7 @@ namespace rm_behavior_tree {
             return response_received_;
         };
 
-        bool setGameStatus(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setGameStatus(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::GameStatusStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -109,7 +108,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setGameRobotHP(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setGameRobotHP(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::GameRobotHPStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -134,7 +133,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setPlaygroundEvent(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setPlaygroundEvent(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::PlaygroundEventStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -144,7 +143,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setExtSupplyProjectileAction(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setExtSupplyProjectileAction(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::ExtSupplyProjectileActionStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -157,7 +156,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setPowerHeatData(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setPowerHeatData(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::PowerHeatDataStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -173,7 +172,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setRobotStatus(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setRobotStatus(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::RobotStateStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -192,7 +191,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setRobotPos(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setRobotPos(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::RobotPositionStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -204,7 +203,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setBuff(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setBuff(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::RobotBuffStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -218,7 +217,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setProgectileAllowance(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setProgectileAllowance(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::ProjectileAllowanceStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -230,7 +229,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setRfidStatus(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setRfidStatus(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::RobotRfidStateStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {
@@ -240,7 +239,7 @@ namespace rm_behavior_tree {
             return false;
         };
 
-        bool setSentryInfo(std::shared_ptr<rm_decision_interfaces::srv::RefereeMsg_Response> result) {
+        bool setSentryInfo(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result) {
             RM_referee::SentryInfoStruct struct_;
             std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
             if(result->cmd_id == cmd_id_req) {

@@ -3,7 +3,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp/condition_node.h"
-#include "rm_decision_interfaces/msg/target.hpp"
+#include "auto_aim_interfaces/msg/target.hpp"
 #include "rm_behavior_tree/public.hpp"
 
 namespace rm_behavior_tree{
@@ -11,17 +11,17 @@ namespace rm_behavior_tree{
     private:
         BT::Blackboard::Ptr blackboard_;
         std::shared_ptr<rclcpp::Node> node_;
-        rclcpp::Subscription<rm_decision_interfaces::msg::Target>::SharedPtr target_sub;
+        rclcpp::Subscription<auto_aim_interfaces::msg::Target>::SharedPtr target_sub;
     public:
     CheckArmors(const std::string & name, const BT::NodeConfig & config)
         : BT::SimpleConditionNode(name, std::bind(&CheckArmors::chekc_armors, this), config){
         blackboard_ = config.blackboard;
         node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
-        target_sub = node_->create_subscription<rm_decision_interfaces::msg::Target>
+        target_sub = node_->create_subscription<auto_aim_interfaces::msg::Target>
                 ("tracker/target",rclcpp::SensorDataQoS(),std::bind(&CheckArmors::target_callback, this, std::placeholders::_1));
     }
 
-    void target_callback(const rm_decision_interfaces::msg::Target::SharedPtr msg){
+    void target_callback(const auto_aim_interfaces::msg::Target::SharedPtr msg){
         if(msg->id != ""){
             blackboard_->set<std::string>("target_id", msg->id);
             get_enemy_pose(blackboard_, msg);
