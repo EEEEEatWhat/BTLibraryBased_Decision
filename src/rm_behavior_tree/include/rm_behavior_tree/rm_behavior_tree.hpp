@@ -21,8 +21,8 @@ namespace rm_behavior_tree{
         std::vector<std::string> msg_update_plugin_libs;
         std::vector<std::string> bt_plugin_libs;
         std::shared_ptr<rm_behavior_tree::CallForRefereeSystem> call_for_refereesystem_node;
-        const std::string tree_path = "/home/hannah/BTLibraryBased_Decision/src/rm_behavior_tree/tree/rmucTree.xml";
-        const std::string test_tree_path = "/home/hannah/BTLibraryBased_Decision/src/rm_behavior_tree/tree/test_tree.xml";
+        const std::string tree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTree.xml";
+        const std::string test_tree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/test_tree.xml";
 
     public:
         RMBehaviorTree(const rclcpp::NodeOptions &options)

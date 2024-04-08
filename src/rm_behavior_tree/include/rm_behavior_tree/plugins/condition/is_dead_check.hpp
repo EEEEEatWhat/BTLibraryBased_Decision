@@ -23,7 +23,7 @@ namespace rm_behavior_tree{
     
     BT::NodeStatus check_is_dead(){
         auto call_for_refereesystem_node = blackboard_->get<std::shared_ptr<rm_behavior_tree::CallForRefereeSystem>>("call_for_refereesystem_node");
-        call_for_refereesystem_node->sendRequest(0x0201);
+        call_for_refereesystem_node->processResponse(0x0201);
         while(!call_for_refereesystem_node->checkResponseReceived()) {
             sleep(0.1);
         };

@@ -6,6 +6,10 @@
       <FireOrSkip wait_time="1"/>
       <SetOwnStatus topic_name="cmd_vel"/>
       <GameStatusCheck/>
+      <HPCheck hp_threshold="200"/>
+      <CheckArmors topic_name="/tracker/target"/>
+      <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="supply_zone_pose"/>
       <!-- <SendGoal action_name="/BehaviorTreePose"/> -->
     </Sequence>
   </BehaviorTree>

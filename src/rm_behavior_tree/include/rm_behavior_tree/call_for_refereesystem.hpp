@@ -44,9 +44,9 @@ namespace rm_behavior_tree {
             auto response = this->sendRequest(cmd_id_);
             if (rclcpp::spin_until_future_complete(node_,response.future) == rclcpp::FutureReturnCode::SUCCESS)
             {
-                RCLCPP_INFO(node_->get_logger(),"请求正常处理");
+                // RCLCPP_INFO(node_->get_logger(),"请求正常处理");
                 auto result = response.get();
-                RCLCPP_INFO(node_->get_logger(), "response->cmd_id:0x%x", result->cmd_id);
+                // RCLCPP_INFO(node_->get_logger(), "response->cmd_id:0x%x", result->cmd_id);
                 switch (result->cmd_id) {
                 case 0x0001:
                     setGameStatus(result);

@@ -20,17 +20,18 @@ namespace rm_behavior_tree{
 
     BT::NodeStatus check_hp(){
         auto call_for_refereesystem_node = blackboard_->get<std::shared_ptr<rm_behavior_tree::CallForRefereeSystem>>("call_for_refereesystem_node");
-        call_for_refereesystem_node->sendRequest(0x0201);
+        call_for_refereesystem_node->processResponse(0x0201);
         while(!call_for_refereesystem_node->checkResponseReceived()) {
             sleep(0.1);
         };
-        uint16_t current_hp = blackboard_->get<uint16_t>("RobotStatusStruct.current_HP");
+        uint16_t current_hp = blackboard_->get<uint16_t>("RobotStateStruct.current_HP");
         uint16_t hp_threshold;
         getInput("hp_threshold", hp_threshold);
         if(current_hp < hp_threshold){
             RCLCPP_INFO(node_->get_logger(),"当前血量：%u,血量低于预设的%u.",current_hp,hp_threshold);
             return BT::NodeStatus::FAILURE;
         }
+        RCLCPP_INFO(node_->get_logger(),"current HP:%u",current_hp);
         return BT::NodeStatus::SUCCESS;
     }
 

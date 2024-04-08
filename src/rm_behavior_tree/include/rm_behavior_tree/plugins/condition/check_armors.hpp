@@ -19,6 +19,8 @@ namespace rm_behavior_tree{
         node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
         target_sub = node_->create_subscription<auto_aim_interfaces::msg::Target>
                 ("tracker/target",rclcpp::SensorDataQoS(),std::bind(&CheckArmors::target_callback, this, std::placeholders::_1));
+        blackboard_->set<std::string>("target_id", "");
+        
     }
 
     void target_callback(const auto_aim_interfaces::msg::Target::SharedPtr msg){
@@ -29,7 +31,9 @@ namespace rm_behavior_tree{
     }
 
     static BT::PortsList providedPorts(){
-        return {};
+        return {
+            BT::InputPort<std::string>("topic_name"),
+        };
     }
 
     BT::NodeStatus chekc_armors(){

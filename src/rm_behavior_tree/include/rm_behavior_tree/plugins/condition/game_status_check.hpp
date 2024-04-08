@@ -28,13 +28,13 @@ namespace rm_behavior_tree{
         //     return BT::NodeStatus::SUCCESS;
         // }
         auto call_for_refereesystem_node = blackboard_->get<std::shared_ptr<rm_behavior_tree::CallForRefereeSystem>>("call_for_refereesystem_node");
-        call_for_refereesystem_node->sendRequest(0x0001); // game_status_t
+        call_for_refereesystem_node->processResponse(0x0001); // game_status_t
         while(!call_for_refereesystem_node->checkResponseReceived()) {
             sleep(0.1);
         };
         RCLCPP_INFO(node_->get_logger(),"received game_progress: %u, stage_remain_time: %d",
                                         blackboard_->get<uint8_t>("GameStatusStruct.game_progress"), blackboard_->get<uint16_t>("GameStatusStruct.stage_remain_time"));
-        call_for_refereesystem_node->sendRequest(0x0003); // game_robot_HP_t
+        call_for_refereesystem_node->processResponse(0x0003); // game_robot_HP_t
         while(!call_for_refereesystem_node->checkResponseReceived()) {
             sleep(0.1);
         };
