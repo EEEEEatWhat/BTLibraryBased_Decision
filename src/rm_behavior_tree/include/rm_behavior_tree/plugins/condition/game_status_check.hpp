@@ -26,7 +26,7 @@ namespace rm_behavior_tree{
         // if(blackboard_->get<std::string>("game_stage") == "started") {
         //     RCLCPP_INFO(node_->get_logger(),"game has started!");
         //     return BT::NodeStatus::SUCCESS;
-        // }
+        // }]
         auto call_for_refereesystem_node = blackboard_->get<std::shared_ptr<rm_behavior_tree::CallForRefereeSystem>>("call_for_refereesystem_node");
         call_for_refereesystem_node->processResponse(0x0001); // game_status_t
         while(!call_for_refereesystem_node->checkResponseReceived()) {
@@ -68,10 +68,10 @@ namespace rm_behavior_tree{
             };
             uint8_t red_sentry_id = 7;
             if(blackboard_->get<uint8_t>("RobotStateStruct.robot_id") == red_sentry_id) {
-                blackboard_->set<uint16_t>("sender_id", 0x0007);
+                blackboard_->set<uint8_t>("sentry_id", 7);
             }
             else {
-                blackboard_->set<uint16_t>("sender_id", 0x0107);
+                blackboard_->set<uint8_t>("sentry_id", 107);
             }
             return BT::NodeStatus::SUCCESS;
         }

@@ -2,20 +2,27 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="maintree">
     <Sequence>
+      <!-- 设云台转速与小陀螺转速，通过标志位en_gimble_spin和en_chassis_spin -->
       <SetOwnStatus/>
+      <!-- 检查比赛是否开始 -->
       <GameStatusCheck/>
+      <!-- 检查是否已阵亡 -->
       <IfThenElse>
         <IsDeadCheck/>
+        <!-- TODO： 读条复活还是兑换复活，如果读条复活要等待几秒 -->
         <Sequence>
           <RebornNow/>
           <SendSentrycmd topic_name="/sentry_cmd"/>
         </Sequence>
+        <!-- 重置决策指令中的复活信息防止一直给裁判系统发申请复活 -->
         <Sequence>
           <ResetResData/>
           <SendSentrycmd topic_name="/sentry_cmd"/>
         </Sequence>
       </IfThenElse>
+      <!-- 检查是否复活成功 -->
       <IsDeadCheck/>
+      <!-- 检查血量是否低于阈值，低于的话前往补给区并在补给区等侯4秒 -->
       <Fallback>
         <HPCheck hp_threshold="200"/>
         <Inverter>
@@ -23,13 +30,16 @@
         </Inverter>
         <ReactiveSequence>
           <Fallback>
-            <IsArrived/>
+            <IsArrived goal_name="supply_zone_pose"/>
             <SendGoal action_name="/BehaviorTreePose"
                       goal_name="supply_zone_pose"/>
           </Fallback>
           <FireOrSkip wait_time="4"/>
         </ReactiveSequence>
       </Fallback>
+      <!-- 通过订阅视觉话题获取当前是否发现敌方车，如果未发现或敌方车已在追踪范围（5m）则行为树等待一秒 -->
+      <!-- 如果敌方车在自身五米以外，移动到两车连线上距离敌方车5m的位置 -->
+      <!--  TODO： 至少比赛中期应该不需要追击 -->
       <IfThenElse>
         <CheckArmors topic_name="/tracker/target"/>
         <FireOrSkip wait_time="1"/>
@@ -39,33 +49,35 @@
                     goal_name="enemy_pose"/>
         </Sequence>
       </IfThenElse>
+      <!-- 检查己方前哨站血量，如果为0则将en_chassis_spin设为true，开启小陀螺 -->
       <Fallback>
         <OurOutpostCheck/>
         <SetOwnStatus/>
       </Fallback>
-      <IsOpenStageStrategySet/>
-      <Fallback>
-        <IsArrived/>
-        <SendGoal action_name="/BehaviorTreePose"
-                  goal_name="goal_pose"/>
-      </Fallback>
-      <GameRunning/>
-      <Sequence>
-        <Fallback>
-          <IfGoKeystoneHeights/>
-          <GoKeystoneHeights/>
-        </Fallback>
-        <Fallback>
-          <IfFindEnemy/>
-          <SearchEnemy/>
-        </Fallback>
+      <!-- 通过黑板中的game_stage判断比赛的三种阶段（game_stage将在前面的GameStatusCheck和OurOutpostCheck中修改值，初始值为"not_started"） -->
+      <!-- 比赛初期（started），前往goal_pose，在decision.yaml中给定 -->
+      <!-- 比赛中期，己方前哨站掉了之后去己方梯高守家 -->
+      <!-- TODO： 敌方前哨站掉了之后也直接回梯高？要去敌方梯高吗？ -->
+      <!-- 比赛后期：执行云台手指令 -->
+      <Switch3 case_1="started"
+                case_2="running"
+                case_3="last_stage"
+                variable="{game_stage}">
+          <Fallback>
+            <IsArrived goal_name="goal_pose"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="goal_pose"/>
+          </Fallback>
+          <Fallback>
+              <IsArrived goal_name="keystone_heights_pose"/>
+              <SendGoal action_name="/BehaviorTreePose"
+                        goal_name="keystone_heights_pose"/>
+          </Fallback>
+          <ExecuteCommand/>
+          <FireOrSkip wait_time="1"/>
+      </Switch3>
+      <!-- TODO： 什么时候兑换发弹量，已知初始允许发弹量为400 -->
       </Sequence>
-      <GameLastStage/>
-      <IfThenElse>
-        <IsSetGameStatusAsLast/>
-        <ExecuteCommand/>
-      </IfThenElse>
-    </Sequence>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->

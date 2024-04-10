@@ -51,8 +51,9 @@ namespace rm_behavior_tree{
                 "is_arrived",
                 "reborn_now",
                 "set_enemy_goal",
-                // "reset_res_data",
-                // "set_supply_goal",
+                "reset_res_data",
+                "out_outpost_check",
+                "check_game_running",
             };
             this->decode_config();
             this->run();
@@ -110,7 +111,8 @@ namespace rm_behavior_tree{
             // For goal pose
             std::map<std::string, geometry_msgs::msg::PoseStamped> poses_map = {
                 {"home_pose", {}},
-                {"supply_zone_pose", {}}
+                {"supply_zone_pose", {}},
+                {"keystone_heights_pose", {}}
             };
             this->decode_goal_pose(poses_map, blackboard_);
         }

@@ -31,9 +31,3 @@ namespace rm_behavior_tree{
 }  // namespace rm_behavior_tree
 
 #endif
-
-#include "behaviortree_cpp/bt_factory.h"
-BT_REGISTER_NODES(factory)
-{
-    factory.registerNodeType<rm_behavior_tree::ResetResData>("ResetResData");
-}

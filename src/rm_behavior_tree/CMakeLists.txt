@@ -101,6 +101,19 @@ add_library(set_enemy_goal SHARED
 plugins/condition/set_enemy_goal.cpp
 )
 list(APPEND plugin_libs set_enemy_goal)
+add_library(reset_res_data SHARED 
+plugins/condition/reset_res_data.cpp
+)
+list(APPEND plugin_libs reset_res_data)
+add_library(our_outpost_check SHARED 
+plugins/condition/our_outpost_check.cpp
+)
+list(APPEND plugin_libs our_outpost_check)
+add_library(check_game_running SHARED 
+plugins/condition/check_game_running.cpp
+)
+list(APPEND plugin_libs check_game_running)
+
 
 add_executable(rm_behavior_tree src/rm_behavior_tree.cpp)
 ament_target_dependencies(rm_behavior_tree
@@ -127,6 +140,9 @@ install(TARGETS
   is_arrived
   reborn_now
   set_enemy_goal
+  reset_res_data
+  our_outpost_check
+  check_game_running
   DESTINATION lib/${PROJECT_NAME}
 )
 

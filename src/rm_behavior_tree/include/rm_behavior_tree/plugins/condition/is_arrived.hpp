@@ -18,11 +18,15 @@ namespace rm_behavior_tree{
     }
 
     static BT::PortsList providedPorts(){
-        return {};
+        return {
+            BT::InputPort<std::string>("goal_name"),
+        };
     }
     
     BT::NodeStatus check_is_arrived(){
-        auto goal_pose = blackboard_->get<geometry_msgs::msg::PoseStamped>("goal_pose");
+        std::string goal_name;
+        getInput("goal_name", goal_name);
+        auto goal_pose = blackboard_->get<geometry_msgs::msg::PoseStamped>(goal_name);
         get_my_pose(blackboard_);
         auto my_x = blackboard_->get<double>("my_x");
         auto my_y = blackboard_->get<double>("my_y");
