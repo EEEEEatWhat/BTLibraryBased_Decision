@@ -34,7 +34,7 @@ namespace rm_behavior_tree{
         } else {
             outpost_hp = blackboard_->get<uint16_t>("GameRobotHPStruct.blue_outpost_HP");
         }
-        if(outpost_hp == 0){
+        if(outpost_hp < 50){
             RCLCPP_INFO(node_->get_logger(),"Our outpost has been destroyed!");
             blackboard_->set<bool>("en_chassis_spin",true);
             blackboard_->set<std::string>("game_stage","running");

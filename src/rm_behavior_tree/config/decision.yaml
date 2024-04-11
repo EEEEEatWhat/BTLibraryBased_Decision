@@ -14,12 +14,24 @@
             y: 0.0
             yaw: 0.0
         supply_zone_pose:
-            x: 0.0
-            y: 0.0
+            x: 1.0
+            y: 2.0
             yaw: 0.0
         keystone_heights_pose:
             x: 0.0
             y: 0.0
             yaw: 0.0
-            
+        # for patrol_points
+        patrol_1:
+            x: 0.0
+            y: 0.0
+            yaw: 0.0
+        patrol_2:
+            x: 0.0
+            y: 0.0
+            yaw: 0.0
+        patrol_3:
+            x: 0.0
+            y: 0.0
+            yaw: 0.0
         

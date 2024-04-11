@@ -29,10 +29,12 @@
           <SupplyZoneCheck/>
         </Inverter>
         <ReactiveSequence>
+          <!-- 前往补给区时的血量阈值为零，无需因血量过低而打断导航 -->
           <Fallback>
             <IsArrived goal_name="supply_zone_pose"/>
             <SendGoal action_name="/BehaviorTreePose"
-                      goal_name="supply_zone_pose"/>
+                      goal_name="supply_zone_pose"
+                      hp_threshold="0"/>
           </Fallback>
           <FireOrSkip wait_time="4"/>
         </ReactiveSequence>
@@ -46,17 +48,18 @@
         <Sequence>
           <SetEnemyGoal/>
           <SendGoal action_name="/BehaviorTreePose"
-                    goal_name="enemy_pose"/>
+                    goal_name="enemy_pose"
+                    hp_threshold="200"/>
         </Sequence>
       </IfThenElse>
-      <!-- 检查己方前哨站血量，如果为0则将en_chassis_spin设为true，开启小陀螺 -->
+      <!-- 检查己方前哨站血量，如果小于50则将en_chassis_spin设为true，开启小陀螺 -->
       <Fallback>
         <OurOutpostCheck/>
         <SetOwnStatus/>
       </Fallback>
       <!-- 通过黑板中的game_stage判断比赛的三种阶段（game_stage将在前面的GameStatusCheck和OurOutpostCheck中修改值，初始值为"not_started"） -->
       <!-- 比赛初期（started），前往goal_pose，在decision.yaml中给定 -->
-      <!-- 比赛中期，己方前哨站掉了之后去己方梯高守家 -->
+      <!-- 比赛中期，己方前哨站掉了之后去己方梯高守家 , 到达梯高后在梯高上巡逻-->
       <!-- TODO： 敌方前哨站掉了之后也直接回梯高？要去敌方梯高吗？ -->
       <!-- 比赛后期：执行云台手指令 -->
       <Switch3 case_1="started"
@@ -66,13 +69,18 @@
           <Fallback>
             <IsArrived goal_name="goal_pose"/>
             <SendGoal action_name="/BehaviorTreePose"
-                      goal_name="goal_pose"/>
+                      goal_name="goal_pose"
+                      hp_threshold="200"/>
           </Fallback>
-          <Fallback>
+          <IfThenElse>
               <IsArrived goal_name="keystone_heights_pose"/>
               <SendGoal action_name="/BehaviorTreePose"
-                        goal_name="keystone_heights_pose"/>
-          </Fallback>
+                        goal_name="patrol_points"
+                        hp_threshold="200"/>
+              <SendGoal action_name="/BehaviorTreePose"
+                        goal_name="keystone_heights_pose"
+                        hp_threshold="200"/>
+          </IfThenElse>
           <ExecuteCommand/>
           <FireOrSkip wait_time="1"/>
       </Switch3>
@@ -115,7 +123,7 @@
     <Condition ID="HPCheck"
               editable="true">
       <input_port name="hp_threshold"
-                  default="300"/>
+                  default="200"/>
     </Condition>
     <Condition ID="IfFindEnemy"
               editable="true"/>

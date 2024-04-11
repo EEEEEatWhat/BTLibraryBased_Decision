@@ -22,7 +22,7 @@ namespace rm_behavior_tree{
         std::vector<std::string> bt_plugin_libs;
         std::shared_ptr<rm_behavior_tree::CallForRefereeSystem> call_for_refereesystem_node;
         const std::string tree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTree.xml";
-        const std::string test_tree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/test_tree.xml";
+        const std::string test_tree_path = "/home/hannah/BTLibraryBased_Decision/src/rm_behavior_tree/tree/test_tree.xml";
 
     public:
         RMBehaviorTree(const rclcpp::NodeOptions &options)
@@ -52,7 +52,7 @@ namespace rm_behavior_tree{
                 "reborn_now",
                 "set_enemy_goal",
                 "reset_res_data",
-                "out_outpost_check",
+                "our_outpost_check",
                 "check_game_running",
             };
             this->decode_config();
@@ -148,6 +148,11 @@ namespace rm_behavior_tree{
         
                 blackboard_->set<geometry_msgs::msg::PoseStamped>(pose_key,temp_pose);
             }
+            std::queue<geometry_msgs::msg::PoseStamped> patrol_points;
+            patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_1"));
+            patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_2"));
+            patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_3"));
+            blackboard_->set<std::queue<geometry_msgs::msg::PoseStamped>>( "patrol_points", patrol_points);
         }
 
         void load_plugins(){

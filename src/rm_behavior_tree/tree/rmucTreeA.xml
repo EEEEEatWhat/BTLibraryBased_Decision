@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="mainTree">
+    <Sequence>
+      <!-- 设云台转速与小陀螺转速，通过标志位en_gimble_spin和en_chassis_spin -->
+      <SetOwnStatus/>
+      <!-- 检查比赛是否开始 -->
+      <GameStatusCheck/>
+      <!-- 检查是否已阵亡 -->
+      <IfThenElse>
+        <IsDeadCheck/>
+        <!-- TODO： 读条复活还是兑换复活，如果读条复活要等待几秒 -->
+        <Sequence>
+          <RebornNow/>
+          <SendSentrycmd topic_name="/sentry_cmd"/>
+        </Sequence>
+        <!-- 重置决策指令中的复活信息防止一直给裁判系统发申请复活 -->
+        <Sequence>
+          <ResetResData/>
+          <SendSentrycmd topic_name="/sentry_cmd"/>
+        </Sequence>
+      </IfThenElse>
+      <!-- 检查是否复活成功 -->
+      <IsDeadCheck/>
+      <!-- 检查血量是否低于阈值，低于的话前往补给区并在补给区等侯4秒 -->
+      <Fallback>
+        <HPCheck hp_threshold="200"/>
+        <Inverter>
+          <SupplyZoneCheck/>
+        </Inverter>
+        <ReactiveSequence>
+          <!-- 前往补给区时的血量阈值为零，无需因血量过低而打断导航 -->
+          <Fallback>
+            <IsArrived goal_name="supply_zone_pose"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="supply_zone_pose"
+                      hp_threshold="0"/>
+          </Fallback>
+          <FireOrSkip wait_time="4"/>
+        </ReactiveSequence>
+      </Fallback>
+      <!-- 通过订阅视觉话题获取当前是否发现敌方车，如果未发现或敌方车已在追踪范围（5m）则行为树等待一秒 -->
+      <!-- 如果敌方车在自身五米以外，移动到两车连线上距离敌方车5m的位置 -->
+      <!--  TODO： 至少比赛中期应该不需要追击 -->
+      <IfThenElse>
+        <CheckArmors topic_name="/tracker/target"/>
+        <FireOrSkip wait_time="1"/>
+        <Sequence>
+          <SetEnemyGoal/>
+          <SendGoal action_name="/BehaviorTreePose"
+                    goal_name="enemy_pose"
+                    hp_threshold="200"/>
+        </Sequence>
+      </IfThenElse>
+      <!-- 检查己方前哨站血量，如果小于50则将en_chassis_spin设为true，开启小陀螺 -->
+      <Fallback>
+        <OurOutpostCheck/>
+        <SetOwnStatus/>
+      </Fallback>
+    </Sequence>
+  </BehaviorTree>
+</root>
