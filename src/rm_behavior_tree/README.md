@@ -14,7 +14,7 @@ ps. 先挖点坑有时间就填
 
 ### 将编写的节点导出为插件并在决策节点中加载
 1. 在cpp文件中使用宏(``BT_REGISTER_NODES``或``CreateRosNodePlugin``)将已编写的行为树(action或condition)节点导出为Plugin
-2. 修改cmakelist.txt:
+2. 修改Cmakelists.txt:
     <br>在add_executable之前将导出的Plugin添加为插件库,例如:<br/>
     ```
     add_library(your_action SHARED 
@@ -35,10 +35,14 @@ ps. 先挖点坑有时间就填
     ```
     [rm_behavior_tree-1]   what():  Could not load library: libsend_sentrycmd.so: cannot open shared object file: No such file or directory
     ```
-    在.bashrc中添加
+    在.bashrc中（一般在最后加一行就行）添加
     ```
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/your/library/
     ```
-    其中/path/to/your/library/一般在install/your_tool_pack/lib/your_tool_pack/
+    其中/path/to/your/library/一般为install/your_tool_pack/lib/your_tool_pack/
+
+    **自启动时的bug**：在.bashrc中添加了上面那句指令，但还是出现上述报错。
+
+    **解决方案**：在自启动指令中先添加上述export指令再启动决策的launch文件。
 
 ### 关于StatefulActionNode
