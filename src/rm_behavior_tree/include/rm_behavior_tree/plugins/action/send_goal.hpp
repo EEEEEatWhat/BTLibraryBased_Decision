@@ -19,13 +19,15 @@ namespace rm_behavior_tree{
         {
             blackboard_ = config().blackboard;
             call_for_refereesystem_node = blackboard_->get<std::shared_ptr<rm_behavior_tree::CallForRefereeSystem>>("call_for_refereesystem_node");
+            is_patrol_start = false;
         };
 
         static BT::PortsList providedPorts(){
             return {
                 BT::InputPort<std::string>("action_name"),
                 BT::InputPort<std::string>("goal_name"),
-                BT::InputPort<uint16_t>("hp_threshold")
+                BT::InputPort<uint16_t>("hp_threshold"),
+                BT::InputPort<int>("patrol_num"),
             };
         };
 
@@ -34,7 +36,16 @@ namespace rm_behavior_tree{
             std::string goal_name;
             getInput("goal_name", goal_name);
             if(goal_name == "patrol_points"){
-                std::queue<geometry_msgs::msg::PoseStamped> patrol_points = blackboard_->get<std::queue<geometry_msgs::msg::PoseStamped>>("patrol_points");
+                if(!is_patrol_start){
+                    is_patrol_start = true;
+                    int patrol_num = 0;
+                    getInput("patrol_num", patrol_num);
+                    std::queue<geometry_msgs::msg::PoseStamped> temp_points = blackboard_->get<std::queue<geometry_msgs::msg::PoseStamped>>("patrol_points");
+                    for(int i=0; i<patrol_num; i++){
+                        patrol_points.push(temp_points.front());
+                        temp_points.pop();
+                    }
+                }
                 if(patrol_points.empty()){
                     RCLCPP_ERROR(node_->get_logger(),"patrol_points is empty!");
                     return false;
@@ -97,14 +108,16 @@ namespace rm_behavior_tree{
                 RCLCPP_INFO(node_->get_logger(),"当前血量：%u,血量低于预设的%u.",current_hp,hp_threshold);
                 BT::RosActionNode<global_interfaces::action::BehaviorTreePose>::halt();
             }
-            BT::RosActionNode<global_interfaces::action::BehaviorTreePose>::halt();
-            RCLCPP_INFO(node_->get_logger(),"halt...");
+            // BT::RosActionNode<global_interfaces::action::BehaviorTreePose>::halt();
+            // RCLCPP_INFO(node_->get_logger(),"halt...");
             return BT::NodeStatus::RUNNING;
         };
         
     private:
         BT::Blackboard::Ptr blackboard_;
         std::shared_ptr<rm_behavior_tree::CallForRefereeSystem> call_for_refereesystem_node;
+        bool is_patrol_start;
+        std::queue<geometry_msgs::msg::PoseStamped> patrol_points;
     };
 }
 
