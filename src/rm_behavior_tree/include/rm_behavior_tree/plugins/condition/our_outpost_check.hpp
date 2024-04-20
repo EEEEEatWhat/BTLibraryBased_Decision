@@ -35,7 +35,7 @@ namespace rm_behavior_tree{
             outpost_hp = blackboard_->get<uint16_t>("GameRobotHPStruct.blue_outpost_HP");
         }
         if(outpost_hp < 50){
-            RCLCPP_INFO(node_->get_logger(),"Our outpost has been destroyed!");
+            RCLCPP_INFO(node_->get_logger(),"Our outpost will be destroyed right now!");
             blackboard_->set<bool>("en_chassis_spin",true);
             blackboard_->set<std::string>("game_stage","running");
             return BT::NodeStatus::FAILURE;

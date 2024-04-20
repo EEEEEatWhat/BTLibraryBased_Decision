@@ -83,6 +83,10 @@ namespace rm_behavior_tree{
         }
     };
 
+    /**
+     *  @brief 设置自身车的小陀螺转速
+     *  @return void
+     **/
     void setParam_rotation(BT::Blackboard::Ptr blackboard_, int speed){
         using ResultFuturePtr = std::shared_future<std::vector<rcl_interfaces::msg::SetParametersResult>>;
         ResultFuturePtr set_param_future_rotation;

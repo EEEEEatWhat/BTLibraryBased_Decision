@@ -67,19 +67,19 @@ namespace rm_behavior_tree{
         {
             switch (wr.code) {
                 case rclcpp_action::ResultCode::SUCCEEDED:
-                    std::cout << "Success!!!" << '\n';
+                    RCLCPP_INFO(node_->get_logger(), "Goal succeeded");
                     return BT::NodeStatus::SUCCESS;
                     break;
                 case rclcpp_action::ResultCode::ABORTED:
-                    std::cout << "Goal was aborted" << '\n';
+                    RCLCPP_INFO(node_->get_logger(), "Goal was aborted");
                     return BT::NodeStatus::FAILURE;
                     break;
                 case rclcpp_action::ResultCode::CANCELED:
-                    std::cout << "Goal was canceled" << '\n';
+                    RCLCPP_INFO(node_->get_logger(), "Goal was canceled");
                     return BT::NodeStatus::FAILURE;
                     break;
                 default:
-                    std::cout << "Unknown result code" << '\n';
+                    RCLCPP_INFO(node_->get_logger(), "Unknown result code");
                     return BT::NodeStatus::FAILURE;
                     break;
             }
@@ -106,10 +106,9 @@ namespace rm_behavior_tree{
             getInput("hp_threshold", hp_threshold);
             if(current_hp < hp_threshold){
                 RCLCPP_INFO(node_->get_logger(),"当前血量：%u,血量低于预设的%u.",current_hp,hp_threshold);
-                BT::RosActionNode<global_interfaces::action::BehaviorTreePose>::halt();
+                // BT::RosActionNode<global_interfaces::action::BehaviorTreePose>::halt();
+                return BT::NodeStatus::FAILURE;
             }
-            // BT::RosActionNode<global_interfaces::action::BehaviorTreePose>::halt();
-            // RCLCPP_INFO(node_->get_logger(),"halt...");
             return BT::NodeStatus::RUNNING;
         };
 
@@ -120,8 +119,8 @@ namespace rm_behavior_tree{
     private:
         BT::Blackboard::Ptr blackboard_;
         std::shared_ptr<rm_behavior_tree::CallForRefereeSystem> call_for_refereesystem_node;
-        bool is_patrol_start;
         std::queue<geometry_msgs::msg::PoseStamped> patrol_points;
+        bool is_patrol_start;
     };
 }
 

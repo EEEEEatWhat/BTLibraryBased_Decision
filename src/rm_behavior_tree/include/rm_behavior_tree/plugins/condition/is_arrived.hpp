@@ -30,7 +30,7 @@ namespace rm_behavior_tree{
         get_my_pose(blackboard_);
         auto my_x = blackboard_->get<double>("my_x");
         auto my_y = blackboard_->get<double>("my_y");
-        if(pow(my_x - goal_pose.pose.position.x, 2) + pow(my_y - goal_pose.pose.position.y, 2) > 2.25){
+        if(pow(my_x - goal_pose.pose.position.x, 2) + pow(my_y - goal_pose.pose.position.y, 2) > 1){
             return BT::NodeStatus::FAILURE;
         }
         return BT::NodeStatus::SUCCESS;

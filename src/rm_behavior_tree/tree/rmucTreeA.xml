@@ -5,12 +5,14 @@
     <Sequence>
       <!-- 设云台转速与小陀螺转速，通过标志位en_gimble_spin和en_chassis_spin, 保证至少能小陀螺和搜敌 -->
       <SetOwnStatus/>
-      <!-- 检查比赛是否开始 -->
+      <!-- 检查比赛是否开始( ps:在保守方案下似乎不需要确认比赛已开始 ) -->
       <GameStatusCheck/>
       <!-- 检查是否已阵亡 -->
       <IfThenElse>
-        <IsDeadCheck/>
-        <!-- TODO： 读条复活还是兑换复活，如果读条复活要等待几秒 -->
+        <Inverter>
+          <IsDeadCheck/>
+        <Inverter/>
+        <!-- 在yaml文件中设置en_instaRes为true可启动兑换复活, 否则默认读条复活 -->
         <Sequence>
           <RebornNow/>
           <SendSentrycmd topic_name="/sentry_cmd"/>

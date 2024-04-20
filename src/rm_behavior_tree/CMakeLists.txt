@@ -1,154 +1,116 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 project(rm_behavior_tree)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+## Use C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_action REQUIRED)
-find_package(behaviortree_cpp REQUIRED)
-find_package(behaviortree_ros2 REQUIRED)
-find_package(nav2_msgs REQUIRED)
-find_package(tf2_ros REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(global_interfaces REQUIRED)
-find_package(my_msg_interface REQUIRED)
-find_package(auto_aim_interfaces REQUIRED)
+## Export compile commands for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(THIS_PACKAGE_DEPS
-rclcpp
-rclcpp_action
-behaviortree_cpp
-behaviortree_ros2
-nav2_msgs
-tf2_ros
-tf2
-tf2_geometry_msgs
-geometry_msgs
-global_interfaces
-my_msg_interface
-auto_aim_interfaces
-)
+#######################
+## Find dependencies ##
+#######################
 
-include_directories(
-  include
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+
+###########
+## Build ##
+###########
+
+set(PACKAGE_INCLUDE_DEPENDS
+    rclcpp
+    rclcpp_action
+    nav2_msgs
+    behaviortree_cpp
+    behaviortree_ros2
+    tf2_ros
+    tf2
+    tf2_geometry_msgs
+    geometry_msgs
+    global_interfaces
+    my_msg_interface
+    auto_aim_interfaces
 )
 
-if(BUILD_TESTING)
-find_package(ament_lint_auto REQUIRED)
-# the following line skips the linter which checks for copyrights
-# comment the line when a copyright and license is added to all source files
-set(ament_cmake_copyright_FOUND TRUE)
-# the following line skips cpplint (only works in a git repo)
-# comment the line when this package is in a git repo and when
-# a copyright and license is added to all source files
-set(ament_cmake_cpplint_FOUND TRUE)
-ament_lint_auto_find_test_dependencies()
-endif()
+# 定义宏函数 add_target_dependencies
+function(add_target_dependencies target)
+    target_include_directories(${target} PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
+    ament_target_dependencies(${target} ${PACKAGE_INCLUDE_DEPENDS})
+    target_compile_definitions(${target} PRIVATE BT_PLUGIN_EXPORT)
+endfunction()
 
-
-add_library(fire_or_skip SHARED 
-plugins/action/fire_or_skip.cpp
-)
-list(APPEND plugin_libs fire_or_skip)
-add_library(send_goal SHARED 
-plugins/action/send_goal.cpp
-)
-list(APPEND plugin_libs send_goal)
-add_library(send_sentrycmd SHARED 
-plugins/action/send_sentrycmd.cpp
-)
-list(APPEND plugin_libs send_sentrycmd)
-add_library(set_own_status SHARED 
-plugins/action/set_own_status.cpp
-)
-list(APPEND plugin_libs set_own_status)
-
-add_library(game_status_check SHARED 
-plugins/condition/game_status_check.cpp
-)
-list(APPEND plugin_libs game_status_check)
-add_library(hp_check SHARED 
-plugins/condition/hp_check.cpp
-)
-list(APPEND plugin_libs hp_check)
-add_library(supply_zone_check SHARED 
-plugins/condition/supply_zone_check.cpp
-)
-list(APPEND plugin_libs supply_zone_check)
-add_library(check_armors SHARED 
-plugins/condition/check_armors.cpp
-)
-list(APPEND plugin_libs check_armors)
-add_library(is_dead_check SHARED 
-plugins/condition/is_dead_check.cpp
-)
-list(APPEND plugin_libs is_dead_check)
-add_library(is_arrived SHARED 
-plugins/condition/is_arrived.cpp
-)
-list(APPEND plugin_libs is_arrived)
-add_library(reborn_now SHARED 
-plugins/condition/reborn_now.cpp
-)
-list(APPEND plugin_libs reborn_now)
-add_library(set_enemy_goal SHARED 
-plugins/condition/set_enemy_goal.cpp
-)
-list(APPEND plugin_libs set_enemy_goal)
-add_library(reset_res_data SHARED 
-plugins/condition/reset_res_data.cpp
-)
-list(APPEND plugin_libs reset_res_data)
-add_library(our_outpost_check SHARED 
-plugins/condition/our_outpost_check.cpp
-)
-list(APPEND plugin_libs our_outpost_check)
-add_library(check_game_running SHARED 
-plugins/condition/check_game_running.cpp
-)
-list(APPEND plugin_libs check_game_running)
-
-
-add_executable(rm_behavior_tree src/rm_behavior_tree.cpp)
-ament_target_dependencies(rm_behavior_tree
-  ${THIS_PACKAGE_DEPS}
+ament_auto_add_executable(rm_behavior_tree 
+    src/rm_behavior_tree.cpp
 )
 
-foreach(bt_plugin ${plugin_libs})
-  ament_target_dependencies(${bt_plugin} ${THIS_PACKAGE_DEPS})
-  target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)
-  target_link_libraries(rm_behavior_tree ${bt_plugin})
-endforeach()
-
-install(TARGETS
-  rm_behavior_tree
-  fire_or_skip
-  send_goal
-  send_sentrycmd
-  set_own_status
-  game_status_check
-  hp_check
-  supply_zone_check
-  check_armors
-  is_dead_check
-  is_arrived
-  reborn_now
-  set_enemy_goal
-  reset_res_data
-  our_outpost_check
-  check_game_running
-  DESTINATION lib/${PROJECT_NAME}
+# Conditions
+ament_auto_add_library(game_status_check SHARED 
+    plugins/condition/game_status_check.cpp
 )
-
-install(
-  DIRECTORY config launch 
-  DESTINATION share/${PROJECT_NAME}
+add_target_dependencies(game_status_check)
+ament_auto_add_library(hp_check SHARED 
+    plugins/condition/hp_check.cpp
 )
+add_target_dependencies(hp_check)
+ament_auto_add_library(supply_zone_check SHARED 
+    plugins/condition/supply_zone_check.cpp
+)
+add_target_dependencies(supply_zone_check)
+ament_auto_add_library(check_armors SHARED 
+    plugins/condition/check_armors.cpp
+)
+add_target_dependencies(check_armors)
+ament_auto_add_library(is_dead_check SHARED 
+    plugins/condition/is_dead_check.cpp
+)
+add_target_dependencies(is_dead_check)
+ament_auto_add_library(is_arrived SHARED 
+    plugins/condition/is_arrived.cpp
+)
+add_target_dependencies(is_arrived)
+ament_auto_add_library(reborn_now SHARED 
+    plugins/condition/reborn_now.cpp
+)
+add_target_dependencies(reborn_now)
+ament_auto_add_library(set_enemy_goal SHARED 
+    plugins/condition/set_enemy_goal.cpp
+)
+add_target_dependencies(set_enemy_goal)
+ament_auto_add_library(reset_res_data SHARED 
+    plugins/condition/reset_res_data.cpp
+)
+add_target_dependencies(reset_res_data)
+ament_auto_add_library(our_outpost_check SHARED 
+    plugins/condition/our_outpost_check.cpp
+)
+add_target_dependencies(our_outpost_check)
+ament_auto_add_library(check_game_running SHARED 
+    plugins/condition/check_game_running.cpp
+)
+add_target_dependencies(check_game_running)
 
-ament_package()
+# Actions
+ament_auto_add_library(send_sentrycmd SHARED 
+    plugins/action/send_sentrycmd.cpp
+)
+add_target_dependencies(send_sentrycmd)
+ament_auto_add_library(send_goal SHARED 
+    plugins/action/send_goal.cpp
+)
+add_target_dependencies(send_goal)
+ament_auto_add_library(set_own_status SHARED 
+    plugins/action/set_own_status.cpp
+)
+add_target_dependencies(set_own_status)
+ament_auto_add_library(fire_or_skip SHARED 
+    plugins/action/fire_or_skip.cpp
+)
+add_target_dependencies(fire_or_skip)
+
+ament_auto_package(
+  INSTALL_TO_SHARE
+  launch
+  config
+)

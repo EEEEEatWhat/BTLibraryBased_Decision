@@ -13,7 +13,6 @@ namespace rm_behavior_tree{
     public:
     GameStatusCheck(const std::string & name, const BT::NodeConfig & conf)
         : BT::SimpleConditionNode(name, std::bind(&GameStatusCheck::check_game_status, this), conf){
-        // RCLCPP_INFO(rclcpp::get_logger("TEST"),"GameStatusCheck created!");
         blackboard_ = config().blackboard;
         node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
     }
