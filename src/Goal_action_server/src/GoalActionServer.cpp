@@ -68,6 +68,14 @@ private:
             RCLCPP_ERROR(this->get_logger(), "navigate_to_pose 服务连接失败！");
             return;
         }
+        auto result = std::make_shared<global_interfaces::action::BehaviorTreePose::Result>();
+        auto Pfeedback_rec = std::make_shared<global_interfaces::action::BehaviorTreePose::Feedback>();
+        if(goal_handle->is_canceling()){
+            result->result_pose = Pfeedback_rec->current_pose ;
+            goal_handle->canceled(result);
+            RCLCPP_INFO(this->get_logger(), "Goal Canceled!");
+            return;
+        }
         auto goal_msg = NavigateToPose::Goal();
         goal_msg.set__pose(goal_handle->get_goal()->pose);
         // goal_msg.set__behavior_tree();
@@ -96,7 +104,7 @@ private:
     }
 
     void feedback_callback(rclcpp_action::ClientGoalHandle<NavigateToPose>::SharedPtr goal_handle,const std::shared_ptr<const NavigateToPose::Feedback> feedback){
-        std::cout<<"navigate_to_pose 连续反馈"<<"\n";
+        RCLCPP_INFO(this->get_logger(), "Feedback: remaining distance = %f, pose = (%lf, %lf) ", feedback->distance_remaining,feedback->current_pose.pose.position.x,feedback->current_pose.pose.position.y);
         auto Pfeedback_rec = std::make_shared<global_interfaces::action::BehaviorTreePose::Feedback>();
         Pfeedback_rec->current_pose = feedback->current_pose;
         Pfeedback_rec->distance_remaining = feedback->distance_remaining;

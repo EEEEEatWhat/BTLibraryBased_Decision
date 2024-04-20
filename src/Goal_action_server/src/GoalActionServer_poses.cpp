@@ -43,19 +43,17 @@ public:
     };
 private:
     rclcpp_action::GoalResponse handle_goal(const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const  BehaviorTreeSendPoses::Goal> goal_handle){
-        (void)goal_handle;
         std::cout<<"BehaviorTreeSendPoses 接受到goal开始处理. . . "<<"\n";
         return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
     };
 
     rclcpp_action::CancelResponse handle_cancel(std::shared_ptr<rclcpp_action::ServerGoalHandle<BehaviorTreeSendPoses>> goal_handle){
-        (void)goal_handle;
+
         std::cout<<"BehaviorTreeSendPoses goal被取消!"<<"\n";
         return rclcpp_action::CancelResponse::ACCEPT; 
     };
 
     void handle_accepted(std::shared_ptr<rclcpp_action::ServerGoalHandle<BehaviorTreeSendPoses>> goal_handle){
-        (void)goal_handle;
         std::thread{std::bind(&GoalActionServerWithPoses::execute, this, _1), goal_handle}.detach();
         
     };

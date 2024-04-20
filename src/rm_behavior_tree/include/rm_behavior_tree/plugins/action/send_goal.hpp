@@ -86,7 +86,7 @@ namespace rm_behavior_tree{
         };
 
 
-        virtual BT::NodeStatus onFailure(BT::ActionNodeErrorCode error) override
+        BT::NodeStatus onFailure(BT::ActionNodeErrorCode error) override
         {
             RCLCPP_ERROR(node_->get_logger(), "Error: %s", toStr(error));
             return BT::NodeStatus::FAILURE;
@@ -112,6 +112,10 @@ namespace rm_behavior_tree{
             // RCLCPP_INFO(node_->get_logger(),"halt...");
             return BT::NodeStatus::RUNNING;
         };
+
+        void onHalt() {
+            RCLCPP_INFO(node_->get_logger(),"halt...");
+        }
         
     private:
         BT::Blackboard::Ptr blackboard_;

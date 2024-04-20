@@ -110,9 +110,12 @@ namespace rm_behavior_tree{
 
             // For goal pose
             std::map<std::string, geometry_msgs::msg::PoseStamped> poses_map = {
-                {"home_pose", {}},
-                {"supply_zone_pose", {}},
-                {"keystone_heights_pose", {}}
+                {"home_pose", geometry_msgs::msg::PoseStamped()},
+                {"supply_zone_pose", geometry_msgs::msg::PoseStamped()},
+                {"keystone_heights_pose", geometry_msgs::msg::PoseStamped()},
+                {"patrol_1", geometry_msgs::msg::PoseStamped()},
+                {"patrol_2", geometry_msgs::msg::PoseStamped()},
+                {"patrol_3", geometry_msgs::msg::PoseStamped()},
             };
             this->decode_goal_pose(poses_map, blackboard_);
         }
