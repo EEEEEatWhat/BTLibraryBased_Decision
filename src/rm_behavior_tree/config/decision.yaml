@@ -9,6 +9,7 @@
         tracking_scope: 5.0
         gimbal_angular_vel: 1.2
         chassis_angular_vel: 6
+        plan: "A"
         home_pose:  # 原地
             x: 0.0
             y: 0.0

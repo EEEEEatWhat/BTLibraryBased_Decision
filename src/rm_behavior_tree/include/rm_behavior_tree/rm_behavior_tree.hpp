@@ -22,7 +22,8 @@ namespace rm_behavior_tree{
         std::vector<std::string> bt_plugin_libs;
         std::shared_ptr<rm_behavior_tree::CallForRefereeSystem> call_for_refereesystem_node;
         const std::string tree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTree.xml";
-        const std::string test_tree_path = "/home/hannah/BTLibraryBased_Decision/src/rm_behavior_tree/tree/test_tree.xml";
+        const std::string Atree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTreeA.xml";
+        const std::string test_tree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/test_tree.xml";
 
     public:
         RMBehaviorTree(const rclcpp::NodeOptions &options)
@@ -69,6 +70,7 @@ namespace rm_behavior_tree{
             double tracking_scope;
             double gimbal_angular_vel;
             int chassis_angular_vel;
+            std::string plan;
             this->declare_parameter("en_test", false);
             this->declare_parameter("en_instaRes", false);
             this->declare_parameter("en_gimbal_spin", true);
@@ -78,6 +80,7 @@ namespace rm_behavior_tree{
             this->declare_parameter("tracking_scope", 5.0);
             this->declare_parameter("gimbal_angular_vel", 1.2);
             this->declare_parameter("chassis_angular_vel", 6);
+            this->declare_parameter("plan","A");
             this->get_parameter("en_test", en_test);
             this->get_parameter("en_instaRes", en_instaRes);
             this->get_parameter("en_gimbal_spin", en_gimbal_spin);
@@ -87,6 +90,7 @@ namespace rm_behavior_tree{
             this->get_parameter("tracking_scope", tracking_scope);
             this->get_parameter("gimbal_angular_vel", gimbal_angular_vel);
             this->get_parameter("chassis_angular_vel", chassis_angular_vel);
+            this->get_parameter("plan", plan);
             blackboard_->set<bool>("en_test", en_test);
             blackboard_->set<bool>("en_instaRes", en_instaRes);
             blackboard_->set<bool>("en_gimbal_spin", en_gimbal_spin);
@@ -100,6 +104,7 @@ namespace rm_behavior_tree{
             blackboard_->set<std::string>("game_stage", "not_started");
             blackboard_->set<int>("res_count", 0); // 累积复活次数
             blackboard_->set<bool>("initial_set_param_rotation", false);
+            blackboard_->set<std::string>("plan",plan);
 
             // For Sentrycmd
             blackboard_->set<uint8_t>("confirmRes", 0);
@@ -177,6 +182,8 @@ namespace rm_behavior_tree{
             this->load_plugins();
             if(blackboard_->get<bool>("en_test")){
                 factory.registerBehaviorTreeFromFile(test_tree_path);
+            } else if(blackboard_->get<std::string>("plan") == "A"){
+                factory.registerBehaviorTreeFromFile(Atree_path);
             } else {
                 factory.registerBehaviorTreeFromFile(tree_path);
             }

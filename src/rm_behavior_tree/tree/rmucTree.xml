@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <BehaviorTree ID="maintree">
+  <BehaviorTree ID="mainTree">
     <Sequence>
       <!-- 设云台转速与小陀螺转速，通过标志位en_gimble_spin和en_chassis_spin -->
       <SetOwnStatus/>
