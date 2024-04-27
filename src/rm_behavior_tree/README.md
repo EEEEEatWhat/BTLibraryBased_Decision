@@ -46,7 +46,7 @@ ps. 先挖点坑有时间就填
 
     **解决方案**：在自启动指令中先添加上述export指令再启动决策的launch文件。
 
-**ps:** 这样把环境变量加来加去好像有点太shi了，故采用ament_cmake_auto。
+**ps:** 这样把环境变量加来加去好像有点太shi了，故采用**ament_cmake_auto**。
 <br>
 （具体参考本仓库中rm_behavior_tree功能包中的CmakeLists.txt，从此摆脱环境变量的魔咒!!!）
 </br>
