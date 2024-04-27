@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="mainTree">
+    <Sequence>
+      <!-- 设云台转速与小陀螺转速，通过标志位en_gimble_spin和en_chassis_spin -->
+      <!-- 比赛未开始时开启低速小陀螺和云台转速 -->
+      <SetOwnStatus/>
+      <!-- 检查比赛是否开始 -->
+      <GameStatusCheck/>
+      <!-- 检查是否已阵亡 -->
+      <IfThenElse>
+        <Inverter>
+          <IsDeadCheck/>
+        <Inverter/>
+        <!-- 在yaml文件中设置en_instaRes为true可启动兑换复活, 否则默认读条复活 -->
+        <Sequence>
+          <RebornNow/>
+          <SendSentrycmd topic_name="/sentry_cmd"/>
+        </Sequence>
+        <!-- 重置决策指令中的复活信息防止一直给裁判系统发申请复活 -->
+        <Sequence>
+          <ResetResData/>
+          <SendSentrycmd topic_name="/sentry_cmd"/>
+        </Sequence>
+      </IfThenElse>
+      <!-- 检查是否复活成功 -->
+      <IsDeadCheck/>
+      <!-- 检查血量是否低于阈值，低于的话前往补给区并在补给区等侯4秒 -->
+      <Fallback>
+        <HPCheck hp_threshold="200"/>
+        <Inverter>
+          <SupplyZoneCheck/>
+        </Inverter>
+        <ReactiveSequence>
+          <!-- 前往补给区时的血量阈值为零，无需因血量过低而打断导航 -->
+          <Fallback>
+            <IsArrived goal_name="supply_zone_pose"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="supply_zone_pose"
+                      hp_threshold="0"/>
+          </Fallback>
+          <FireOrSkip wait_time="4"/>
+        </ReactiveSequence>
+      </Fallback>
+      <!-- 通过订阅视觉话题获取当前是否发现敌方车，如果未发现或敌方车已在追踪范围（5m）则行为树等待一秒 -->
+      <!-- 如果敌方车在自身五米以外，移动到两车连线上距离敌方车5m的位置 -->
+      <!--  TODO： 至少比赛中期应该不需要追击 -->
+      <!-- TODO： 找时间测试追击效果 -->
+      <IfThenElse>
+        <CheckArmors topic_name="/tracker/target"/>
+        <FireOrSkip wait_time="1"/>
+        <Sequence>
+          <SetEnemyGoal/>
+          <SendGoal action_name="/BehaviorTreePose"
+                    goal_name="enemy_pose"
+                    hp_threshold="200"/>
+        </Sequence>
+      </IfThenElse>
+      <!-- 检查己方前哨站血量，如果小于50则将en_chassis_spin设为true，开启小陀螺，并回家 -->
+      <!-- TODO： 具体回哪里？ -->
+      <Fallback>
+        <OurOutpostCheck/>
+        <Sequence>
+          <SetOwnStatus/>
+          <Fallback>
+            <IsArrived goal_name="goal_pose"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="goal_pose"
+                      hp_threshold="0"/>
+          </Fallback>
+        </Sequence>
+      </Fallback>
+      <!-- 通过黑板中的game_stage判断比赛的三种阶段（game_stage将在前面的GameStatusCheck和OurOutpostCheck中修改值，初始值为"not_started"） -->
+      <!-- 比赛初期（started），前往goal_pose，在decision.yaml中给定 -->
+      <!-- 比赛中期，己方前哨站掉了之后去己方梯高守家 , 到达梯高后在梯高上巡逻（感觉不能巡逻）-->
+      <!-- 比赛后期：执行云台手指令 -->
+      <Switch3 case_1="started"
+                case_2="running"
+                case_3="last_stage"
+                variable="{game_stage}">
+          <Fallback>
+            <IsArrived goal_name="goal_pose"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="goal_pose"
+                      hp_threshold="200"/>
+          </Fallback>
+          <IfThenElse>
+              <IsArrived goal_name="keystone_heights_pose"/>
+              <SendGoal action_name="/BehaviorTreePose"
+                        goal_name="patrol_points"
+                        hp_threshold="200"/>
+              <SendGoal action_name="/BehaviorTreePose"
+                        goal_name="keystone_heights_pose"
+                        hp_threshold="200"/>
+          </IfThenElse>
+          <ExecuteCommand/>
+          <FireOrSkip wait_time="1"/>
+      </Switch3>
+      <!-- TODO： 什么时候兑换发弹量，已知初始允许发弹量为400 -->
+      </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="CheckArmors"
+            editable="true">
+      <input_port name="topic_name"
+                  default="/tracker/target"/>
+    </Action>
+    <Action ID="ExecuteCommand"
+            editable="true"/>
+    <Action ID="FireOrSkip"
+            editable="true">
+      <input_port name="wait_time"
+                  default="1"/>
+    </Action>
+    <Action ID="GainBlood"
+            editable="true"/>
+    <Condition ID="GameLastStage"
+              editable="true"/>
+    <Condition ID="GameRunning"
+              editable="true"/>
+    <Condition ID="GameStatusCheck"
+              editable="true"/>
+    <Action ID="GoEnemyDoor"
+            editable="true"/>
+    <Action ID="GoEnemyNearby"
+            editable="true"/>
+    <Action ID="GoEnemyOutpost"
+            editable="true"/>
+    <Action ID="GoKeystoneHeights"
+            editable="true"/>
+    <Action ID="GoOurOutpost"
+            editable="true"/>
+    <Condition ID="HPCheck"
+              editable="true">
+      <input_port name="hp_threshold"
+                  default="200"/>
+    </Condition>
+    <Condition ID="IfFindEnemy"
+              editable="true"/>
+    <Condition ID="IfGoEnemyDoor"
+              editable="true"/>
+    <Condition ID="IfGoEnemyOutpost"
+              editable="true"/>
+    <Condition ID="IfGoKeystoneHeights"
+              editable="true"/>
+    <Condition ID="IfGoOurOutpost"
+              editable="true"/>
+    <Condition ID="IsArrived"
+              editable="true"/>
+    <Condition ID="IsDeadCheck"
+              editable="true"/>
+    <Condition ID="IsOpenStageStrategySet"
+              editable="true"/>
+    <Condition ID="IsSetGameStatusAsLast"
+              editable="true"/>
+    <Condition ID="NavStatus"
+              editable="true"/>
+    <Condition ID="OurOutpostCheck"
+              editable="true"/>
+    <Action ID="Patrol"
+            editable="true"/>
+    <Condition ID="RebornNow"
+              editable="true"/>
+    <Condition ID="ResetResData"
+              editable="true"/>
+    <Action ID="SearchEnemy"
+            editable="true"/>
+    <Action ID="SendGoal"
+            editable="true"/>
+      <input_port name="action_name"
+            default="/BehaviorTreePose"/>
+      <input_port name="goal_name"
+            default="home_pose"/>
+    <Action ID="SendSentrycmd"
+            editable="true">
+      <input_port name="topic_name"
+                  default="/sentry_cmd"/>
+    </Action>
+    <Condition ID="SetEnemyGoal"
+              editable="true"/>
+    <Action ID="SetOwnStatus"
+            editable="true"/>
+    <Condition ID="SetSupplyGoal"
+              editable="true"/>
+    <Condition ID="SupplyZoneCheck"
+              editable="true"/>
+  </TreeNodesModel>
+
+</root>
