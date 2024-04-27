@@ -30,8 +30,14 @@ namespace rm_behavior_tree{
         uint16_t current_hp = blackboard_->get<uint16_t>("RobotStatusStruct.current_HP");
         if(current_hp == 0){
             RCLCPP_INFO(node_->get_logger(),"has been dead, try to reborn...");
+            if(blackboard_->get<std::string>("own_status") == "alive"){
+                blackboard_->set<std::string>("own_status","activated_reborn");
+            } else {
+                blackboard_->set<std::string>("own_status","reborning");
+            }
             return BT::NodeStatus::FAILURE;
         }
+        blackboard_->set<std::string>("own_status","alive");
         return BT::NodeStatus::SUCCESS;
     } 
 

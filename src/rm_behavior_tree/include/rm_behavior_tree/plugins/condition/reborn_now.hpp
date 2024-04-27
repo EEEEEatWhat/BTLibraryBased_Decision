@@ -26,7 +26,9 @@ namespace rm_behavior_tree{
             RCLCPP_INFO(node_->get_logger(),"res_count >= 4, can't reborn...");
             return BT::NodeStatus::FAILURE;
         }
-        blackboard_->set<int>("res_count", last_res_count+1);
+        if(blackboard_->get<std::string>("own_status") == "activated_reborn"){
+            blackboard_->set<int>("res_count", last_res_count+1);
+        }
         if(blackboard_->get<bool>("en_instaRes")){
             RCLCPP_INFO(node_->get_logger(),"set instant reborn...");
             blackboard_->set<uint8_t>("confirmInstaRes",1);

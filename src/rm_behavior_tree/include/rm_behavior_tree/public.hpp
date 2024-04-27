@@ -94,9 +94,7 @@ namespace rm_behavior_tree{
         std::vector<rclcpp::Parameter> params;
         auto node_ = blackboard_->get<rclcpp::Node::SharedPtr>("decision_node");
         param_client_ = std::make_shared<rclcpp::SyncParametersClient>(node_, "serial_driver");
-        // if(blackboard_->get<bool>("initial_set_param_rotation")){
-        //     return;
-        // }
+
         if (!param_client_->service_is_ready()){
             RCLCPP_WARN(node_->get_logger(), "Service not ready, skipping parameter set");
             return;
@@ -108,7 +106,6 @@ namespace rm_behavior_tree{
         } else {
             RCLCPP_INFO(node_->get_logger(),"Failed to set rotation parameter");
         }
-        blackboard_->set<bool>("initial_set_param_rotation", true);
     }
 
 }

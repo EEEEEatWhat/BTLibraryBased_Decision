@@ -2,13 +2,14 @@
     ros__parameters:
         en_test: true
         en_instaRes: false # 是否启用兑换复活
-        en_gimbal_spin: true   
-        en_chassis_spin: true 
+        en_gimbal_spin: true   # 比赛期间始终默认为true
+        en_chassis_spin: true  # A方案默认为true，B方案默认为false
         hp_threshold: 200
         en_chase_enemy: false
         tracking_scope: 5.0
         gimbal_angular_vel: 1.2
         chassis_angular_vel: 6
+        chassis_angular_vel_slow: 3
         plan: "A"
         home_pose:  # 原地
             x: 0.0
