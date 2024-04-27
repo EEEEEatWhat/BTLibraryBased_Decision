@@ -49,6 +49,7 @@
         <OurOutpostCheck/>
         <SetOwnStatus/>
       </Fallback>
+      <!-- 保证补血后能回到巡逻区 -->
       <Fallback>
         <IsArrived goal_name="home_pose"/>
         <SendGoal action_name="/BehaviorTreePose"

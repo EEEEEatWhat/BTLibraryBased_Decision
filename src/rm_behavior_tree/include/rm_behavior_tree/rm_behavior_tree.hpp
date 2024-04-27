@@ -66,7 +66,6 @@ namespace rm_behavior_tree{
             bool en_instaRes;
             bool en_gimbal_spin;
             bool en_chassis_spin;
-            uint16_t hp_threshold;
             bool en_chase_enemy;
             double tracking_scope;
             double gimbal_angular_vel;
@@ -77,7 +76,6 @@ namespace rm_behavior_tree{
             this->declare_parameter("en_instaRes", false);
             this->declare_parameter("en_gimbal_spin", true);
             this->declare_parameter("en_chassis_spin", true);
-            this->declare_parameter("hp_threshold", 100);
             this->declare_parameter("en_chase_enemy", false);
             this->declare_parameter("tracking_scope", 5.0);
             this->declare_parameter("gimbal_angular_vel", 1.2);
@@ -88,7 +86,6 @@ namespace rm_behavior_tree{
             this->get_parameter("en_instaRes", en_instaRes);
             this->get_parameter("en_gimbal_spin", en_gimbal_spin);
             this->get_parameter("en_chassis_spin", en_chassis_spin);
-            this->get_parameter("hp_threshold", hp_threshold);
             this->get_parameter("en_chase_enemy", en_chase_enemy);
             this->get_parameter("tracking_scope", tracking_scope);
             this->get_parameter("gimbal_angular_vel", gimbal_angular_vel);
@@ -99,7 +96,6 @@ namespace rm_behavior_tree{
             blackboard_->set<bool>("en_instaRes", en_instaRes);
             blackboard_->set<bool>("en_gimbal_spin", en_gimbal_spin);
             blackboard_->set<bool>("en_chassis_spin", en_chassis_spin);
-            blackboard_->set<uint16_t>("hp_threshold", hp_threshold);
             blackboard_->set<bool>("en_chase_enemy", en_chase_enemy);
             blackboard_->set<double>("tracking_scope", tracking_scope);
             blackboard_->set<double>("gimbal_angular_vel", gimbal_angular_vel);

@@ -6,13 +6,14 @@
 3. https://github.com/BehaviorTree/BehaviorTree.ROS2 源码及其issue（关键）
 4. https://www.google.co.jp/ （google但大概率搜不到什么有用的）
 
-故在此记录本人遇到的一些坑，减少他人踩坑浪费的时间
+故在此记录一些tips
 
 ## Start Here
 ps. 先挖点坑有时间就填
 ### 关于SwitchNode
 
 ### 将编写的节点导出为插件并在决策节点中加载
+对于采用ament_cmake构建的功能包
 1. 在cpp文件中使用宏(``BT_REGISTER_NODES``或``CreateRosNodePlugin``)将已编写的行为树(action或condition)节点导出为Plugin
 2. 修改Cmakelists.txt:
     <br>在add_executable之前将导出的Plugin添加为插件库,例如:<br/>
@@ -45,4 +46,12 @@ ps. 先挖点坑有时间就填
 
     **解决方案**：在自启动指令中先添加上述export指令再启动决策的launch文件。
 
+**ps:** 这样把环境变量加来加去好像有点太shi了，故采用ament_cmake_auto。
+<br>
+（具体参考本仓库中rm_behavior_tree功能包中的CmakeLists.txt，从此摆脱环境变量的魔咒!!!）
+</br>
+
+
 ### 关于StatefulActionNode
+### 关于RosActionNode中取消目标
+<br>通常``onFeedback``函数返回``RUNNING``，如果需要取消目标，则在该函数中返回``SUCCESS``或``FAILURE``，取消请求将被自动送到服务端执行取消行为。</br>

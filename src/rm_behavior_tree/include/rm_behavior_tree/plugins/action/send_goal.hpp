@@ -106,7 +106,7 @@ namespace rm_behavior_tree{
             getInput("hp_threshold", hp_threshold);
             if(current_hp < hp_threshold){
                 RCLCPP_INFO(node_->get_logger(),"当前血量：%u,血量低于预设的%u.",current_hp,hp_threshold);
-                // BT::RosActionNode<global_interfaces::action::BehaviorTreePose>::halt();
+                // cancel goal 直接在feedback里面返回FAILURE或SUCCESS
                 return BT::NodeStatus::FAILURE;
             }
             return BT::NodeStatus::RUNNING;
