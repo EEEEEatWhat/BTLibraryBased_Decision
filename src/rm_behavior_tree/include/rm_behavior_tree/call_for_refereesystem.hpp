@@ -8,6 +8,17 @@
 #include "RefereeSystem/DataType.h"
 
 namespace rm_behavior_tree {
+#pragma pack(push, 1) 
+struct BehaviorTopicMsg {
+    struct target_t {
+        float x;
+        float y;
+    }target;
+    uint8_t GameForceStart:4;
+    uint8_t tracking:4;
+};
+#pragma pack(pop)
+static_assert(sizeof(BehaviorTopicMsg) == 9);
     class CallForRefereeSystem
     {
     private:
@@ -81,6 +92,8 @@ namespace rm_behavior_tree {
                 case 0x0202:
                     setPowerHeatData(result);
                     break;
+                case 0xAFF:
+                    setBehaviorTopicMsg(result);
                 default:
                     break;
                 }
@@ -126,8 +139,8 @@ namespace rm_behavior_tree {
                 blackboard_->set<uint16_t>("GameRobotHPStruct.blue_4_robot_HP", struct_.blue_4_robot_HP);
                 blackboard_->set<uint16_t>("GameRobotHPStruct.blue_5_robot_HP", struct_.blue_5_robot_HP);
                 blackboard_->set<uint16_t>("GameRobotHPStruct.blue_7_robot_HP", struct_.blue_7_robot_HP);
-                blackboard_->set<uint16_t>("GameRobotHPStruct.blue_base_HP", struct_.blue_outpost_HP);
-                blackboard_->set<uint16_t>("GameRobotHPStruct.red_outpost_HP", struct_.blue_base_HP);
+                blackboard_->set<uint16_t>("GameRobotHPStruct.blue_base_HP", struct_.blue_base_HP);
+                blackboard_->set<uint16_t>("GameRobotHPStruct.blue_outpost_HP", struct_.blue_outpost_HP);
                 return true;
             }
             return false;
@@ -248,6 +261,19 @@ namespace rm_behavior_tree {
             }
             return false;
         };
+
+        bool setBehaviorTopicMsg(std::shared_ptr<my_msg_interface::srv::RefereeMsg_Response> result){
+            BehaviorTopicMsg struct_;
+            std::memcpy(&struct_, result->data_stream.data(), static_cast<size_t>(result->data_length));
+            if(result->cmd_id == cmd_id_req) {
+                blackboard_->set<float>("BehaviorTopicMsg.target.x", struct_.target.x);
+                blackboard_->set<float>("BehaviorTopicMsg.target.y", struct_.target.y);
+                blackboard_->set<uint8_t>("BehaviorTopicMsg.GameForceStart", struct_.GameForceStart);
+                blackboard_->set<uint8_t>("BehaviorTopicMsg.tracking", struct_.tracking);
+                return true;
+            }
+            return false;
+        }
 
 
         ~CallForRefereeSystem(){};

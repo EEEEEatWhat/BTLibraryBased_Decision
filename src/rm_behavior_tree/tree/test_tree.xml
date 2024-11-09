@@ -1,24 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
   <BehaviorTree ID="mainTree">
-    <Sequence>
-      <SetOwnStatus topic_name="cmd_vel"/>
-      <!-- <HPCheck hp_threshold="200"/> -->
-      <CheckArmors topic_name="/tracker/target"/>
-      <SendGoal action_name="/BehaviorTreePose"
-                goal_name="patrol_points"
-                hp_threshold="200"
-                patrol_num="2"/>
-      <FireOrSkip wait_time="1"/>
-    </Sequence>
+      <ReactiveSequence>
+        <ChassisSpin chassis_angular_vel="3"
+                      _while="nav_mode==true"/>
+                      <!-- _while="(game_stage==&quot;not_started&quot; || game_stage==&quot;started&quot;) &amp;&amp;our_outpost_hp!=0  &amp;&amp; nav_mode==true"/> -->
+        <ChassisSpin chassis_angular_vel="0"
+                      _while="nav_mode==false"/>
+        <!-- <ChassisSpin chassis_angular_vel="6"
+                      _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp==0"/> -->
+        <!-- <GameStatusCheck/>
+        <IfThenElse>
+          <Inverter>
+            <IsDeadCheck/>
+          </Inverter>
+          <Sequence>
+            <RebornNow/>
+            <SendSentrycmd topic_name="/sentry_cmd"/>
+          </Sequence>
+          <Sequence>
+            <ResetResData/>
+            <SendSentrycmd topic_name="/sentry_cmd"/>
+          </Sequence>
+        </IfThenElse>
+        <IsDeadCheck/>
+        <CheckShooterStatus shooter_status="{shooter_status}"/> -->
+        <!-- <Fallback>
+          <HPCheck hp_threshold="200"
+                   need_supply="{need_supply}"/>
+          <Fallback>
+            <Inverter>
+              <IsArrived goal_name="supply_zone_pose"/>
+            </Inverter>
+            <FireOrSkip wait_time="4"/>
+          </Fallback>
+        </Fallback> -->
+        <!-- <OurOutpostCheck our_outpost_hp="{our_outpost_hp}"/>
+        <CheckBullet en_bullet_supply="{en_bullet_supply}"/> -->
+        <!-- <IfThenElse _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp&gt;300">
+            <IsArrived goal_name="enemy_outpost_pose"/>
+            <ChassisSpin chassis_angular_vel="0"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                  goal_name="enemy_outpost_pose"
+                  hp_threshold="0"
+                  patrol_num="0"/>
+        </IfThenElse>
+        <SendGoal action_name="/BehaviorTreePose"
+                  goal_name="home"
+                  hp_threshold="0"
+                  patrol_num="0"
+                  _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp&lt;=300 &amp;&amp; nav_mode==true"/> -->
+                  <!-- _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp&lt;=300 &amp;&amp; nav_mode==true &amp;&amp; need_supply==false"/> -->
+        <!-- <SendGoal action_name="/BehaviorTreePose"
+                  goal_name="supply_zone_pose"
+                  hp_threshold="0"
+                  patrol_num="0"
+                  _while="game_stage==&quot;started&quot; &amp;&amp; nav_mode==true &amp;&amp; need_supply==true"/> -->
+        <SendGoal action_name="/BehaviorTreePose"
+                  goal_name="patrol_points"
+                  hp_threshold="0"
+                  patrol_num="2"
+                  _while="nav_mode==true"/>
+                  <!-- _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp&gt;300 &amp;&amp; nav_mode==true "/> -->
+        <!-- <Nav2Pose goal_name="patrol_points"
+                  patrol_num="2"
+                  _while="nav_mode==true"/> -->
+        <FireOrSkip wait_time="5"
+                    _while="nav_mode == false "/>
+        <!-- <Nav2Pose goal_name="patrol_points"
+                  patrol_num="2"
+                  _while="(game_stage==&quot;not_started&quot; || plan==&quot;A&quot; || our_outpost_hp&lt;=300) &amp;&amp; nav_mode==true &amp;&amp; need_supply==false"/>
+        <Nav2Pose goal_name="hero_patrol_points"
+                  patrol_num="2"
+                  _while="plan==&quot;B&quot; &amp;&amp; game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp&gt;300 &amp;&amp; nav_mode==true &amp;&amp; need_supply==false"/>
+        <Nav2Pose goal_name="supply_zone_pose"
+                  patrol_num="0"
+                  _while="(shooter_status==&quot;lock&quot; || need_supply==true || en_bullet_supply==true) &amp;&amp; nav_mode==true"/> -->
+        <!-- <Fallback _while=" game_stage==&quot;started&quot;"> -->
+            <!-- <IsArrived goal_name="enemy_outpost_pose"/> -->
+        <!-- <Nav2Pose goal_name="patrol_points"
+                  patrol_num="2"
+                  _while="nav_mode==true "/> -->
+        <!-- </Fallback> -->
+      </ReactiveSequence>
   </BehaviorTree>
 
-  <!-- Description of Node Models (used by Groot) -->
-  <TreeNodesModel>
-    <Condition ID="GameStatusCheck"
-               editable="true"/>
-    <Action ID="SendGoal"
-            editable="true"/>
-  </TreeNodesModel>
 
 </root>

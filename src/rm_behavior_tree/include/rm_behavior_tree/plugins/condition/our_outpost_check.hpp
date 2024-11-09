@@ -18,7 +18,9 @@ namespace rm_behavior_tree{
     }
 
     static BT::PortsList providedPorts(){
-        return {};
+        return {
+            BT::OutputPort<int>("our_outpost_hp"),
+        };
     };
 
     BT::NodeStatus check_our_outpost(){
@@ -34,12 +36,9 @@ namespace rm_behavior_tree{
         } else {
             outpost_hp = blackboard_->get<uint16_t>("GameRobotHPStruct.blue_outpost_HP");
         }
-        if(outpost_hp < 50){
-            RCLCPP_INFO(node_->get_logger(),"Our outpost will be destroyed right now!");
-            blackboard_->set<bool>("en_chassis_spin",true);
-            blackboard_->set<std::string>("game_stage","running");
-            return BT::NodeStatus::FAILURE;
-        }
+        setOutput("our_outpost_hp", outpost_hp);
+        RCLCPP_INFO(node_->get_logger(),"outpost hp :%d",outpost_hp);
+
         return BT::NodeStatus::SUCCESS;
     }
 

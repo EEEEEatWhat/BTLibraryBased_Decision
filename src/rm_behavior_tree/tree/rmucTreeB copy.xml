@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <!-- 最保守方案: 在自家巡逻区守家, 血量低于200时去补给区补血, 阵亡后向裁判系统发复活指令 -->
+  <BehaviorTree ID="mainTree">
+    <Sequence>
+      <!-- 设云台转速与小陀螺转速，通过标志位en_gimble_spin和en_chassis_spin, 保证至少能小陀螺和搜敌 -->
+      <!-- 开局无敌时需要开小陀螺吗?比赛未开始时需要先低速小陀螺吗? -->
+      <SetOwnStatus topic_name="cmd_vel"/>
+      <!-- 检查云台手是否发指令 -->
+      <!-- <Fallback>
+        <Inverter>
+          <CheckAerialCmd/>
+        </Inverter>
+        <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="aerial_target_pose"
+                      hp_threshold="0"
+                      patrol_num="0"/>
+      </Fallback> -->
+      <!-- 检查比赛是否开始( ps:在保守方案下似乎不需要确认比赛已开始 ) -->
+      <GameStatusCheck/>
+      <Fallback>
+        <CheckGameStarted/>
+        <SendGoal action_name="/BehaviorTreePose"
+                        goal_name="patrol_points"
+                        hp_threshold="200"
+                        patrol_num="2"/>
+      </Fallback>
+      <SetOwnStatus topic_name="cmd_vel"/>
+      <!-- 检查是否已阵亡 -->
+      <IfThenElse>
+        <Inverter>
+          <IsDeadCheck/>
+        </Inverter>
+        <!-- 在yaml文件中设置en_instaRes为true可启动兑换复活, 否则默认读条复活 -->
+        <Sequence>
+          <RebornNow/>
+          <SendSentrycmd topic_name="/sentry_cmd"/>
+        </Sequence>
+        <!-- 重置决策指令中的复活信息防止一直给裁判系统发申请复活 -->
+        <Sequence>
+          <ResetResData/>
+          <SendSentrycmd topic_name="/sentry_cmd"/>
+        </Sequence>
+      </IfThenElse>
+      <!-- 检查是否复活成功, 若复活成功，前往补给区刷rfid解锁发射机构 -->
+      <IsDeadCheck/>
+      <Fallback>
+        <CheckShooterStatus/>
+        <SendGoal action_name="/BehaviorTreePose" 
+                      goal_name="supply_zone_pose"
+                      hp_threshold="0"
+                      patrol_num="0"/>
+      </Fallback>
+      <!-- 检查血量是否低于阈值，低于的话前往补给区并在补给区等侯4秒 -->
+      <Fallback>
+        <HPCheck hp_threshold="200"/>
+        <!-- <Inverter>
+          <SupplyZoneCheck/>
+        </Inverter> -->
+        <ReactiveSequence>
+          <!-- 前往补给区时的血量阈值为零，无需因血量过低而打断导航 -->
+          <Fallback>
+            <IsArrived goal_name="supply_zone_pose"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                      goal_name="supply_zone_pose"
+                      hp_threshold="0"
+                      patrol_num="0"/>
+          </Fallback>
+          <FireOrSkip wait_time="4"/>
+        </ReactiveSequence>
+      </Fallback>
+      <!-- 检查己方前哨站血量，如果小于500认为比赛进入中期，回家 -->
+      <Fallback>
+        <OurOutpostCheck/>
+        <SetOwnStatus topic_name="cmd_vel"/>
+      </Fallback>
+      <!-- 保证补血后能回到巡逻区 -->
+      <Switch3 case_1="started"
+                case_2="running"
+                case_3="finished"
+                variable="{game_stage}">
+            <SendGoal action_name="/BehaviorTreePose"
+                        goal_name="hero_patrol_points"
+                        hp_threshold="200"
+                        patrol_num="2"/>
+            <SendGoal action_name="/BehaviorTreePose"
+                        goal_name="patrol_points"
+                        hp_threshold="200"
+                        patrol_num="2"/>
+            <Fallback>
+              <IsArrived goal_name="home_pose"/>
+              <SendGoal action_name="/BehaviorTreePose"
+                        goal_name="home_pose"
+                        hp_threshold="0"
+                        patrol_num="0"/>
+            </Fallback>
+            <FireOrSkip wait_time="1"/>
+        </Switch3>
+        <!-- 到点之后停五秒并实时监测 -->
+        <Repeat num_cycles="5">
+          <Sequence>
+            <SetOwnStatus topic_name="cmd_vel"/>
+            <!-- 检查是否已阵亡 -->
+            <IfThenElse>
+              <Inverter>
+                <IsDeadCheck/>
+              </Inverter>
+              <!-- 在yaml文件中设置en_instaRes为true可启动兑换复活, 否则默认读条复活 -->
+              <Sequence>
+                <RebornNow/>
+                <SendSentrycmd topic_name="/sentry_cmd"/>
+              </Sequence>
+              <!-- 重置决策指令中的复活信息防止一直给裁判系统发申请复活 -->
+              <Sequence>
+                <ResetResData/>
+                <SendSentrycmd topic_name="/sentry_cmd"/>
+              </Sequence>
+            </IfThenElse>
+            <!-- 检查是否复活成功, 若复活成功，前往补给区刷rfid解锁发射机构 -->
+            <IsDeadCheck/>
+            <Fallback>
+              <CheckShooterStatus/>
+              <SendGoal action_name="/BehaviorTreePose" 
+                            goal_name="supply_zone_pose"
+                            hp_threshold="0"
+                            patrol_num="0"/>
+            </Fallback>
+            <Fallback>
+              <OurOutpostCheck/>
+              <SetOwnStatus topic_name="cmd_vel"/>
+            </Fallback>
+            <Fallback>
+              <HPCheck hp_threshold="200"/>
+              <!-- <Inverter>
+                <SupplyZoneCheck/>
+              </Inverter> -->
+              <ReactiveSequence>
+                <!-- 前往补给区时的血量阈值为零，无需因血量过低而打断导航 -->
+                <Fallback>
+                  <IsArrived goal_name="supply_zone_pose"/>
+                  <SendGoal action_name="/BehaviorTreePose"
+                            goal_name="supply_zone_pose"
+                            hp_threshold="0"
+                            patrol_num="0"/>
+                </Fallback>
+                <FireOrSkip wait_time="4"/>
+              </ReactiveSequence>
+            </Fallback>
+            <FireOrSkip wait_time="1"/>
+          </Sequence>
+        </Repeat>
+      <!-- TODO： 什么时候兑换发弹量，已知初始允许发弹量为400 -->
+      </Sequence>
+  </BehaviorTree>
+</root>

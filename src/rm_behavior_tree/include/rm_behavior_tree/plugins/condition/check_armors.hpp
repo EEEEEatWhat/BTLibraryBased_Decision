@@ -24,6 +24,7 @@ namespace rm_behavior_tree{
     }
 
     void target_callback(const auto_aim_interfaces::msg::Target::SharedPtr msg){
+        RCLCPP_INFO(rclcpp::get_logger("TEST"),"11111");
         if(msg->id != ""){
             blackboard_->set<std::string>("target_id", msg->id);
             get_enemy_pose(blackboard_, msg);
@@ -42,7 +43,7 @@ namespace rm_behavior_tree{
             RCLCPP_INFO(node_->get_logger(),"find enemy %s...", id.c_str());
             if(blackboard_->get<bool>("en_chase_enemy")){
                 RCLCPP_INFO(node_->get_logger(),"chase enemy mode ...");
-                get_my_pose(blackboard_);
+                get_my_pose(blackboard_, node_);
                 auto enemy_x = blackboard_->get<double>("enemy_x");
                 auto enemy_y = blackboard_->get<double>("enemy_y");
                 auto my_x = blackboard_->get<double>("my_x");

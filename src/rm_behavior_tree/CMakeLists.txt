@@ -31,7 +31,7 @@ set(PACKAGE_INCLUDE_DEPENDS
     geometry_msgs
     global_interfaces
     my_msg_interface
-    auto_aim_interfaces
+    # auto_aim_interfaces
 )
 
 # 定义宏函数 add_target_dependencies
@@ -58,10 +58,18 @@ ament_auto_add_library(supply_zone_check SHARED
     plugins/condition/supply_zone_check.cpp
 )
 add_target_dependencies(supply_zone_check)
-ament_auto_add_library(check_armors SHARED 
-    plugins/condition/check_armors.cpp
+ament_auto_add_library(check_bullet SHARED 
+    plugins/condition/check_bullet.cpp
 )
-add_target_dependencies(check_armors)
+add_target_dependencies(check_bullet)
+# ament_auto_add_library(armors_check SHARED 
+#     plugins/action/armors_check.cpp
+# )
+# add_target_dependencies(armors_check)
+ament_auto_add_library(check_aerial_cmd SHARED 
+    plugins/condition/check_aerial_cmd.cpp
+)
+add_target_dependencies(check_aerial_cmd)
 ament_auto_add_library(is_dead_check SHARED 
     plugins/condition/is_dead_check.cpp
 )
@@ -86,10 +94,14 @@ ament_auto_add_library(our_outpost_check SHARED
     plugins/condition/our_outpost_check.cpp
 )
 add_target_dependencies(our_outpost_check)
-ament_auto_add_library(check_game_running SHARED 
-    plugins/condition/check_game_running.cpp
+ament_auto_add_library(check_game_started SHARED 
+    plugins/condition/check_game_started.cpp
 )
-add_target_dependencies(check_game_running)
+add_target_dependencies(check_game_started)
+ament_auto_add_library(check_shooter_status SHARED 
+    plugins/condition/check_shooter_status.cpp
+)
+add_target_dependencies(check_shooter_status)
 
 # Actions
 ament_auto_add_library(send_sentrycmd SHARED 
@@ -100,14 +112,30 @@ ament_auto_add_library(send_goal SHARED
     plugins/action/send_goal.cpp
 )
 add_target_dependencies(send_goal)
-ament_auto_add_library(set_own_status SHARED 
-    plugins/action/set_own_status.cpp
+ament_auto_add_library(gimbal_spin SHARED 
+    plugins/action/gimbal_spin.cpp
 )
-add_target_dependencies(set_own_status)
+add_target_dependencies(gimbal_spin)
+ament_auto_add_library(chassis_spin SHARED 
+    plugins/action/chassis_spin.cpp
+)
+add_target_dependencies(chassis_spin)
 ament_auto_add_library(fire_or_skip SHARED 
     plugins/action/fire_or_skip.cpp
 )
 add_target_dependencies(fire_or_skip)
+ament_auto_add_library(nav2pose SHARED 
+    plugins/action/nav2pose.cpp
+)
+add_target_dependencies(nav2pose)
+ament_auto_add_library(pub_goal SHARED 
+    plugins/action/pub_goal.cpp
+)
+add_target_dependencies(pub_goal)
+ament_auto_add_library(armors_check SHARED 
+    plugins/action/armors_check.cpp
+)
+add_target_dependencies(armors_check)
 
 ament_auto_package(
   INSTALL_TO_SHARE

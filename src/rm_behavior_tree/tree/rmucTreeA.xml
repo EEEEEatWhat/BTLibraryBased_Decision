@@ -1,63 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <!-- 最保守方案: 在自家巡逻区守家, 血量低于200时去补给区补血, 阵亡后向裁判系统发复活指令 -->
   <BehaviorTree ID="mainTree">
-    <Sequence>
-      <!-- 设云台转速与小陀螺转速，通过标志位en_gimble_spin和en_chassis_spin, 保证至少能小陀螺和搜敌 -->
-      <!-- 开局无敌时需要开小陀螺吗?比赛未开始时需要先低速小陀螺吗? -->
-      <SetOwnStatus/>
-      <!-- 检查比赛是否开始( ps:在保守方案下似乎不需要确认比赛已开始 ) -->
+    <!-- 开局上环高,前哨站掉了之后回启动区两点巡逻-->
+    <ReactiveSequence>
+      <ChassisSpin chassis_angular_vel="3"
+                      _while="nav_mode==true &amp;&amp; our_outpost_hp!=0"/>
+      <ChassisSpin chassis_angular_vel="0"
+                      _while="our_outpost_hp!=0 &amp;&amp; nav_mode==false"/>
+      <ChassisSpin chassis_angular_vel="6"
+                      _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp==0"/>
       <GameStatusCheck/>
-      <!-- 检查是否已阵亡 -->
       <IfThenElse>
         <Inverter>
           <IsDeadCheck/>
-        <Inverter/>
-        <!-- 在yaml文件中设置en_instaRes为true可启动兑换复活, 否则默认读条复活 -->
+        </Inverter>
         <Sequence>
           <RebornNow/>
           <SendSentrycmd topic_name="/sentry_cmd"/>
         </Sequence>
-        <!-- 重置决策指令中的复活信息防止一直给裁判系统发申请复活 -->
         <Sequence>
           <ResetResData/>
           <SendSentrycmd topic_name="/sentry_cmd"/>
         </Sequence>
       </IfThenElse>
-      <!-- 检查是否复活成功 -->
       <IsDeadCheck/>
-      <!-- 检查血量是否低于阈值，低于的话前往补给区并在补给区等侯4秒 -->
+      <CheckShooterStatus shooter_status="{shooter_status}"/>
       <Fallback>
-        <HPCheck hp_threshold="200"/>
-        <Inverter>
-          <SupplyZoneCheck/>
-        </Inverter>
-        <ReactiveSequence>
-          <!-- 前往补给区时的血量阈值为零，无需因血量过低而打断导航 -->
-          <Fallback>
+        <HPCheck hp_threshold="100"
+                  need_supply="{need_supply}"/>
+        <Fallback>
+          <Inverter>
             <IsArrived goal_name="supply_zone_pose"/>
-            <SendGoal action_name="/BehaviorTreePose"
-                      goal_name="supply_zone_pose"
-                      hp_threshold="0"
-                      patrol_num="0"/>
-          </Fallback>
+          </Inverter>
           <FireOrSkip wait_time="4"/>
-        </ReactiveSequence>
+        </Fallback>
       </Fallback>
-      <!-- 检查己方前哨站血量，如果小于50则将en_chassis_spin设为true，开启小陀螺 -->
-      <Fallback>
-        <OurOutpostCheck/>
-        <SetOwnStatus/>
-      </Fallback>
-      <!-- 保证补血后能回到巡逻区 -->
-      <Fallback>
-        <IsArrived goal_name="home_pose"/>
+      <OurOutpostCheck our_outpost_hp="{our_outpost_hp}"/>
+      <CheckBullet en_bullet_supply="{en_bullet_supply}"/>
+      <!-- 枪管锁定 或 需要补血 或 需要补弹 ——> 前往补给区 -->
+      <SendGoal action_name="/BehaviorTreePose"
+                  goal_name="supply_zone_pose"
+                  patrol_num="0"
+                  _while="game_stage==&quot;started&quot; &amp;&amp; nav_mode==true &amp;&amp; (shooter_status==&quot;lock&quot; || need_supply==true || en_bullet_supply==true)"/>
+      <!-- 开局上环高 -->
+      <Fallback _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp&gt;300">
+        <IsArrived goal_name="circular_highland_pose"/>
         <SendGoal action_name="/BehaviorTreePose"
-                  goal_name="home_pose"
-                  hp_threshold="200"
-                  patrol_num="0"/>
+              goal_name="circular_highland_pose"
+              patrol_num="0"/>
       </Fallback>
-      <!-- TODO： 什么时候兑换发弹量，已知初始允许发弹量为400 -->
-      </Sequence>
+      <!-- 准备阶段、我方前哨站血量低于300、自身无需补给 ——> 在启动区巡逻 -->
+      <SendGoal action_name="/BehaviorTreePose"
+              goal_name="home_patrol_points"
+              patrol_num="2"
+              _while="nav_mode==true &amp;&amp; our_outpost_hp&lt;=300 &amp;&amp; shooter_status==&quot;unlock&quot; &amp;&amp; need_supply==false &amp;&amp; en_bullet_supply==false"/>
+      <FireOrSkip wait_time="5"
+                  _while="nav_mode==false"/>        
+    </ReactiveSequence>
+    
   </BehaviorTree>
 </root>

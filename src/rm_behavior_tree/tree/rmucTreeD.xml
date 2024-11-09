@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="mainTree">
+    <!-- 在启动区两点巡逻-->
+    <ReactiveSequence>
+      <ChassisSpin chassis_angular_vel="6"/>
+      <GimbalSpin topic_name="/cmd_vel"
+                    en_gimbal_spin="false"/>    
+    </ReactiveSequence>
+  </BehaviorTree>
+</root>

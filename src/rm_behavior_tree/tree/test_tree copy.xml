@@ -2,16 +2,19 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="mainTree">
       <ReactiveSequence>
-        <gimbal_spin topic_name="/cmd_vel"
+        <GimbalSpin topic_name="/cmd_vel"
                       en_gimbal_spin="true"
                       _while="search_mode==true"/>
-        <gimbal_spin topic_name="/cmd_vel"
+        <GimbalSpin topic_name="/cmd_vel"
                       en_gimbal_spin="false"
                       _while="nav_mode==true"/>
-        <chassis_spin chassis_angular_vel="3"
-                      _while="game_stage==&quot;not_started&quot;"/>
-        <chassis_spin chassis_angular_vel="6"
-                      _while="our_outpose_hp==0"/>
+        <!-- <ChassisSpin chassis_angular_vel="3"
+                      _while="game_stage==&quot;not_started&quot;"/> -->
+        <!-- <ChassisSpin chassis_angular_vel="0"/> -->
+        <!-- <ChassisSpin chassis_angular_vel="0"
+                      _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp!=0"/> -->
+        <!-- <ChassisSpin chassis_angular_vel="6"
+                      _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp==0"/> -->
         <GameStatusCheck/>
         <IfThenElse>
           <Inverter>
@@ -38,19 +41,19 @@
             <FireOrSkip wait_time="4"/>
           </Fallback>
         </Fallback>
-        <OurOutpostCheck our_outpose_hp="{our_outpose_hp}"/>
-        <CheckBullet en_bullet_supply={en_bullet_supply}/>
+        <OurOutpostCheck our_outpost_hp="{our_outpost_hp}"/>
+        <CheckBullet en_bullet_supply="{en_bullet_supply}"/>
         <Nav2Pose goal_name="patrol_points"
                   patrol_num="2"
-                  _while="(game_stage==&quot;not_started&quot; || plan==&quot;A&quot; || our_outpose_hp&lt;=300) &amp;&amp; nav_mode==true &amp;&amp; need_supply==false"/>
+                  _while="(game_stage==&quot;not_started&quot; || plan==&quot;A&quot; || our_outpost_hp&lt;=300) &amp;&amp; nav_mode==true &amp;&amp; need_supply==false"/>
         <Nav2Pose goal_name="hero_patrol_points"
                   patrol_num="2"
-                  _while="plan==&quot;B&quot; &amp;&amp; game_stage==&quot;started&quot; &amp;&amp; our_outpose_hp&gt;300 &amp;&amp; nav_mode==true &amp;&amp; need_supply==false"/>
+                  _while="plan==&quot;B&quot; &amp;&amp; game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp&gt;300 &amp;&amp; nav_mode==true &amp;&amp; need_supply==false"/>
         <Nav2Pose goal_name="supply_zone_pose"
                   patrol_num="0"
                   _while="(shooter_status==&quot;lock&quot; || need_supply==true || en_bullet_supply==true) &amp;&amp; nav_mode==true"/>
-        <FireOrSkip wait_time="5"
-                    _while="search_mode == true &amp;&amp; need_supply==false"/>
+        <!-- <FireOrSkip wait_time="5"
+                    _while="search_mode == true &amp;&amp; need_supply==false"/> -->
       </ReactiveSequence>
   </BehaviorTree>
 

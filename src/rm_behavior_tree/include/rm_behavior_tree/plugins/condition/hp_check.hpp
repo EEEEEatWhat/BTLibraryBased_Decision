@@ -27,10 +27,19 @@ namespace rm_behavior_tree{
         uint16_t current_hp = blackboard_->get<uint16_t>("RobotStateStruct.current_HP");
         uint16_t hp_threshold;
         getInput("hp_threshold", hp_threshold);
+        if(blackboard_->get<int>("res_count") == 0){
+            if(current_hp < 100){
+                setOutput("need_supply", true);
+                RCLCPP_INFO(node_->get_logger(),"当前血量：%u,未复活，低于100.",current_hp);
+                return BT::NodeStatus::FAILURE;
+            }
+        }
         if(current_hp < hp_threshold){
+            setOutput("need_supply", true);
             RCLCPP_INFO(node_->get_logger(),"当前血量：%u,血量低于预设的%u.",current_hp,hp_threshold);
             return BT::NodeStatus::FAILURE;
         }
+        setOutput("need_supply", false);
         RCLCPP_INFO(node_->get_logger(),"current HP:%u",current_hp);
         return BT::NodeStatus::SUCCESS;
     }
@@ -38,8 +47,10 @@ namespace rm_behavior_tree{
     static BT::PortsList providedPorts()
     {
         return {
-        BT::InputPort<uint16_t>("hp_threshold")};
-    }
+            BT::InputPort<uint16_t>("hp_threshold"),
+            BT::OutputPort<bool>("need_supply"),
+        };
+    };
 
     };
 }  // namespace rm_behavior_tree

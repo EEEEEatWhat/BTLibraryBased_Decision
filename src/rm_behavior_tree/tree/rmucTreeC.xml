@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
   <BehaviorTree ID="mainTree">
-    <!-- 开局站飞坡增益点, 前哨站掉了之后回启动区两点巡逻-->
+    <!-- 在启动区两点巡逻-->
     <ReactiveSequence>
       <ChassisSpin chassis_angular_vel="3"
                       _while="nav_mode==true &amp;&amp; our_outpost_hp!=0"/>
@@ -42,18 +42,11 @@
                   goal_name="supply_zone_pose"
                   patrol_num="0"
                   _while="game_stage==&quot;started&quot; &amp;&amp; nav_mode==true &amp;&amp; (shooter_status==&quot;lock&quot; || need_supply==true || en_bullet_supply==true)"/>
-      <!-- 开局站飞坡增益点打前哨站 -->
-      <Fallback _while="game_stage==&quot;started&quot; &amp;&amp; our_outpost_hp&gt;300">
-        <IsArrived goal_name="attack_enemy_outpost_pose"/>
-        <SendGoal action_name="/BehaviorTreePose"
-              goal_name="attack_enemy_outpost_pose"
-              patrol_num="0"/>
-      </Fallback>
-      <!-- 准备阶段、我方前哨站血量低于300、自身无需补给 ——> 在启动区巡逻 -->
+      <!-- 在启动区巡逻 -->
       <SendGoal action_name="/BehaviorTreePose"
               goal_name="home_patrol_points"
               patrol_num="2"
-              _while="nav_mode==true &amp;&amp; our_outpost_hp&lt;=300 &amp;&amp; shooter_status==&quot;unlock&quot; &amp;&amp; need_supply==false &amp;&amp; en_bullet_supply==false"/>
+              _while="nav_mode==true &amp;&amp; shooter_status==&quot;unlock&quot; &amp;&amp; need_supply==false &amp;&amp; en_bullet_supply==false"/>
       <FireOrSkip wait_time="5"
                   _while="nav_mode==false"/>        
     </ReactiveSequence>

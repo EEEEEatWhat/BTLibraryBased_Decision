@@ -6,6 +6,8 @@
 #include "behaviortree_cpp/bt_factory.h"
 #include "behaviortree_cpp/utils/shared_library.h"
 #include "behaviortree_ros2/plugins.hpp"
+#include "behaviortree_cpp/xml_parsing.h"
+#include "geometry_msgs/msg/twist.hpp"
 
 #include "public.hpp"
 #include "call_for_refereesystem.hpp"
@@ -24,38 +26,49 @@ namespace rm_behavior_tree{
         const std::string tree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTree.xml";
         const std::string Atree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTreeA.xml";
         const std::string Btree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTreeB.xml";
+        const std::string Ctree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTreeC.xml";
+        const std::string Dtree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/rmucTreeD.xml";
         const std::string test_tree_path = "/home/eatwhat/ws01_decision/src/rm_behavior_tree/tree/test_tree.xml";
+        rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr gimbal_spin_pub ;
 
     public:
+        rclcpp::Node::SharedPtr decision_node;
         RMBehaviorTree(const rclcpp::NodeOptions &options)
         :rclcpp::Node("rm_behavior_tree",options) , options_(options){
             RCLCPP_INFO(this->get_logger(),"Start RM_Behavior_Tree!");
             blackboard_ = BT::Blackboard::create();
-            auto decision_node = std::make_shared<rclcpp::Node>("decision");  
+            decision_node = std::make_shared<rclcpp::Node>("decision_node");  
             blackboard_->set<rclcpp::Node::SharedPtr>("decision_node",decision_node);
             params_decision.nh = decision_node;
             call_for_refereesystem_node = std::make_shared<rm_behavior_tree::CallForRefereeSystem>(blackboard_);
             blackboard_->set<std::shared_ptr<rm_behavior_tree::CallForRefereeSystem>>("call_for_refereesystem_node",call_for_refereesystem_node);
-            
+            gimbal_spin_pub = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel",rclcpp::SystemDefaultsQoS());
+            blackboard_->set<std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::Twist>>>("gimbal_spin_pub",gimbal_spin_pub);
             // ROS Node
             msg_update_plugin_libs = {
                 "send_sentrycmd",
                 "send_goal",
-                "set_own_status",
+                "gimbal_spin",
+                // "pub_goal",
+                "armors_check",
             };
             bt_plugin_libs = {
+                "chassis_spin",
                 "fire_or_skip",
+                "nav2pose",
                 "game_status_check",
                 "hp_check",
                 "supply_zone_check",
-                "check_armors",
+                "check_bullet",
+                "check_aerial_cmd",
                 "is_dead_check",
                 "is_arrived",
                 "reborn_now",
                 "set_enemy_goal",
                 "reset_res_data",
                 "our_outpost_check",
-                "check_game_running",
+                "check_game_started",
+                "check_shooter_status",
             };
             this->decode_config();
             this->run();
@@ -106,6 +119,11 @@ namespace rm_behavior_tree{
             blackboard_->set<std::string>("game_stage", "not_started");
             blackboard_->set<int>("res_count", 0); // 累积复活次数
             blackboard_->set<std::string>("own_status", "alive");
+            blackboard_->set<bool>("nav_mode", true);
+            // blackboard_->set<bool>("search_mode", false);
+            blackboard_->set<int>("send_goal_timeout_ms", 60000);
+            blackboard_->set<int>("our_outpost_hp", 1500);
+            blackboard_->set<int>("get_bullet_count", 0); // 每隔一分钟允许到补血点获取允许发弹量
 
             // For Sentrycmd
             blackboard_->set<uint8_t>("confirmRes", 0);
@@ -118,10 +136,15 @@ namespace rm_behavior_tree{
             std::map<std::string, geometry_msgs::msg::PoseStamped> poses_map = {
                 {"home_pose", geometry_msgs::msg::PoseStamped()},
                 {"supply_zone_pose", geometry_msgs::msg::PoseStamped()},
-                {"keystone_heights_pose", geometry_msgs::msg::PoseStamped()},
+                {"goal_pose", geometry_msgs::msg::PoseStamped()},
+                {"attack_enemy_outpost_pose", geometry_msgs::msg::PoseStamped()},
+                {"circular_highland_pose", geometry_msgs::msg::PoseStamped()},
                 {"patrol_1", geometry_msgs::msg::PoseStamped()},
                 {"patrol_2", geometry_msgs::msg::PoseStamped()},
                 {"patrol_3", geometry_msgs::msg::PoseStamped()},
+                {"patrol_4", geometry_msgs::msg::PoseStamped()},
+                {"patrol_5", geometry_msgs::msg::PoseStamped()},
+                {"patrol_6", geometry_msgs::msg::PoseStamped()},
             };
             this->decode_goal_pose(poses_map, blackboard_);
         }
@@ -157,11 +180,19 @@ namespace rm_behavior_tree{
         
                 blackboard_->set<geometry_msgs::msg::PoseStamped>(pose_key,temp_pose);
             }
-            std::queue<geometry_msgs::msg::PoseStamped> patrol_points;
-            patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_1"));
-            patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_2"));
-            patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_3"));
-            blackboard_->set<std::queue<geometry_msgs::msg::PoseStamped>>( "patrol_points", patrol_points);
+            std::queue<geometry_msgs::msg::PoseStamped> home_patrol_points;
+            std::queue<geometry_msgs::msg::PoseStamped> hero_patrol_points;
+            std::queue<geometry_msgs::msg::PoseStamped> our_outpost_patrol_points;
+            home_patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_1"));
+            home_patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_2"));
+            // patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_21"));
+            blackboard_->set<std::queue<geometry_msgs::msg::PoseStamped>>( "home_patrol_points", home_patrol_points);
+            hero_patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_3"));
+            hero_patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_4"));
+            blackboard_->set<std::queue<geometry_msgs::msg::PoseStamped>>( "hero_patrol_points", hero_patrol_points);
+            our_outpost_patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_5"));
+            our_outpost_patrol_points.emplace(blackboard_->get<geometry_msgs::msg::PoseStamped>("patrol_6"));
+            blackboard_->set<std::queue<geometry_msgs::msg::PoseStamped>>( "our_outpost_patrol_points", our_outpost_patrol_points);
         }
 
         void load_plugins(){
@@ -187,6 +218,10 @@ namespace rm_behavior_tree{
                 factory.registerBehaviorTreeFromFile(Atree_path);
             } else if(blackboard_->get<std::string>("plan") == "B"){
                 factory.registerBehaviorTreeFromFile(Btree_path);
+            } else if(blackboard_->get<std::string>("plan") == "C"){
+                factory.registerBehaviorTreeFromFile(Ctree_path);
+            } else if(blackboard_->get<std::string>("plan") == "D"){
+                factory.registerBehaviorTreeFromFile(Dtree_path);
             } else {
                 factory.registerBehaviorTreeFromFile(tree_path);
             }
@@ -194,7 +229,7 @@ namespace rm_behavior_tree{
 
             BT::NodeStatus status = tree_.tickOnce();
 
-            while(status == BT::NodeStatus::RUNNING && rclcpp::ok()){
+            while(rclcpp::ok()){
                 tree_.sleep(std::chrono::milliseconds(100));
                 tree_.tickOnce();
             }

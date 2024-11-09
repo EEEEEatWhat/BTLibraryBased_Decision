@@ -27,7 +27,7 @@ namespace rm_behavior_tree{
         while(!call_for_refereesystem_node->checkResponseReceived()) {
             sleep(0.1);
         };
-        uint16_t current_hp = blackboard_->get<uint16_t>("RobotStatusStruct.current_HP");
+        uint16_t current_hp = blackboard_->get<uint16_t>("RobotStateStruct.current_HP");
         if(current_hp == 0){
             RCLCPP_INFO(node_->get_logger(),"has been dead, try to reborn...");
             if(blackboard_->get<std::string>("own_status") == "alive"){
